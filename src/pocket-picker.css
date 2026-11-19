@@ -1,5 +1,11 @@
 /* FM-1 Pocket Player: the firmware picker. Uses src/style.css's colours and type. */
 
+/* The site's own accent: teal for everything around the FM-1 panel. The simulator sets --ink on the
+ * page root to the running firmware's colour; these parts set their own, so only the panel (#device)
+ * keeps following the firmware. */
+:root { --site: #2dd4bf; }
+header, .drawer, .strip, .wrap > details, .pk-credits, .drop { --ink: var(--site); }
+
 .pk-bar { display: grid; gap: 8px; margin-bottom: 12px; }
 #pk-q {
   width: 100%;
