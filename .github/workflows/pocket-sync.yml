@@ -1,0 +1,141 @@
+# FM-1 Pocket Player: nightly sync, checks and publishing.
+#
+# Every day at 06:23 UTC (4:23 pm in Queensland, after RemoteFM1FW's own 03:20 sync and 04:17 deploy),
+# when run by hand from the Actions tab ("Run workflow"), and when the site's code changes on main.
+#
+# 1. Approvals: `pocket-review` issues labelled `approved` go onto pocket/policy.json.
+# 2. Sync: compare RemoteFM1FW's release with what was published, test anything new or changed, and
+#    build the site's data folder (pocket/sync.mjs).
+# 3. Keep the approved files in this repository's rolling release `pocket-current` (the durable copy;
+#    the Actions cache only saves downloads).
+# 4. Publish to GitHub Pages, only when something changed (or the code did). A failed step publishes
+#    nothing, so the working site stays up.
+# 5. Open, update or close the review and failure issues.
+name: Pocket sync
+
+on:
+  schedule:
+    - cron: "23 6 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pocket-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write     # policy.json approvals, the heartbeat, the pocket-current release
+      issues: write       # review and failure issues
+    outputs:
+      deploy: ${{ steps.decide.outputs.deploy }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Tests
+        run: node --test pocket/tests/*.test.mjs
+
+      - name: Approvals from issues
+        run: node pocket/review.mjs approvals
+
+      - name: Commit approvals, and keep the schedule alive
+        # GitHub turns scheduled workflows off after 60 days without activity in a public repository.
+        # If the last commit is older than 45 days, a one-line heartbeat file is committed.
+        run: |
+          git config user.name "pocket-sync[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ $(( $(date +%s) - $(git log -1 --format=%ct) )) -gt $(( 45 * 86400 )) ]; then
+            date -u +%Y-%m-%dT%H:%M:%SZ > pocket/heartbeat.txt
+          fi
+          git add pocket/policy.json pocket/heartbeat.txt 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m "Pocket sync: approvals and heartbeat"
+            git push
+          fi
+
+      - name: Restore downloaded firmware
+        uses: actions/cache/restore@v4
+        with:
+          path: pocket-store
+          key: pocket-store-${{ github.run_id }}
+          restore-keys: pocket-store-
+
+      - name: Sync with RemoteFM1FW
+        run: node pocket/sync.mjs --out _site/data --store pocket-store
+
+      - name: Save downloaded firmware
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: pocket-store
+          key: pocket-store-${{ github.run_id }}
+
+      - name: Decide whether to publish
+        id: decide
+        run: |
+          changed=$(node -p "require('./pocket-report.json').changed")
+          if [ "$changed" = "true" ] || [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "library changed: $changed"
+
+      - name: Update the pocket-current release
+        if: steps.decide.outputs.deploy == 'true'
+        run: |
+          gh release view pocket-current >/dev/null 2>&1 || gh release create pocket-current \
+            --title "Published firmware (rolling)" --latest=false \
+            --notes "The .rfm1 files, screenshots and catalogue currently published by FM-1 Pocket Player, kept so the nightly sync can recover and roll back. Updated automatically; not a release of this project. Each firmware is its authors' work under its own licence (see the licence texts inside each file)."
+          node -e "for (const f of require('./pocket-report.json').upload) console.log(f)" > upload.txt
+          [ -s upload.txt ] && xargs -a upload.txt -d '\n' gh release upload pocket-current --clobber
+          node -e "for (const f of require('./pocket-report.json').remove) console.log(f)" | while read -r name; do
+            gh release delete-asset pocket-current "$name" -y || true
+          done
+
+      - name: Assemble the site
+        if: steps.decide.outputs.deploy == 'true'
+        run: |
+          cp -r index.html src firmware LICENSE _site/
+          mkdir -p _site/docs/img
+          cp docs/img/og.png _site/docs/img/ 2>/dev/null || true
+          touch _site/.nojekyll
+          du -sh _site
+
+      - name: Upload the site
+        if: steps.decide.outputs.deploy == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Review and failure issues
+        if: always() && hashFiles('pocket-report.json') != ''
+        run: node pocket/review.mjs report
+
+  deploy:
+    needs: sync
+    if: needs.sync.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

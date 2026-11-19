@@ -1,0 +1,468 @@
+{
+  "about": "FM-1 Pocket Player publishing policy. A firmware is published only if its id is in `approved` and its licence (as the .rfm1 states it) is unchanged. New ids, and approved ids whose licence changes, wait for review: the nightly job opens a 'pocket-review' issue; add the 'approved' label to accept it. `excluded` ids are never published or requested. `smokeExceptions` documents why a firmware may skip one part of the boot test.",
+  "approved": {
+    "amb": {
+      "license": "MPL-2.0",
+      "reviewed": "2026-11-19"
+    },
+    "amenity": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "arcticscream": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "aurora": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "berlinan": {
+      "license": "GPL-2.0-or-later",
+      "reviewed": "2026-11-19"
+    },
+    "bytemania": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "caravel": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "carnacos": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "chimeravocal": {
+      "license": "MPL-2.0 AND MIT",
+      "reviewed": "2026-11-19"
+    },
+    "chipbox": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "choralroot": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "conductor": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "coralflower": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "csfm1": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "ctl": {
+      "license": "MPL-2.0",
+      "reviewed": "2026-11-19"
+    },
+    "dabke": {
+      "license": "MPL-2.0",
+      "reviewed": "2026-11-19"
+    },
+    "drift": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "drumlab": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "dub": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "dubwise": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "duell": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "dungeontracker": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "echofield": {
+      "license": "MIT",
+      "reviewed": "2026-11-19"
+    },
+    "etch": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "felucca": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "fimba": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "fizz": {
+      "license": "MPL-2.0 AND GPL-3.0-only AND MIT AND FTL AND OFL-1.1",
+      "reviewed": "2026-11-19"
+    },
+    "fmav1": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "fmini": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "fmkick": {
+      "license": "MPL-2.0",
+      "reviewed": "2026-11-19"
+    },
+    "fmlarynx": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "fomni": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "ghoulbox": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "glitch": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "golana": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "golf": {
+      "license": "MPL-2.0",
+      "reviewed": "2026-11-19"
+    },
+    "grimm": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "guitchordi": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "hadal1": {
+      "license": "MPL-2.0",
+      "reviewed": "2026-11-19"
+    },
+    "hawkchua": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "hortator": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "hyp1": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "jamesos": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "jiant": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "kris_jangle": {
+      "license": "MPL-2.0",
+      "reviewed": "2026-11-19"
+    },
+    "kwasub": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "matryoshka": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "melodee": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "mightyarp": {
+      "license": "MPL-2.0",
+      "reviewed": "2026-11-19"
+    },
+    "minitone": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "mnm1": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "modelar": {
+      "license": "MPL-2.0",
+      "reviewed": "2026-11-19"
+    },
+    "modularkoi": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "mono2k": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "mope1": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "morse": {
+      "license": "GPL-3.0-or-later",
+      "reviewed": "2026-11-19"
+    },
+    "mutabledreams": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "mvsynth2": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "nachtfahrt": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "niagaradrift": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "obervave": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "obssynth": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "orgigs": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "patchwerk": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "penumbra": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "perf1": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "pigeon": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "pond": {
+      "license": "MPL-2.0",
+      "reviewed": "2026-11-19"
+    },
+    "purplemonkey": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "quantumgammawave": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "quartz": {
+      "license": "GPL-3.0-or-later",
+      "reviewed": "2026-11-19"
+    },
+    "ravel": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "remotefm1": {
+      "license": "MPL-2.0",
+      "reviewed": "2026-11-19"
+    },
+    "rupture": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "s1vave": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "samsara": {
+      "license": "MPL-2.0",
+      "reviewed": "2026-11-19"
+    },
+    "sid": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "sid1": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "sidj": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "sidou": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "skiff": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "sloop3": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "smileyface": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "speak37": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "spellbox": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "stallion": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "sy1": {
+      "license": "MIT",
+      "reviewed": "2026-11-19"
+    },
+    "tekstuur": {
+      "license": "MPL-2.0",
+      "reviewed": "2026-11-19"
+    },
+    "tessera": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "tonitor": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "trapstationos": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "trax": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "vector37": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "viscera": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    },
+    "zen1": {
+      "license": "GPL-3.0-only",
+      "reviewed": "2026-11-19"
+    }
+  },
+  "excluded": {
+    "clipper": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "cultbox": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "dx747": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "elasticat": "Marked ‡ by RemoteFM1FW: a fantasy build for RemoteFM1's own apps (needs their file system), never an FM-1 firmware.",
+    "evilgenius": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "fartmachine": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "fmel1": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "frasil": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "karma": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "loafbreaker": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "loom": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "mpyre": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "nomansky": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "orbit": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "rainbow": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "rhythmer": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "ripple": "Marked ‡ by RemoteFM1FW: a fantasy build for RemoteFM1's own apps (needs their file system), never an FM-1 firmware.",
+    "ruido": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "sloop": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "vesper": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "x0x": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute.",
+    "yehnah": "Marked † by RemoteFM1FW: contains material its licences don't let anyone freely redistribute."
+  },
+  "smokeExceptions": {
+    "berlinan": {
+      "reason": "Boots and draws, but stays silent in the automatic test (keys, MIDI and PLAY tried): needs setting up first, like RemoteFM1FW's own silent-file allowance.",
+      "checks": [
+        "sound"
+      ],
+      "since": "2026-11-19"
+    },
+    "etch": {
+      "reason": "Opens on a choose-your-workflow screen; silent until a mode is picked.",
+      "checks": [
+        "sound"
+      ],
+      "since": "2026-11-19"
+    },
+    "hortator": {
+      "reason": "Boots and draws, but stays silent in the automatic test (keys, MIDI and PLAY tried): needs setting up first, like RemoteFM1FW's own silent-file allowance.",
+      "checks": [
+        "sound"
+      ],
+      "since": "2026-11-19"
+    },
+    "mnm1": {
+      "reason": "Boots and draws, but stays silent in the automatic test (keys, MIDI and PLAY tried): needs setting up first, like RemoteFM1FW's own silent-file allowance.",
+      "checks": [
+        "sound"
+      ],
+      "since": "2026-11-19"
+    },
+    "modelar": {
+      "reason": "Boots and draws, but stays silent in the automatic test (keys, MIDI and PLAY tried): needs setting up first, like RemoteFM1FW's own silent-file allowance.",
+      "checks": [
+        "sound"
+      ],
+      "since": "2026-11-19"
+    },
+    "pigeon": {
+      "reason": "Boots and draws, but stays silent in the automatic test (keys, MIDI and PLAY tried): needs setting up first, like RemoteFM1FW's own silent-file allowance.",
+      "checks": [
+        "sound"
+      ],
+      "since": "2026-11-19"
+    },
+    "rupture": {
+      "reason": "Sounds when played, but keeps a static screen in the automatic test.",
+      "checks": [
+        "redraw"
+      ],
+      "since": "2026-11-19"
+    },
+    "viscera": {
+      "reason": "Boots and draws, but stays silent in the automatic test (keys, MIDI and PLAY tried): needs setting up first, like RemoteFM1FW's own silent-file allowance.",
+      "checks": [
+        "sound"
+      ],
+      "since": "2026-11-19"
+    }
+  },
+  "withdrawn": {}
+}

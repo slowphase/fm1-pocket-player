@@ -133,7 +133,11 @@
     if (state.cat && (!e.catalog || m.category !== state.cat)) return false;
     if (!state.q) return true;
     var hay = [e.name, e.version, by(e), m.about, m.tag, m.category].join(" ").toLowerCase();
-    return state.q.toLowerCase().split(/\s+/).every(function (w) { return !w || hay.indexOf(w) >= 0; });
+    var bare = hay.replace(/[^a-z0-9]+/g, "");              /* "kwa" finds K-WA SUB, "fm1" finds FM-1 */
+    return state.q.toLowerCase().split(/\s+/).every(function (w) {
+      var b = w.replace(/[^a-z0-9]+/g, "");
+      return !w || hay.indexOf(w) >= 0 || (b && bare.indexOf(b) >= 0);
+    });
   }
 
   function row(e, cur) {
