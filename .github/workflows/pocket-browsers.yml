@@ -1,0 +1,37 @@
+# FM-1 Pocket Player: checks the live site in Chromium, Firefox and WebKit (Safari's engine), at desktop
+# and phone sizes. Run it by hand from the Actions tab ("Pocket browser check" > "Run workflow"),
+# for example after changing the page. It changes nothing; screenshots are attached to the run.
+name: Pocket browser check
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Site to check"
+        default: "https://slowphase.github.io/fm1-pocket-player/"
+
+permissions:
+  contents: read
+
+jobs:
+  browsers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Install Playwright and its browsers
+        run: |
+          npm install --no-save --no-package-lock playwright@1
+          npx playwright install --with-deps chromium firefox webkit
+      - name: Check the site
+        run: node pocket/tests/browsers.mjs "${{ inputs.url }}" browser-shots
+      - name: Keep the screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-screenshots
+          path: browser-shots
+          retention-days: 14
