@@ -10,7 +10,7 @@
 #    the Actions cache only saves downloads).
 # 4. Publish to GitHub Pages, only when something changed (or the code did). A failed step publishes
 #    nothing, so the working site stays up.
-# 5. Open, update or close the review and failure issues.
+# 5. Open, update or close the review and failure issues (their own job: they never block publishing).
 name: Pocket sync
 
 on:
@@ -122,8 +122,35 @@ jobs:
         with:
           path: _site
 
-      - name: Review and failure issues
+      - name: Keep the report for the issues job
         if: always() && hashFiles('pocket-report.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: pocket-report
+          path: pocket-report.json
+          retention-days: 7
+
+  # Review requests and failure reports. A separate job, so a problem here never stops the site
+  # from publishing.
+  issues:
+    needs: sync
+    if: always() && needs.sync.result != 'cancelled'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: pocket-report
+        continue-on-error: true
+      - name: Review and failure issues
         run: node pocket/review.mjs report
 
   deploy:

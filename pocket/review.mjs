@@ -28,6 +28,7 @@ async function api(method, path, body) {
     method, headers: { accept: "application/vnd.github+json", authorization: `Bearer ${TOKEN}`, "content-type": "application/json" },
     body: body ? JSON.stringify(body) : undefined,
   });
+  if (r.status === 410) throw Object.assign(new Error("Issues are switched off in this repository"), { issuesOff: true });
   if (!r.ok && r.status !== 422) throw new Error(`${method} ${path}: ${r.status} ${await r.text()}`);
   return r.status === 204 ? null : r.json();
 }
@@ -134,4 +135,12 @@ async function report() {
 if (!REPO || !TOKEN) { console.error("needs GITHUB_REPOSITORY and GITHUB_TOKEN"); process.exit(2); }
 const cmd = process.argv[2];
 (cmd === "approvals" ? approvals() : cmd === "report" ? (existsSync("pocket-report.json") ? report() : Promise.resolve()) : Promise.reject(new Error("approvals | report")))
-  .catch((e) => { console.error(e); process.exit(1); });
+  .catch((e) => {
+    if (e.issuesOff) {                                  /* a note, not a failure: the site is unaffected */
+      const note = "**Issues are switched off in this repository**, so review requests and failure reports could not be opened. Turn them on: Settings > General > Features > Issues.\n";
+      if (process.env.GITHUB_STEP_SUMMARY) writeFileSync(process.env.GITHUB_STEP_SUMMARY, note, { flag: "a" });
+      console.warn("::warning::" + note.replace(/\*\*/g, "").trim());
+      process.exit(0);
+    }
+    console.error(e); process.exit(1);
+  });
