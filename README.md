@@ -1,3 +1,5 @@
+![FM-1 Pocket Player: play, explore, discover](docs/img/hero.jpg)
+
 # FM-1 Pocket Player
 
 Explore and play M-VAVE FM-1 community firmware right in your browser. There's nothing to install and no hardware needed: choose a firmware, and its screen, sound, keys and knobs come to life on the page.
