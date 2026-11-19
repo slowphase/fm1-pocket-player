@@ -218,7 +218,13 @@
     host.innerHTML = "";
     section(host, "Built in", shown.filter(function (e) { return e.builtin; }), cur);
     section(host, "Your files", shown.filter(function (e) { return !e.builtin && !e.catalog; }), cur);
-    section(host, "Library", shown.filter(function (e) { return e.catalog; }), cur);
+    var lib2 = shown.filter(function (e) { return e.catalog; });
+    if (state.q) {                                          /* a name that matches comes first */
+      var bare = function (x) { return String(x || "").toLowerCase().replace(/[^a-z0-9]+/g, ""); }, qb = bare(state.q);
+      var rank = function (e) { var n = bare(e.name); return n.indexOf(qb) === 0 ? 0 : n.indexOf(qb) >= 0 ? 1 : 2; };
+      lib2 = lib2.map(function (e, i) { return [rank(e), i, e]; }).sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; }).map(function (x) { return x[2]; });
+    }
+    section(host, "Library", lib2, cur);
     if (!shown.length) {
       host.innerHTML = '<p class="note pk-none">' + (state.filter === "fav" ? "No favourites yet: tap the &#9734; beside a firmware." :
         state.filter === "new" ? "Nothing new in the last " + NEW_DAYS + " days." : "Nothing matches that.") + "</p>";
