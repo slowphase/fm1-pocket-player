@@ -7,6 +7,7 @@
   "scripts": {
     "build": "node tools/build.js",
     "test": "node tests/run.js",
-    "serve": "python3 -m http.server 8000"
+    "serve": "python3 -m http.server 8000",
+    "test:pocket": "node --test pocket/tests/*.test.mjs"
   }
 }

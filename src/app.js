@@ -523,7 +523,14 @@
     return fetch(entry.url).then(function (r) {
       if (!r.ok) throw new Error("Could not fetch " + entry.url + " (" + r.status + ").");
       return r.arrayBuffer();
-    }).then(function (b) { return new Uint8Array(b); });
+    }).then(function (b) {
+      var u = new Uint8Array(b);
+      if (!entry.sha256) return u;              /* pocket: a catalogue file runs only if its bytes are the ones approved */
+      return R.sha256(u).then(function (h) {
+        if (h && h !== entry.sha256) throw new Error(entry.name + ": the downloaded file does not match the catalogue. Try again later.");
+        return u;
+      });
+    });
   }
   function run(entry) {
     showError("");
@@ -572,7 +579,7 @@
     };
     $("title").textContent = m.name || i.name;
     $("fwname").textContent = (m.name || i.name) + " " + (m.version || "");
-    document.title = (m.name || i.name) + " · FM-1 Browser Simulator";
+    document.title = (m.name || i.name) + " · " + (window.FM1_SITE_NAME || "FM-1 Browser Simulator");   /* pocket: its own name */
     var h1 = cur.builtin && m.id === "h1", hub = "https://thefirmwarehub.com/firmware/h1/";
     $("sub").innerHTML = h1
       ? "h1, a firmware for the M-VAVE FM-1, running from its own code: the same 240 × 240 pixels and 44.1 kHz sound. Put it on your FM-1 from <a href=\"" + hub + "\" target=\"_blank\" rel=\"noopener\">The Firmware Hub</a>. Load any other FM-1 firmware from the firmware button."
@@ -607,6 +614,7 @@
 
   /* ---- the library ---- */
   function renderList() {
+    if (window.FM1Pocket && window.FM1Pocket.render) return window.FM1Pocket.render(api);   /* pocket: its picker */
     var host = $("fwlist");
     host.innerHTML = "";
     library.forEach(function (e) {
@@ -624,16 +632,27 @@
         rm.className = "chip";
         rm.type = "button";
         rm.textContent = "remove";
-        rm.addEventListener("click", function () {
-          dbDel("fw", e.key);
-          library = library.filter(function (x) { return x !== e; });
-          if (cur && cur.key === e.key) run(library[0]); else renderList();
-        });
+        rm.addEventListener("click", function () { removeEntry(e); });
         row.appendChild(rm);
       }
       host.appendChild(row);
     });
   }
+  function removeEntry(e) {
+    dbDel("fw", e.key);
+    library = library.filter(function (x) { return x !== e; });
+    if (cur && cur.key === e.key) run(library[0]); else renderList();
+  }
+  /* pocket: what the picker (src/pocket-picker.js) may use */
+  var api = {
+    library: function () { return library; },
+    current: function () { return cur; },
+    run: function (e) { startAudio(); return run(e); },
+    remove: removeEntry,
+    lic: lic,
+    esc: esc
+  };
+  window.FM1Sim = api;
   function addBytes(bytes, from) {
     var fw;
     try { fw = R.parse(bytes); } catch (e) { showError((from ? from + ": " : "") + e.message); return Promise.resolve(); }
@@ -746,13 +765,15 @@
     return Promise.all(library.filter(function (e) { return e.builtin; }).map(function (e) {
       return bytesOf(e).then(function (b) { var m = R.parse(b).manifest; e.bytes = b; e.name = m.name; e.version = m.version; e.license = m.license; }, function () {});
     }));
+  }).then(function () {                         /* pocket: the hosted catalogue, fetched one firmware at a time */
+    return window.FM1Pocket && window.FM1Pocket.load ? window.FM1Pocket.load().then(function (more) { library = library.concat(more || []); }) : null;
   }).then(function () {
     var q = new URLSearchParams(location.search).get("fw"), last = pref("fm1sim.last", "");
     var pick = library.filter(function (e) { return e.key === last; })[0] || library[0];
     lastT = performance.now();
     requestAnimationFrame(frame);
     if (q && /^https?:\/\//.test(q)) return fromUrl(q);
-    if (q) pick = library.filter(function (e) { return e.key === "builtin:" + q || e.name.toLowerCase() === q.toLowerCase(); })[0] || pick;
+    if (q) pick = library.filter(function (e) { return e.key === "builtin:" + q || e.key === "cat:" + q || e.name.toLowerCase() === q.toLowerCase(); })[0] || pick;   /* pocket: cat: */
     if (!pick) { showError("No firmware to run yet: open an .rfm1 file."); return; }
     return run(pick);
   });
