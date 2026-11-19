@@ -10,7 +10,8 @@
 #    the Actions cache only saves downloads).
 # 4. Publish to GitHub Pages, only when something changed (or the code did). A failed step publishes
 #    nothing, so the working site stays up.
-# 5. Open, update or close the review and failure issues (their own job: they never block publishing).
+# 5. Open, update or close the review and failure issues, and run the missing-firmware radar against
+#    The Firmware Hub (their own job: they never block publishing).
 name: Pocket sync
 
 on:
@@ -40,9 +41,9 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
 
@@ -68,7 +69,7 @@ jobs:
           fi
 
       - name: Restore downloaded firmware
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: pocket-store
           key: pocket-store-${{ github.run_id }}
@@ -79,7 +80,7 @@ jobs:
 
       - name: Save downloaded firmware
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: pocket-store
           key: pocket-store-${{ github.run_id }}
@@ -118,13 +119,13 @@ jobs:
 
       - name: Upload the site
         if: steps.decide.outputs.deploy == 'true'
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
       - name: Keep the report for the issues job
         if: always() && hashFiles('pocket-report.json') != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pocket-report
           path: pocket-report.json
@@ -137,21 +138,26 @@ jobs:
     if: always() && needs.sync.result != 'cancelled'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write     # the radar's baseline, kept in the pocket-current release
       issues: write
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: pocket-report
         continue-on-error: true
       - name: Review and failure issues
         run: node pocket/review.mjs report
+
+      - name: Missing-firmware radar
+        # Compares The Firmware Hub with the browser builds; never downloads a .fwsc or builds anything.
+        run: node pocket/radar.mjs
 
   deploy:
     needs: sync
@@ -165,4 +171,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
