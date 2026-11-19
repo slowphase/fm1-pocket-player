@@ -11,7 +11,7 @@ on:
         default: "https://slowphase.github.io/fm1-pocket-player/"
 
 permissions:
-  contents: read
+  contents: write     # the screenshots also go to the browser-check release, to view without unzipping
 
 jobs:
   browsers:
@@ -35,3 +35,11 @@ jobs:
           name: browser-screenshots
           path: browser-shots
           retention-days: 14
+      - name: Post the screenshots to the browser-check release
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view browser-check >/dev/null 2>&1 || gh release create browser-check --prerelease --latest=false \
+            --title "Browser check screenshots" --notes "Screenshots from the latest Pocket browser check (Actions tab). Replaced on every run."
+          gh release upload browser-check browser-shots/*.png --clobber
