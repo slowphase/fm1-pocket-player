@@ -90,6 +90,45 @@
       halt.appendChild(b);
     }
     credits();
+    dropdown();
+  }
+
+  /* ---- the drawer opens over the page, under the firmware button ---- */
+  function place() {
+    var d = $("drawer"), btn = $("fwbtn"), wrap = document.querySelector(".wrap");
+    if (!d || !btn || !wrap) return;
+    var w = wrap.getBoundingClientRect(), b = btn.getBoundingClientRect();
+    var width = Math.min(640, w.width - 32), left = Math.max(16, Math.min(b.left - w.left, w.width - width - 16));
+    d.style.setProperty("--pk-top", (b.bottom - w.top + 8) + "px");
+    d.style.setProperty("--pk-left", left + "px");
+  }
+  function close() {
+    var d = $("drawer");
+    if (d && !d.hidden) { d.hidden = true; $("fwbtn").setAttribute("aria-expanded", "false"); }
+  }
+  function dropdown() {
+    var d = $("drawer"), btn = $("fwbtn");
+    if (!d || !btn) return;
+    d.classList.add("pk-pop");
+    var x = document.createElement("button");
+    x.type = "button";
+    x.className = "pk-close";
+    x.setAttribute("aria-label", "Close the firmware list");
+    x.innerHTML = "&times;";
+    x.addEventListener("click", function () { close(); btn.focus(); });
+    d.insertBefore(x, d.firstChild);
+    /* the simulator toggles `hidden`; place the panel whenever it opens */
+    new MutationObserver(function () { if (!d.hidden) { place(); var q = $("pk-q"); if (q && window.innerWidth > 640) q.focus({ preventScroll: true }); } })
+      .observe(d, { attributes: true, attributeFilter: ["hidden"] });
+    window.addEventListener("resize", function () { if (!d.hidden) place(); });
+    document.addEventListener("pointerdown", function (e) {
+      if (d.hidden || d.contains(e.target) || btn.contains(e.target)) return;
+      if ($("err").textContent) return;                  /* an error message stays until read */
+      close();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !d.hidden) { close(); btn.focus(); }
+    });
   }
 
   /* ---- the page's credits line (once) ---- */
@@ -178,7 +217,7 @@
     play.addEventListener("click", function () {
       play.innerHTML = "loading&hellip;";
       play.disabled = true;
-      api.run(e).then(function () { state.open = ""; draw(); });
+      api.run(e).then(function () { state.open = ""; draw(); if (!$("err").textContent) close(); });
     });
     acts.appendChild(play);
     if (!e.builtin && !e.catalog) {

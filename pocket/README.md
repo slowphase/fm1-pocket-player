@@ -8,7 +8,7 @@ nightly. Everything Jake's simulator does is kept as it was.
 
 | Path | What it is |
 | --- | --- |
-| `src/pocket-picker.js`, `src/pocket-picker.css` | The picker: search, favourites, New badges, categories, a preview with a Play button, the credits footer. |
+| `src/pocket-picker.js`, `src/pocket-picker.css` | The picker, as a dropdown from the firmware button that opens over the page: search, favourites, New badges, categories, a preview with a Play button; the teal site accent; the credits footer. |
 | `pocket/catalog.mjs` | Builds `data/catalog.json`, `data/fw/` and `data/shots/` from approved `.rfm1` files and RemoteFM1FW's card text. |
 | `pocket/upstream.mjs` | Reads what RemoteFM1FW offers: its README table (licences, sources, † and ‡ marks), card text and release files. |
 | `pocket/validate.mjs`, `pocket/smoke.mjs` | The checks every firmware must pass, and the boot test (in its own process, with a time limit) that also takes the screenshot. |

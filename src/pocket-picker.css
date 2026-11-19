@@ -139,3 +139,44 @@ header, .drawer, .strip, .wrap > details, .pk-credits, .drop { --ink: var(--site
   .pk-preview { flex-direction: column; padding-left: 12px; }
   .pk-shot { width: 100%; height: auto; max-width: 240px; }
 }
+
+/* ---- the firmware drawer as a dropdown: it opens over the page from the firmware button, so the
+ * FM-1 panel stays where it is and stays the focus ---- */
+.wrap { position: relative; }
+#fwbtn::after { content: "\25BE"; margin-left: 6px; color: var(--dim); }
+#fwbtn[aria-expanded="true"]::after { content: "\25B4"; color: var(--ink); }
+.drawer.pk-pop {
+  position: absolute;
+  z-index: 50;
+  top: var(--pk-top, 80px);
+  left: var(--pk-left, 16px);
+  width: min(640px, calc(100% - 32px));
+  max-height: min(78vh, 760px);
+  overflow-y: auto;
+  margin: 0;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+.drawer.pk-pop h2 { display: none; }
+.drawer.pk-pop .pk-list { max-height: none; overflow: visible; }
+@media (max-width: 640px) {
+  .drawer.pk-pop { left: 8px; width: calc(100% - 16px); max-height: 82vh; }
+}
+.drawer.pk-pop { padding-top: 14px; }
+.pk-close {
+  position: sticky;
+  top: 0;
+  float: right;
+  margin: -4px -4px 6px 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--panel-hi);
+  color: var(--text);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
+.pk-close:hover { border-color: var(--dim); }
+.drawer.pk-pop .pk-bar { margin-right: 44px; }
