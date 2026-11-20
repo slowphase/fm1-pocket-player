@@ -16,7 +16,9 @@
 // pocket-current release.
 //
 //   node pocket/compat.mjs --data DIR --ledger FILE [--native BIN] [--macos-results FILE]
-//   node pocket/compat.mjs --macos --data DIR --native BIN --out FILE     (the macOS job: representative set only)
+//   node pocket/compat.mjs --macos --data DIR --native BIN --out FILE [--ledger FILE]
+//        (the macOS job: the representative set, plus every build slow or borderline on Linux per the ledger)
+//   node pocket/compat.mjs --macos-list --data DIR [--ledger FILE]   (the files that job needs)
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -100,10 +102,22 @@ export async function update({ ledger, entries, dataDir, policy, nativeBin, now 
 }
 
 // The macOS job's results for one engine commit: { runtime, environment, date, results: { id: outcome }, verified }
-export async function macosRun({ entries, dataDir, policy, nativeBin, extra = [], now = new Date(), runNative = nativeSmoke }) {
+// Which published builds the macOS job runs: the representative set, plus every build that ran below
+// `threshold` times real time in the native engine on Linux (so borderline builds are timed on macOS itself).
+export function macosSet(entries, ledger, threshold = 2) {
+  const want = new Set(NATIVE.representative);
+  for (const e of entries) {
+    const b = ledger && ledger.builds && ledger.builds[e.sha256];
+    const sp = b && b.native && b.native.result && b.native.result.speed;
+    if (typeof sp === "number" && sp < threshold) want.add(e.id);
+  }
+  return want;
+}
+
+export async function macosRun({ entries, dataDir, policy, nativeBin, extra = [], also = [], now = new Date(), runNative = nativeSmoke }) {
   const rt = nativeRuntime("darwin", process.arch);
   const results = {};
-  const want = new Set(NATIVE.representative);
+  const want = new Set([...NATIVE.representative, ...also]);
   const list = entries.filter((e) => want.has(e.id)).map((e) => ({ id: e.id, sha256: e.sha256, file: join(dataDir, e.file) })).concat(extra);
   for (const e of list) {
     const r = await runNative(nativeBin, e.file);
@@ -122,13 +136,22 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const dataDir = arg("--data");
   const policy = JSON.parse(readFileSync(join(here, "policy.json"), "utf8"));
   const catalog = JSON.parse(readFileSync(join(dataDir, "catalog.json"), "utf8"));
+  if (process.argv.includes("--macos-list")) {
+    // the files the macOS job needs (fw/... paths), one per line
+    const led = arg("--ledger") && existsSync(arg("--ledger")) ? readLedger(arg("--ledger")) : null;
+    const want = macosSet(catalog.firmwares, led);
+    for (const f of catalog.firmwares) if (want.has(f.id)) console.log(f.file);
+    process.exit(0);
+  }
   if (process.argv.includes("--macos")) {
     const h1 = join(here, "..", "firmware", "h1.rfm1");
     const extra = existsSync(h1) ? [{ id: "h1", sha256: sha256(readFileSync(h1)), file: h1 }] : [];
-    const run = await macosRun({ entries: catalog.firmwares, dataDir, policy, nativeBin: arg("--native"), extra });
+    const led = arg("--ledger") && existsSync(arg("--ledger")) ? readLedger(arg("--ledger")) : null;
+    const also = [...macosSet(catalog.firmwares, led)];
+    const run = await macosRun({ entries: catalog.firmwares, dataDir, policy, nativeBin: arg("--native"), extra, also });
     writeFileSync(arg("--out"), JSON.stringify(run, null, 1) + "\n");
-    console.log(`macOS native run (${run.runtime}, ${run.environment}): ${Object.keys(run.results).length} checked, verified=${run.verified}`);
-    for (const [id, r] of Object.entries(run.results)) console.log(`  ${id}: ${r.outcome}${r.problems.length ? " - " + r.problems.join("; ") : ""}`);
+    console.log(`macOS native run (${run.runtime}, ${run.environment}): ${Object.keys(run.results).length} checked individually, representative set ${run.verified ? "passed" : "did not fully pass"}`);
+    for (const [id, r] of Object.entries(run.results)) console.log(`  ${id}: ${r.outcome}${r.result && typeof r.result.speed === "number" ? ` (${r.result.speed}x)` : ""}${r.problems.length ? " - " + r.problems.join("; ") : ""}`);
     process.exit(0);
   }
   const ledgerFile = arg("--ledger");

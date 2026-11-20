@@ -153,12 +153,17 @@ test("compatibility is per player: passing in the web player says nothing about 
 });
 
 test("a macOS run for this engine commit turns Linux passes into playable; a failed one does not", () => {
-  const good = { ...ledger, macos: { [nat.id]: { runtime: nat.id, verified: true, date: "2026-11-20", environment: "macOS arm64", results: { felucca: { outcome: "pass" } } } } };
+  const good = { ...ledger, macos: { [nat.id]: { runtime: nat.id, verified: true, date: "2026-11-20", environment: "macOS arm64", results: { felucca: { outcome: "pass", sha256: "1".repeat(64) } } } } };
   const c = build({ v1, upstream, report, policy, ledger: good, hub });
   const by = Object.fromEntries(c.firmwares.map((e) => [e.id, e]));
   assert.equal(by.felucca.status.mac.state, "playable");
-  assert.match(by.felucca.status.mac.reason, /Linux and on macOS/);
+  assert.match(by.felucca.status.mac.reason, /individually on macOS/);
+  assert.equal(by.felucca.status.mac.verification, "macos");
   assert.equal(by.berlinan.status.mac.state, "playable");
+  assert.equal(by.berlinan.status.mac.verification, "representative", "covered by the sample, not run itself");
+  assert.match(by.berlinan.status.mac.reason, /not run individually on macOS/);
+  assert.equal(by.berlinan.status.mac.tested.macos.sample, true);
+  assert.equal(c.counts.macVerification.macos, 1);
   assert.equal(by.grimm.status.mac.state, "unsupported", "a native failure stays a failure");
   const bad = { ...ledger, macos: { [nat.id]: { runtime: nat.id, verified: false, date: "2026-11-20", environment: "macOS arm64", results: {} } } };
   assert.equal(build({ v1, upstream, report, policy, ledger: bad, hub }).firmwares.find((e) => e.id === "felucca").status.mac.state, "experimental");
@@ -171,12 +176,24 @@ test("a build too slow in the native engine stays experimental on the Mac unless
   const verified = { runtime: nat.id, verified: true, date: "d", environment: "macOS arm64", results: {} };
   let st = playerStatus("mac", slow, verified);
   assert.equal(st.state, "experimental");
-  assert.match(st.reason, /0\.4x real time .* may stutter/);
-  st = playerStatus("mac", slow, { ...verified, results: { fizz: { outcome: "pass", result: { speed: 2.5 } } } });
+  assert.equal(st.performance, "may-stutter");
+  assert.equal(st.verification, "representative");
+  assert.match(st.reason, /0\.4x real time on the Linux test machine and has not been timed on macOS/);
+  st = playerStatus("mac", slow, { ...verified, results: { fizz: { outcome: "pass", sha256: "x", result: { speed: 2.5 } } } });
   assert.equal(st.state, "playable", "fast enough on Apple Silicon");
-  st = playerStatus("mac", slow, { ...verified, results: { fizz: { outcome: "pass", result: { speed: 0.9 } } } });
+  assert.equal(st.verification, "macos");
+  assert.equal(st.tested.macos.speed, 2.5);
+  st = playerStatus("mac", slow, { ...verified, results: { fizz: { outcome: "pass", sha256: "x", result: { speed: 0.9 } } } });
   assert.equal(st.state, "experimental");
-  assert.match(st.reason, /0\.9x on macOS/);
+  assert.match(st.reason, /0\.9x real time when tested on macOS/);
+  st = playerStatus("mac", slow, { ...verified, results: { fizz: { outcome: "pass", sha256: "an older build", result: { speed: 2.5 } } } });
+  assert.equal(st.verification, "representative", "a macOS result for another build of it does not count");
+  assert.equal(st.state, "experimental");
+  const fast = { ...slow, result: { speed: 3 } };
+  st = playerStatus("mac", fast, { ...verified, results: { fizz: { outcome: "pass", sha256: "x", result: { speed: 0.8 } } } });
+  assert.equal(st.state, "experimental", "slow on macOS outweighs fast on Linux");
+  st = playerStatus("mac", fast, { ...verified, results: { fizz: { outcome: "fail", problems: ["silent"], sha256: "x", result: { speed: 3 } } } });
+  assert.equal(st.state, "unsupported", "a macOS failure of this build is a failure");
   assert.equal(playerStatus("web", { ...slow }, null).state, "playable", "the web player compiles WebAssembly: speed is not its concern here");
 });
 
@@ -230,6 +247,20 @@ test("the macOS run checks the representative set and is verified only if all pa
   assert.equal(run.verified, false, "the rest of the representative set is missing");
   assert.ok(run.missing.length > 0);
   assert.match(run.environment, /macOS/);
+});
+
+test("the macOS job also runs every build slow or borderline on Linux", async () => {
+  const { macosSet } = await import("../compat.mjs");
+  const entries = [{ id: "hortator", sha256: "a" }, { id: "quick", sha256: "b" }, { id: "untested", sha256: "c" }];
+  const led = { builds: { a: { native: { result: { speed: 0.6 } } }, b: { native: { result: { speed: 9 } } } } };
+  const set = macosSet(entries, led);
+  assert.ok(set.has("hortator"));
+  assert.ok(!set.has("quick"));
+  assert.ok(!set.has("untested"));
+  assert.ok(set.has("felucca"), "the representative set is always included");
+  const run = await macosRun({ entries: [{ id: "hortator", sha256: "a", file: "fw/h.rfm1" }], dataDir: "/x", policy, nativeBin: "bin", also: ["hortator"],
+    runNative: async () => ({ halted: 0, draws: true, redraws: true, sounds: true, speed: 1.4 }) });
+  assert.equal(run.results.hortator.sha256, "a");
 });
 
 test("STATES are the four the players understand", () => {
