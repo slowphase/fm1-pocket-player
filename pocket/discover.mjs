@@ -31,6 +31,8 @@ export const STATES = ["playable", "experimental", "unsupported", "source-only"]
 // below this many times real time in the native engine's boot test (which includes compiling and booting), a
 // build may stutter on a Mac
 export const SLOW = 1.2;
+// builds below this native speed on Linux are also run individually on macOS (borderline ones get a real measure)
+export const SLOW_CHECK = 2;
 
 // the reason a firmware cannot be downloaded here, by code (the text players show)
 export const RESTRICTIONS = {
@@ -55,24 +57,46 @@ export function hubCategory(kind) {
 }
 
 // one player's status for a downloadable build, from its compat.json record
+// How the Mac status was established (status.mac.verification):
+//   "macos"          this exact build ran on macOS in the native engine (the macOS job tests it individually)
+//   "representative" this build passed the native engine on Linux, and a representative sample passed on macOS
+//                    for the same engine commit; this build itself has not been run on macOS
+//   "linux"          native engine on Linux only; macOS has not verified this engine commit
+// status.mac.performance is "may-stutter" when the build ran below SLOW times real time (macOS speed when this
+// build was measured on macOS, else the Linux speed).
 export function playerStatus(player, rec, macos) {
-  if (!rec) return { state: "experimental", reason: `Not tested in the ${player === "web" ? "web" : "native"} player yet.` };
+  if (!rec) return { state: "experimental", reason: `Not tested in the ${player === "web" ? "web" : "native"} player yet.`, ...(player === "mac" ? { verification: "none" } : {}) };
   const tested = { sha256: rec.sha256, runtime: rec.runtime, environment: rec.environment, date: rec.date, outcome: rec.outcome };
-  if (rec.outcome === "fail") return { state: "unsupported", reason: `Did not pass the ${player === "web" ? "web player's" : "native engine's"} checks: ${rec.problems.join("; ")}.`, tested };
   const note = rec.exception ? ` ${rec.exception}` : "";
-  if (player === "mac") {
-    // the native engine interprets WebAssembly, so a heavy firmware can pass its checks and still run too slowly
-    const speed = rec.result && typeof rec.result.speed === "number" ? rec.result.speed : null;
-    const macSpeed = macos && macos.results[rec.id] && macos.results[rec.id].result ? macos.results[rec.id].result.speed : null;
-    if (speed != null && speed < SLOW && !(macSpeed != null && macSpeed >= SLOW)) {
-      return { state: "experimental", reason: `Passed the native engine's checks, but ran at ${speed}x real time on the Linux test machine${macSpeed != null ? ` and ${macSpeed}x on macOS` : ""}, so it may stutter on a Mac.${note}`, tested };
-    }
-    if (!macos || macos.runtime !== rec.runtime) return { state: "experimental", reason: `Passed the native engine's checks on Linux; this engine version has not yet been verified on macOS.${note}`, tested };
-    if (!macos.verified) return { state: "experimental", reason: `Passed the native engine's checks on Linux, but the macOS check for this engine version did not fully pass.${note}`, tested: { ...tested, macos: { date: macos.date, environment: macos.environment } } };
-    const own = macos.results[rec.id];
-    return { state: "playable", reason: (own ? "Passed the native engine's checks on Linux and on macOS." : "Passed the native engine's checks on Linux; this engine version is verified on macOS.") + note, tested: { ...tested, macos: { date: macos.date, environment: macos.environment, ...(own ? { outcome: own.outcome } : {}) } } };
+  if (player !== "mac") {
+    if (rec.outcome === "fail") return { state: "unsupported", reason: `Did not pass the web player's checks: ${rec.problems.join("; ")}.`, tested };
+    return { state: "playable", reason: `Passed the web player's checks.${note}`, tested };
   }
-  return { state: "playable", reason: `Passed the web player's checks.${note}`, tested };
+  const sameEngine = macos && macos.runtime === rec.runtime;
+  const mine = sameEngine && macos.results ? macos.results[rec.id] : null;
+  // a macOS result counts for this build only if it was this exact build (same sha256)
+  const own = mine && mine.sha256 && mine.sha256 === rec.sha256 ? mine : null;
+  const verification = own ? "macos" : sameEngine && macos.verified ? "representative" : "linux";
+  const macTested = own
+    ? { date: macos.date, environment: macos.environment, outcome: own.outcome, ...(own.result && typeof own.result.speed === "number" ? { speed: own.result.speed } : {}) }
+    : sameEngine ? { date: macos.date, environment: macos.environment, sample: true } : null;
+  const t = macTested ? { ...tested, macos: macTested } : tested;
+  if (rec.outcome === "fail") return { state: "unsupported", verification, reason: `Did not pass the native engine's checks on Linux: ${rec.problems.join("; ")}.`, tested: t };
+  if (own && own.outcome === "fail") return { state: "unsupported", verification, reason: `Passed on Linux but did not pass the native engine's checks on macOS: ${(own.problems || []).join("; ")}.`, tested: t };
+  // the native engine interprets WebAssembly, so a heavy firmware can pass its checks and still run too slowly
+  const linuxSpeed = rec.result && typeof rec.result.speed === "number" ? rec.result.speed : null;
+  const macSpeed = own && own.result && typeof own.result.speed === "number" ? own.result.speed : null;
+  const speed = macSpeed != null ? macSpeed : linuxSpeed;
+  if (speed != null && speed < SLOW) {
+    const where = macSpeed != null ? `ran at ${macSpeed}x real time when tested on macOS` : `ran at ${linuxSpeed}x real time on the Linux test machine and has not been timed on macOS yet`;
+    return { state: "experimental", verification, performance: "may-stutter", reason: `Passed the native engine's checks, but ${where}, so it may stutter on a Mac.${note}`, tested: t };
+  }
+  if (verification === "linux") {
+    const why = !sameEngine ? "this engine version has not yet been verified on macOS" : "the macOS check for this engine version did not fully pass";
+    return { state: "experimental", verification, reason: `Passed the native engine's checks on Linux; ${why}.${note}`, tested: t };
+  }
+  if (verification === "macos") return { state: "playable", verification, reason: `Tested individually on macOS (and on Linux) with the Mac app's engine.${note}`, tested: t };
+  return { state: "playable", verification, reason: `Passed the Mac app's engine on Linux; not run individually on macOS, but a representative sample passed there with the same engine version.${note}`, tested: t };
 }
 
 export function build({ v1, upstream, report = {}, policy, ledger = { builds: {} }, hub = null, now = new Date() }) {
@@ -177,6 +201,13 @@ export function build({ v1, upstream, report = {}, policy, ledger = { builds: {}
     onHub: hubInfo ? hubInfo.listed : null,
     web: count("web"),
     mac: count("mac"),
+    // how the Mac statuses of downloadable builds were established
+    macVerification: {
+      macos: firmwares.filter((e) => e.file && e.status.mac.verification === "macos").length,
+      representative: firmwares.filter((e) => e.file && e.status.mac.verification === "representative").length,
+      linux: firmwares.filter((e) => e.file && e.status.mac.verification === "linux").length,
+      mayStutter: firmwares.filter((e) => e.file && e.status.mac.performance === "may-stutter").length,
+    },
   };
   const nr = nativeRuntime();
   return {
@@ -232,7 +263,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const text = [`## Catalogue v2`, ``,
     `Snapshot ${c.snapshot}. **${k.discovered}** firmwares discovered (${k.builtIn} built in), ${k.withBuild} with a browser build, **${k.downloadable} downloadable** (the same as catalog.json).`,
     k.onHub == null ? `The Firmware Hub: no copy available, so discovery covers RemoteFM1FW only.` : `The Firmware Hub lists ${k.onHub} (read ${c.attribution.read}).`,
-    `Web: ${line("web")}.`, `Mac: ${line("mac")}.`, `${changed ? "Changed since the last v2." : "No change since the last v2."}`, ``].join("\n");
+    `Web: ${line("web")}.`, `Mac: ${line("mac")}.`,
+    `Mac, of the ${k.downloadable} downloadable: ${k.macVerification.macos} tested individually on macOS, ${k.macVerification.representative} tested on Linux and covered by the representative macOS sample, ${k.macVerification.linux} Linux only; ${k.macVerification.mayStutter} may stutter.`,
+    `${changed ? "Changed since the last v2." : "No change since the last v2."}`, ``].join("\n");
   if (process.env.GITHUB_STEP_SUMMARY) writeFileSync(process.env.GITHUB_STEP_SUMMARY, text, { flag: "a" });
   console.log(text);
   if (process.env.GITHUB_OUTPUT) writeFileSync(process.env.GITHUB_OUTPUT, `changed=${changed}\n`, { flag: "a" });

@@ -257,15 +257,16 @@ jobs:
           path: native-engine
       - name: Build the native engine's boot test (macOS)
         run: make -C native-engine/Tests/ctest native_smoke
-      - name: Fetch the representative firmware
+      - name: Fetch the firmware to run on macOS (representative set, plus builds slow or borderline on Linux)
         run: |
           mkdir -p rep/fw
           gh release download pocket-current -p catalog.json -D rep --clobber
-          node -e 'const c=require("./rep/catalog.json"),n=require("./pocket/native.json");for(const f of c.firmwares) if(n.representative.includes(f.id)) console.log(f.file.replace(/^fw\//,""))' |
+          gh release download pocket-current -p compat.json -D rep --clobber || true
+          node pocket/compat.mjs --macos-list --data rep --ledger rep/compat.json | sed 's#^fw/##' |
             while read -r f; do gh release download pocket-current -p "$f" -D rep/fw --clobber; done
       - name: Run them in the native engine on macOS
         run: |
-          node pocket/compat.mjs --macos --data rep --native native-engine/Tests/ctest/native_smoke --out native-macos.json | tee -a "$GITHUB_STEP_SUMMARY"
+          node pocket/compat.mjs --macos --data rep --ledger rep/compat.json --native native-engine/Tests/ctest/native_smoke --out native-macos.json | tee -a "$GITHUB_STEP_SUMMARY"
           gh release upload pocket-current native-macos.json --clobber
 
   deploy:
