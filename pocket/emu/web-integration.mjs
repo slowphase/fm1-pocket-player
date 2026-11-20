@@ -134,6 +134,38 @@ try {
   await page.evaluate(() => window.FM1Sim.run(window.FM1Sim.library().find((e) => e.builtin)));
   await page.waitForFunction(() => /h1/.test(document.getElementById("fwname").textContent) && window.FM1Sim.core().engine !== "fm1-emu", null, { timeout: 30000 });
   check("the built-in h1 still runs", true);
+  // discovery: latest release first by default, A–Z on request, real release dates, "new to library"
+  if (await page.locator("#drawer").isHidden()) await page.click("#fwbtn");
+  await page.fill("#pk-q", "");
+  const rows = async () => page.evaluate(() => {
+    const lib = window.FM1Sim.library();
+    const h = [...document.querySelectorAll(".pk-h")].find((x) => /Library/.test(x.textContent));
+    const names = [];
+    for (let el = h && h.nextElementSibling; el && el.classList.contains("pk-item"); el = el.nextElementSibling) names.push(el.querySelector(".pk-row b").firstChild.textContent.trim());
+    return names.map((n) => { const e = lib.find((x) => x.name === n && x.catalog); return { name: n, date: (e && e.meta.release && e.meta.release.date) || "" }; });
+  });
+  const byRelease = await rows();
+  const dated = byRelease.filter((r) => r.date);
+  const ordered = dated.every((r, i) => i === 0 || dated[i - 1].date >= r.date) && byRelease.slice(0, dated.length).every((r) => r.date);
+  check("latest release first by default (unknown dates last)", byRelease.length > 10 && dated.length > 0 && ordered, `${dated.length} of ${byRelease.length} dated; first ${byRelease.slice(0, 3).map((r) => r.name + " " + r.date.slice(0, 10)).join(", ")}`);
+  await page.selectOption("#pk-sort", "az");
+  const az = (await rows()).map((r) => r.name);
+  check("A–Z on request", az.every((n, i) => i === 0 || az[i - 1].localeCompare(n, undefined, { sensitivity: "base" }) <= 0), az.slice(0, 3).join(", "));
+  await page.selectOption("#pk-sort", "release");
+  const firstDated = dated[0] && dated[0].name;
+  if (firstDated) {
+    await page.fill("#pk-q", firstDated);
+    const row = page.locator(".pk-item", { has: page.locator("b", { hasText: firstDated }) }).first();
+    if ((await row.getAttribute("class")).indexOf("open") < 0) await row.locator(".pk-row").click();
+    const facts = await row.locator(".pk-preview").textContent();
+    check("the preview shows the real release date", /released \d/.test(facts), (facts.match(/released [^·]*/) || [""])[0]);
+    await page.fill("#pk-q", "");
+  }
+  await page.click('.pk-filters [data-f="new"]');
+  const fresh = await page.evaluate(() => [...document.querySelectorAll(".pk-item .pk-new")].length);
+  const expected = await page.evaluate(() => window.FM1Sim.library().filter((e) => e.catalog && e.meta.listed && (Date.now() - Date.parse(e.meta.listed.slice(0, 10) + "T00:00:00Z")) / 864e5 <= 14).length);
+  check("new to library lists what was first listed in the last 14 days", fresh === expected && expected > 0, `${fresh} shown, ${expected} expected`);
+  await page.click('.pk-filters [data-f="all"]');
   // 6
   const credits = await page.locator("#pk-credits").textContent();
   check("the credits name fm1-emu and keep its licence apart", /fm1-emu/.test(credits) && /not the firmware/.test(credits), "");

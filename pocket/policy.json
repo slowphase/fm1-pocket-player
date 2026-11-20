@@ -478,17 +478,10 @@
     "vibe-link": "Upstream fm1-emu holds it back: it shows its own crash screen a second or two after boot."
   },
   "emuPrefer": {
-    "about": "Per firmware, the engine both players use first whatever the measurements say, with why (pocket/emu/catalog.py). The listener can still choose the other.",
-    "hortator": {
-      "engine": "rfm1",
-      "reason": "The .rfm1 build is used first until a listening test confirms the original package in the app (its pattern starts empty, so PLAY is silent until steps are entered)."
-    }
+    "about": "Per firmware, the engine both players use first whatever the measurements say, with why (pocket/emu/catalog.py). The listener can still choose the other."
   },
   "knownIssues": {
     "about": "Known problems per firmware and engine (fm1-emu or rfm1), shown as such in both players and kept apart from automated checks and listening tests. Listening reports with problems add to these automatically (pocket/emu/listening.json).",
-    "hortator": {
-      "fm1-emu": "Starts with an empty pattern: PLAY is silent until steps are entered on the keys."
-    },
     "sidj": {
       "fm1-emu": "The original package has no songs: they are sent over USB from the maker's page, which the players cannot do."
     }

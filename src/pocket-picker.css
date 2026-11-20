@@ -19,7 +19,7 @@ header, .drawer, .strip, .wrap > details, .pk-credits, .drop { --ink: var(--site
 #pk-q::placeholder { color: var(--dim); }
 .pk-filters { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .pk-filters .chip[aria-pressed="true"] { border-color: var(--ink); color: var(--ink); }
-#pk-cat {
+#pk-cat, #pk-sort {
   -webkit-appearance: none;
   appearance: none;                       /* Safari draws its own grey box otherwise */
   font: 12px var(--mono);

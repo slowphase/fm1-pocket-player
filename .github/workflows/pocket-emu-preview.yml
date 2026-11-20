@@ -59,6 +59,24 @@ jobs:
           python3 pocket/emu/catalog.py --v2 _site/data/catalog-v2.json --packages pkgs/packages.json --emu-ledger emu-compat.json \
             --rfm1-ledger saved/compat.json --store pkgs --site _site/data
           du -sh _site _site/data/pkg
+      - name: Discovery dates (release, listed), as the nightly's discover.mjs adds them
+        # the published catalogue predates them; this test build takes them from the same saved Hub copy discover.mjs
+        # reads (its published and added dates), so the page can be tested as it will be
+        run: |
+          python3 - <<'PY'
+          import json
+          p = "_site/data/catalog-v2.json"; v = json.load(open(p))
+          hub = {h["id"]: h for h in json.load(open("saved/hub-catalog.json"))["catalog"]["firmwares"]}
+          for e in v["firmwares"]:
+              h = hub.get(((e.get("provenance") or {}).get("hub") or {}).get("id"))
+              if "release" not in e:
+                  e["release"] = {"version": h.get("version"), "date": h["published"], "source": "The Firmware Hub"} if h and h.get("published") else None
+              if "listed" not in e:
+                  e["listed"] = (h or {}).get("added") or e.get("added") or v["updated"][:10]
+          json.dump(v, open(p, "w"), indent=1)
+          print(sum(1 for e in v["firmwares"] if e["release"]), "of", len(v["firmwares"]), "with a release date")
+          PY
+
       - name: Playwright (Chromium)
         run: |
           npm install --no-save --no-audit --no-fund playwright@1 > /dev/null

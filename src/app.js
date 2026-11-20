@@ -8,7 +8,7 @@
   var canvas = $("lcd"), ctx2d = canvas.getContext("2d"), image = ctx2d.createImageData(240, 240);
   var prevLcd = new Uint8Array(240 * 240 * 2);
   var DEFAULT_INK = "#c8ff4a";
-  var mode = pref("fm1sim.mode", "slider");
+  var mode = pref("fm1sim.mode", "knob");   /* knobs by default: the FM-1's encoders are endless, and a knob shows that */
 
   function pref(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
   function setPref(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* fine */ } }
@@ -271,6 +271,9 @@
     var r = c.range, lo = +r.min, hi = +r.max, t = hi > lo ? (+r.value - lo) / (hi - lo) * 100 : 0;
     if (v && v.absolute) { r.style.setProperty("--q", "0%"); r.style.setProperty("--p", t + "%"); }
     else { r.style.setProperty("--q", Math.min(50, t) + "%"); r.style.setProperty("--p", Math.max(50, t) + "%"); }
+    var endless = !(v && v.absolute);           /* an endless encoder: a mark at the middle, where it rests between turns */
+    r.classList.toggle("endless", endless);
+    r.title = endless ? "Endless knob: drag left or right to turn it; it springs back to the middle. The firmware keeps the setting." : "";
   }
   function bindSlider(c) {
     var r = c.range, last = 0;

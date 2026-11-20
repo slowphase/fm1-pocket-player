@@ -19,7 +19,7 @@
   var DATA = "data/";
   var NEW_DAYS = 14;
   var catalog = null, built = false, api = null, more = [];
-  var state = { q: "", filter: "all", cat: "", open: "" };
+  var state = { q: "", filter: "all", cat: "", open: "", sort: get("pocket.sort", "release") === "az" ? "az" : "release" };
 
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -36,11 +36,22 @@
     put("pocket.favs", favs);
   }
 
+  /* "new to library": first listed in the last 14 days (the day the Hub added it, or the day Pocket first saw it).
+   * Not a release date: a new release of an old firmware is not new to the library. */
   function isNew(e) {
-    if (!e.catalog || !catalog) return false;
-    var a = e.meta.added, since = catalog.since;
-    if (!a || !since || a <= since) return false;         /* there from the first catalogue: not "new" */
-    return (Date.now() - Date.parse(a + "T00:00:00Z")) / 864e5 <= NEW_DAYS;
+    if (!(e.catalog || e.more) || !e.meta || !e.meta.listed) return false;
+    return (Date.now() - Date.parse(e.meta.listed.slice(0, 10) + "T00:00:00Z")) / 864e5 <= NEW_DAYS;
+  }
+  /* the firmware's latest release as its maker published it (never a catalogue or rebuild date), or "" */
+  function releaseOf(e) { return (e.meta && e.meta.release && e.meta.release.date) || ""; }
+  function releaseText(e) {
+    var r = e.meta && e.meta.release;
+    if (!r || !r.date) return "";
+    var d = new Date(r.date), t = isNaN(d) ? "" : d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+    if (!t) return "";
+    t = "released " + t + (r.version ? " (" + r.version + ")" : "");
+    if (r.version && e.version && r.version !== e.version) t += "; this build: " + e.version;
+    return t;
   }
 
   /* ---- the catalogue: v2 when the site has it, else v1 ---- */
@@ -125,9 +136,10 @@
       '<div class="pk-filters" role="group" aria-label="Show">' +
         '<button type="button" class="chip" data-f="all">all</button>' +
         '<button type="button" class="chip" data-f="fav">&#9733; favourites</button>' +
-        '<button type="button" class="chip" data-f="new">new</button>' +
+        '<button type="button" class="chip" data-f="new" title="First listed in the last 14 days">new to library</button>' +
         '<button type="button" class="chip" data-f="more" hidden title="Firmware that cannot be played here, with where to get it">more</button>' +
         '<select id="pk-cat" aria-label="Category"><option value="">every category</option></select>' +
+        '<select id="pk-sort" aria-label="Sort"><option value="release">latest release</option><option value="az">A–Z</option></select>' +
       "</div>";
     list.parentNode.insertBefore(bar, list);
     list.classList.add("pk-list");
@@ -144,6 +156,8 @@
       b.addEventListener("click", function () { state.filter = b.dataset.f; draw(); });
     });
     $("pk-cat").addEventListener("change", function () { state.cat = this.value; draw(); });
+    $("pk-sort").value = state.sort;
+    $("pk-sort").addEventListener("change", function () { state.sort = this.value; put("pocket.sort", state.sort); draw(); });
 
     /* a firmware whose saved state stops it starting: a way back, never silent */
     var halt = $("halt");
@@ -318,6 +332,7 @@
       '<p class="pk-why">' + esc(st.reason || (m.restriction && m.restriction.reason) || "") + "</p>" +
       (makers(m) ? '<p class="pk-facts">by ' + makers(m) + "</p>" : "") +
       '<p class="pk-facts">' + esc([m.version, m.category, m.license ? api.lic(m.license) : ""].filter(Boolean).join(" · ")) + (links ? " · " + links : "") + "</p>" +
+      (releaseText(e) ? '<p class="pk-facts">' + esc(releaseText(e)) + "</p>" : "") +
       "</div>";
     return p;
   }
@@ -335,6 +350,7 @@
         (m.status && makers(m) ? '<p class="pk-facts">by ' + makers(m) + "</p>" : "") +
         (webStatus(e) && webStatus(e).state === "experimental" ? '<p class="pk-why">' + esc(webStatus(e).reason) + "</p>" : "") +
         '<p class="pk-facts">' + esc([e.version, m.category, e.license ? api.lic(e.license) : ""].filter(Boolean).join(" · ")) + (src ? " · " + src : "") + "</p>" +
+        (releaseText(e) ? '<p class="pk-facts">' + esc(releaseText(e)) + "</p>" : "") +
         '<div class="pk-actions"></div>' +
       "</div>";
     if (e.catalog && (m.emu || m.confidence)) p.querySelector(".pk-pbody").insertBefore(engineLine(e, running), p.querySelector(".pk-actions"));
@@ -390,6 +406,11 @@
     section(host, "Built in", shown.filter(function (e) { return e.builtin; }), cur);
     section(host, "Your files", shown.filter(function (e) { return !e.builtin && !e.catalog && !e.more; }), cur);
     var lib2 = shown.filter(function (e) { return e.catalog || e.more; });
+    /* latest release first (unknown dates last), or A–Z; a search then puts the best name matches first */
+    lib2 = lib2.map(function (e, i) { return [e, i]; }).sort(function (a, b) {
+      if (state.sort === "release") { var x = releaseOf(a[0]), y = releaseOf(b[0]); if (x !== y) return x < y ? 1 : -1; }
+      return String(a[0].name).localeCompare(String(b[0].name), undefined, { sensitivity: "base" }) || a[1] - b[1];
+    }).map(function (x) { return x[0]; });
     if (state.q) {                                          /* a name that matches comes first */
       var bare = function (x) { return String(x || "").toLowerCase().replace(/[^a-z0-9]+/g, ""); }, qb = bare(state.q);
       var rank = function (e) { var n = bare(e.name); return n.indexOf(qb) === 0 ? 0 : n.indexOf(qb) >= 0 ? 1 : 2; };
@@ -398,7 +419,7 @@
     section(host, state.filter === "more" ? "Not playable here" : "Library", lib2, cur);
     if (!shown.length) {
       host.innerHTML = '<p class="note pk-none">' + (state.filter === "fav" ? "No favourites yet: tap the &#9734; beside a firmware." :
-        state.filter === "new" ? "Nothing new in the last " + NEW_DAYS + " days." : "Nothing matches that.") + "</p>";
+        state.filter === "new" ? "Nothing joined the library in the last " + NEW_DAYS + " days." : "Nothing matches that.") + "</p>";
     }
     var n = lib.filter(function (e) { return e.catalog; }).length, a = catalog && catalog.attribution;
     $("pk-info").innerHTML = catalog

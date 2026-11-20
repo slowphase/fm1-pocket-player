@@ -126,8 +126,12 @@ jobs:
         id: v2
         run: |
           gh release download pocket-current -p catalog-v2.json -O pocket-store/catalog-v2.previous.json --clobber 2>/dev/null || true
+          # release dates for the few firmwares the Hub does not list (the makers' GitHub releases; the rest come from the Hub)
+          node pocket/releases.mjs --catalogue pocket-store/catalog-v2.previous.json --hub pocket-store/hub-catalog.json \
+            --upstream pocket-upstream.json --out releases.json || echo "{}" > releases.json
           node pocket/discover.mjs --data _site/data --upstream pocket-upstream.json --report pocket-report.json \
-            --ledger pocket-store/compat.json --hub pocket-store/hub-catalog.json --previous pocket-store/catalog-v2.previous.json
+            --ledger pocket-store/compat.json --hub pocket-store/hub-catalog.json --previous pocket-store/catalog-v2.previous.json \
+            --releases releases.json
           cp _site/data/catalog-v2.json pocket-store/catalog-v2.json
           if [ "${{ vars.POCKET_PUBLISH_V2 }}" != "true" ]; then
             mv _site/data/catalog-v2.json catalog-v2.unpublished.json
