@@ -72,7 +72,8 @@ await step(`"more" lists what can't be played here (${moreCount}), each with a r
   const withSource = v2.firmwares.find((f) => !(f.file && ["playable", "experimental"].includes(f.status.web.state)) && f.source);
   if (withSource) {
     await page.fill("#pk-q", withSource.name);
-    await page.locator("#fwlist .pk-row").first().click();
+    // the row may already be open from the click above (a second click would close it)
+    if (!(await page.locator("#fwlist .pk-item.open").count())) await page.locator("#fwlist .pk-row").first().click();
     const href = await page.locator('.pk-preview a:text("source")').first().getAttribute("href");
     if (href !== withSource.source) throw new Error(`source link ${href}, expected ${withSource.source}`);
   }
