@@ -1,0 +1,94 @@
+# Builds the fm1-base firmware listed in pocket/fm1base-builds.json as .rfm1 files, with the authors' own supported
+# tool (their vendored fm1-base tools/build.py APP --rfm1) and the Emscripten version fm1-base's release template
+# pins, at each author's release tag; then runs Pocket's checks on them (file checks, web boot test, the Mac app's
+# native engine). The files and the report are attached to the run as an artifact. Nothing is published, nothing
+# is added to catalog.json or catalog-v2.json, and The Firmware Hub is not read.
+name: Pocket fm1-base builds
+
+on:
+  pull_request:
+    paths:
+      - pocket/fm1base-builds.json
+      - pocket/fm1base.mjs
+      - .github/workflows/pocket-fm1base.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Python for fm1-base's tools (Pillow as fm1-base's pyproject.toml pins it, with raqm as its template checks)
+        run: |
+          sudo apt-get install -y -qq libfribidi0
+          python3 -m pip install -q pillow==13.0.0
+          python3 -c "from PIL import features; assert features.check('raqm'), 'Pillow without raqm'"
+      - name: Emscripten (the version and emsdk commit fm1-base's release template uses)
+        run: |
+          v=$(node -p "require('./pocket/fm1base-builds.json').emsdk.version")
+          c=$(node -p "require('./pocket/fm1base-builds.json').emsdk.commit")
+          git clone -q https://github.com/emscripten-core/emsdk.git "$RUNNER_TEMP/emsdk"
+          git -C "$RUNNER_TEMP/emsdk" checkout -q "$c"
+          "$RUNNER_TEMP/emsdk/emsdk" install "$v"
+          "$RUNNER_TEMP/emsdk/emsdk" activate "$v"
+          echo "EMSDK_DIR=$RUNNER_TEMP/emsdk" >> "$GITHUB_ENV"
+      - name: Build each firmware at its release tag (or take the author's own .rfm1 when their release has one)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
+          set +u; source "$EMSDK_DIR/emsdk_env.sh"; set -u
+          emcc --version | head -1
+          mkdir -p built src
+          node -e 'for (const r of require("./pocket/fm1base-builds.json").firmwares) console.log([r.hub, r.repo, r.commit, r.app, r.build, r.version, r.submodules, r.tag, r.author_rfm1 ? "yes" : "no"].join("\t"))' |
+          while IFS=$'\t' read -r hub repo commit app build version subs tag author; do
+            echo "::group::$hub ($repo @ ${commit:0:8})"
+            mkdir -p "built/$hub"
+            if [ "$author" = "yes" ] && gh release download "$tag" -R "$repo" -p "*.rfm1" -D "built/$hub" 2>/dev/null && ls "built/$hub"/*.rfm1 >/dev/null 2>&1; then
+              echo "author's own release" > "built/$hub/SOURCE.txt"; ls -la "built/$hub"; echo "::endgroup::"; continue
+            fi
+            echo "built here" > "built/$hub/SOURCE.txt"
+            (
+              set -e
+              git init -q "src/$hub"
+              git -C "src/$hub" remote add origin "https://github.com/$repo"
+              git -C "src/$hub" fetch -q --depth 1 origin "$commit"
+              git -C "src/$hub" checkout -q FETCH_HEAD
+              [ "$subs" = "true" ] && git -C "src/$hub" submodule update -q --init --depth 1 --recursive
+              cd "src/$hub"
+              python3 "$build" "$app" --rfm1 --release "$version"
+            ) > "built/$hub/log.txt" 2>&1 || { tail -40 "built/$hub/log.txt"; cp "built/$hub/log.txt" "built/$hub/FAILED.txt"; }
+            [ -d "src/$hub/$app/build" ] && find "src/$hub/$app/build" -name "*.rfm1" -exec cp {} "built/$hub/" \;
+            ls -la "built/$hub"
+            echo "::endgroup::"
+          done
+      - name: Which native engine to test
+        id: native
+        run: |
+          echo "repository=$(node -p "require('./pocket/native.json').repository")" >> "$GITHUB_OUTPUT"
+          echo "commit=$(node -p "require('./pocket/native.json').commit")" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ steps.native.outputs.repository }}
+          ref: ${{ steps.native.outputs.commit }}
+          path: native-engine
+      - name: Build the native engine's boot test (Linux)
+        run: make -C native-engine/Tests/ctest native_smoke
+      - name: Pocket's checks on the builds
+        run: node pocket/fm1base.mjs --built built --out built/report.json --native native-engine/Tests/ctest/native_smoke
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: fm1base-builds
+          path: built
+          retention-days: 30

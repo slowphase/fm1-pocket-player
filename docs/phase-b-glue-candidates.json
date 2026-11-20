@@ -1,0 +1,2044 @@
+{
+ "snapshot": "The Firmware Hub catalogue read 2026-11-20T06:05:37Z; repositories read 2026-11-20 at their default branch heads",
+ "method": "file markers in each repository tree (not compiled): felucca_web.c, web/fm1_web.c, tests/host.c, host/*.c, hostsim, plat.h, emu_hooks.h, *.wasm; the Hub's own \"base\" field; .gitmodules",
+ "firmwares": [
+  {
+   "hub": "386dx",
+   "repo": "seajaysec/386-DX-FM1-KaraokeBot",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "wasm",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "adrift",
+   "repo": "romainguy/adrift",
+   "license": "MPL-2.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": false,
+   "markers": [
+    "felucca_bsp",
+    "sub_felucca_bsp"
+   ]
+  },
+  {
+   "hub": "aetherfm1",
+   "repo": "jeanlucmouton30-jpg/AETHER-FM1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": false,
+   "markers": [
+    "build_mvave_sdk"
+   ]
+  },
+  {
+   "hub": "agtdeck",
+   "repo": "kevinelliott/fm-1-agent-deck",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "aisling",
+   "repo": "stephencummins/fm1-aisling",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "nachtfahrt"
+   ],
+   "glue_family": "none",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "aislingfx1",
+   "repo": "stephencummins/fx1-aisling",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "andromeda",
+   "repo": "drophlex/ANDROMEDAFM1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_bsp",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "arcturus",
+   "repo": "zeptosecond-dsp/Arcturus-S6",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "argo",
+   "repo": "echoe/argo_fm1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_bsp",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "arpwav09",
+   "repo": "wav0902/wav-fm1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "artihive",
+   "repo": "KHAVld/ARTIHIVE",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "assid",
+   "repo": "altessproduction/ASS-ID_FM1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": false,
+   "markers": []
+  },
+  {
+   "hub": "astra",
+   "repo": "MichaelAPerry/ASTRA-FM-1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": false,
+   "markers": []
+  },
+  {
+   "hub": "atek303",
+   "repo": "animatek/FM1-Animatek",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": false,
+   "markers": []
+  },
+  {
+   "hub": "atlatltheatltuner",
+   "repo": "jasonbot/atl-atl",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "fm1_open_sdk",
+    "host_c",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "b1",
+   "repo": "SikkenWorks/B1-Drawbar-Organ",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": false,
+   "markers": []
+  },
+  {
+   "hub": "b3organ",
+   "repo": "R-Jeb/setBfree-fm1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "bb1",
+   "repo": "TexasRADIO/bb1-firmware",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web"
+   ]
+  },
+  {
+   "hub": "beetle",
+   "repo": "SikkenWorks/BEETLE",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": false,
+   "markers": []
+  },
+  {
+   "hub": "beetleblue",
+   "repo": "SikkenWorks/BEETLE-BLUE",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "beetle"
+   ],
+   "glue_family": "none",
+   "host_build_evidence": false,
+   "markers": []
+  },
+  {
+   "hub": "beiwagen",
+   "repo": "DPangerl/beiwagen",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "fm1_open_sdk",
+    "host_c",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "bigorna",
+   "repo": "nzimas/bigorna",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "tonitor"
+   ],
+   "glue_family": "tonitor",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "bluesbox",
+   "repo": "provostprovost/blues",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "bocjuhn",
+   "repo": "IanP06/bocjuhn",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "tonitor"
+   ],
+   "glue_family": "tonitor",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "bubba",
+   "repo": "Erbubar23/bubba-machine",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": false,
+   "markers": [
+    "build_mvave_sdk",
+    "fm1_open_sdk"
+   ]
+  },
+  {
+   "hub": "bunker",
+   "repo": "kidbee85-beep/bunker-evolved",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "felucca"
+   ],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "melodee",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "castletunia",
+   "repo": "provostprovost/castletunia",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "clatter",
+   "repo": "clickysteve/clatter-pocket",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": true,
+   "markers": [
+    "host_c",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "clavioline",
+   "repo": "MammothCheese/clavioline",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "coqui",
+   "repo": "saulofilho/coqui-fm1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "grimm"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "cord",
+   "repo": "chasedeanda/cord-fm1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "choralroot",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "choralroot_hooks",
+    "fm1_open_sdk",
+    "host_c",
+    "melodee",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "cs1",
+   "repo": "twochannels/CS-1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "cutador",
+   "repo": "kidbee85-beep/cut-a-dor-release",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "wasm",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "darkfunkdurcalsynt",
+   "repo": "drophlex/dark-funk-durcal-synt-fm1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_bsp",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "dark1",
+   "repo": "sparky480v/Dark-1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "perf1"
+   ],
+   "glue_family": "none",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "daurade",
+   "repo": "delirioux/daurade",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "dayvx",
+   "repo": "halfman73/dayv-x",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "felucca"
+   ],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_bsp",
+    "sloop_hostsim",
+    "sub_felucca_bsp"
+   ]
+  },
+  {
+   "hub": "demake",
+   "repo": "InigoHernandez/demake-synth",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": true,
+   "markers": [
+    "host_c",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "dfdacidengine",
+   "repo": "drophlex/DFD-ACID-ENGINE",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_bsp",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "dinghy",
+   "repo": "zvenson/dinghy",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "dp3oyb",
+   "repo": "DP3OYB/DP3OYB",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_bsp",
+    "host_c",
+    "sloop_hostsim",
+    "sub_felucca_bsp",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "drumtonic",
+   "repo": "fc79/drumtonic",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "elixir",
+   "repo": "dmajka/elixir",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "felucca"
+   ],
+   "glue_family": "felucca_web",
+   "host_build_evidence": false,
+   "markers": [
+    "build_mvave_sdk"
+   ]
+  },
+  {
+   "hub": "estampie",
+   "repo": "ocean/estampie",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "felucca",
+    "ghoulbox"
+   ],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_bsp",
+    "felucca_web",
+    "sloop_hostsim",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "emb",
+   "repo": "MikeTsak/Evanders-Music-Box--FM-1-LARP-firmware",
+   "license": null,
+   "restriction": "not-open",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": false,
+   "markers": [
+    "build_mvave_sdk",
+    "sub_felucca"
+   ]
+  },
+  {
+   "hub": "salt",
+   "repo": "ChanceTheMaker/Felucca",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "sloop_hostsim",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "felucca8",
+   "repo": "echoe/Felucca_8_patterns",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_bsp",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "fernbedienung",
+   "repo": "DPangerl/fernbedienung",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "fm1_open_sdk",
+    "host_c",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "flyfish",
+   "repo": "delirioux/flyfish",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "fm1midimania",
+   "repo": "shan-sherif/fm-1-midi-mania",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_bsp",
+    "host_c",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "fm1zx",
+   "repo": "okulik/fm1-zx",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": false,
+   "markers": [
+    "felucca_bsp"
+   ]
+  },
+  {
+   "hub": "fm106",
+   "repo": "PatttF/fm-106",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_fm1base_old",
+    "build_mvave_sdk",
+    "host_c",
+    "wasm"
+   ],
+   "fm1vst_glue_exists": "core-glue/dinghy/core_fm106.c (FM1VST main; its plan notes the KR-106 port provenance is unchecked)"
+  },
+  {
+   "hub": "fm1quest",
+   "repo": "hericdk/fm1-quest",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "sloop"
+   ],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "fm1tonic",
+   "repo": "luigirossi-music/fm1-tonic",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_bsp",
+    "host_c",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "fm1amy",
+   "repo": "dpwe/fm1-amy",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "chord",
+   "repo": "math0ne/fm1-chord",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "fm1dock",
+   "repo": "joakimeriksson/fm1-dock",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "melodee",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "fm1gm",
+   "repo": "jartificer/fm1-gm",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "wasm",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "fmdj",
+   "repo": "DeadActive/FMDj",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "felucca"
+   ],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "fomajam",
+   "repo": "konsumer/fomajam",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": false,
+   "markers": [
+    "fm1_open_sdk"
+   ]
+  },
+  {
+   "hub": "frodhes",
+   "repo": "leonardoMirabal/frodhes",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "fm1_open_sdk",
+    "host_c"
+   ],
+   "fm1vst_glue_exists": "core-glue/dinghy/core_frodhes.c (FM1VST main)"
+  },
+  {
+   "hub": "fumi",
+   "repo": "cartesive/fumi-1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "gator",
+   "repo": "npi3pak/fm1-gator",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "fm1_open_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "golanadz",
+   "repo": "dzwerg/Golana-DZ",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "guru600",
+   "repo": "MarcGoudy/guru-600",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "felucca"
+   ],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "host_c",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "hera",
+   "repo": "benbadio/hera-fm1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "hortator-bt",
+   "repo": "deadactive/hortator",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": false,
+   "markers": [
+    "build_mvave_sdk"
+   ]
+  },
+  {
+   "hub": "hungrytravis",
+   "repo": "adamcharleswilsonmusic-code/Hungry-Travis",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "fomni"
+   ],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "j6",
+   "repo": "JackieAlacrity2373/fm1-j6",
+   "license": "MPL-2.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_fm1base_old",
+    "build_mvave_sdk",
+    "felucca_bsp",
+    "host_c",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "jam",
+   "repo": "BunnyOrchard/jam-playground",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "jangada",
+   "repo": "zednaked/jangada",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "juicy",
+   "repo": "DanielGilbert/Juicy",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "kawa",
+   "repo": "Guizmoh/Kawa-Tracker-Fm1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "kittenrack",
+   "repo": "BlackKittenDevices/kitten-rack",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "matryoshka"
+   ],
+   "glue_family": "none",
+   "host_build_evidence": false,
+   "markers": [
+    "build_mvave_sdk"
+   ]
+  },
+  {
+   "hub": "kitten",
+   "repo": "BlackKittenDevices/Kitten-Synths",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": false,
+   "markers": []
+  },
+  {
+   "hub": "kriechstrom",
+   "repo": "Xforsa/kriechstrom",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_bsp",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "kurzhaar",
+   "repo": "kurzhaar168/kurzhaar",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "lrry",
+   "repo": "oscillr/LRRY",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "loomfm1",
+   "repo": "Co-oscillator/Loom-FM-1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "loopheads",
+   "repo": "jaak-stjaaques/LOOPHEADS-public",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "lsdjburrito",
+   "repo": "dreamsofbacon/lsdj-burrito-src",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "felucca"
+   ],
+   "glue_family": "felucca_web",
+   "host_build_evidence": false,
+   "markers": []
+  },
+  {
+   "hub": "luxr",
+   "repo": "orbitator/LUXR",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "mvance",
+   "repo": "bk40-home/M-vance",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "melodee",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "makohai",
+   "repo": "delirioux/makohai",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "maku",
+   "repo": "okumurari2/maku",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "manifold",
+   "repo": "stets43/Manifold",
+   "license": "MPL-2.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": true,
+   "markers": [
+    "felucca_bsp",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "manta",
+   "repo": "delirioux/manta",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "mc1",
+   "repo": "dspaudio/mc-1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": true,
+   "markers": [
+    "host_c"
+   ]
+  },
+  {
+   "hub": "mikufm",
+   "repo": "MichaelAPerry/MIKU-FM1",
+   "license": "GPL-3.0",
+   "restriction": "not-open",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": false,
+   "markers": []
+  },
+  {
+   "hub": "min1",
+   "repo": "Reytian/fm1-min1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "minigrain",
+   "repo": "eldontyrellcorp/Mini-Grain",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": false,
+   "markers": [
+    "build_mvave_sdk"
+   ]
+  },
+  {
+   "hub": "miniju08",
+   "repo": "eldontyrellcorp/Mini-Ju08",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "minitone"
+   ],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "host_c",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "monk",
+   "repo": "charlesvestal/fm1-monk",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "monohull",
+   "repo": "markterm/monohull",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": false,
+   "markers": [
+    "sub_felucca"
+   ]
+  },
+  {
+   "hub": "morpheus",
+   "repo": "benbadio/morpheus-fm1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "mycelium",
+   "repo": "megagott/mycelium-fm1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "felucca",
+    "sloop"
+   ],
+   "glue_family": "felucca_web",
+   "host_build_evidence": false,
+   "markers": []
+  },
+  {
+   "hub": "nauclerus",
+   "repo": "Mr-Roboto/nauclerus",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "hortator"
+   ],
+   "glue_family": "?",
+   "host_build_evidence": false,
+   "markers": [
+    "build_mvave_sdk"
+   ]
+  },
+  {
+   "hub": "nccnovationcircuitcompan",
+   "repo": "fenderberg/fm1-nc-companion",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "neon",
+   "repo": "LotionOnTheSkin/NEON",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_bsp",
+    "sloop_hostsim",
+    "sub_felucca_bsp"
+   ]
+  },
+  {
+   "hub": "noizdemons",
+   "repo": "SPIKE-the-Percussionist/noiz_demons",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "ombak",
+   "repo": "MadMooneyham/Ombak",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "penumbra"
+   ],
+   "glue_family": "?",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "opn1",
+   "repo": "putchdev/opn-1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "orbita",
+   "repo": "drophlex/ORBITA",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_bsp",
+    "sloop_hostsim",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "piterfly",
+   "repo": "piotrwozniak/piterfly",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "felucca"
+   ],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "pocketband",
+   "repo": "elpabl0/pocketband",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "gammawave",
+   "repo": "fvalente/GammaWave-FM1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "ptfm",
+   "repo": "hitosu/ptfm",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "pulhra",
+   "repo": "646timur-cell/pulhra_main",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "felucca"
+   ],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "sloop_hostsim",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "quartet",
+   "repo": "MammothCheese/quartet",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "rakt",
+   "repo": "chasedeanda/rakt-fm1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "choralroot",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "choralroot_hooks",
+    "fm1_open_sdk",
+    "host_c",
+    "melodee",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "rambeaver",
+   "repo": "adamcharleswilsonmusic-code/RAMBEAVER",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "wasm",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "rhytmsec1",
+   "repo": "hamperj/rhytm-sec-1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "fm1dock",
+    "perf1"
+   ],
+   "glue_family": "none",
+   "host_build_evidence": false,
+   "markers": []
+  },
+  {
+   "hub": "sardine",
+   "repo": "delirioux/sardine",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_bsp",
+    "felucca_web",
+    "sloop_hostsim",
+    "sub_felucca_bsp"
+   ]
+  },
+  {
+   "hub": "satie1",
+   "repo": "OCKM-STUDIO/SATIE-1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "scintilla",
+   "repo": "joakimeriksson/scintilla-fm1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "shineon",
+   "repo": "zvenson/shineon",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "obervave"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "sill",
+   "repo": "delirioux/sill",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "felucca",
+    "tuna"
+   ],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "atlatl",
+   "repo": "LIkst4/skiff-atlatl",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "skiff"
+   ],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "sloopbanks",
+   "repo": "majnikool/sloop-fm1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "floyd",
+   "repo": "renebohne/sloop-fm1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "sloopdub",
+   "repo": "altessproduction/sloop-dub-fm1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "sloop_hostsim",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "sloopdx",
+   "repo": "zvenson/dxsloop",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "sloop_hostsim"
+   ],
+   "fm1vst_glue_exists": "cores/dxsloop + core-glue/sloop (FM1VST main, as sloopDX)"
+  },
+  {
+   "hub": "spampy",
+   "repo": "Spampy-Droid/SPAMPY-0.0-r949",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "melodee",
+    "sloop_hostsim",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "splitmilk",
+   "repo": "MammothCheese/SPLITMILK",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "tastywaves",
+   "repo": "marksweiss/tastywaves",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "tether",
+   "repo": "utopick/fm1-pocket",
+   "license": "MIT",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "textura",
+   "repo": "leonardoMirabal/textura",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "host_c"
+   ]
+  },
+  {
+   "hub": "tribe",
+   "repo": "apiel/fm1-tribe",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "x0x"
+   ],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "trumpagotchi",
+   "repo": "adamcharleswilsonmusic-code/Trumpagotchi",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "fomni"
+   ],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "tuna",
+   "repo": "delirioux/tuna",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "u0u",
+   "repo": "youlisse/U0U",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_bsp",
+    "felucca_web",
+    "sloop_hostsim",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "unholy",
+   "repo": "actuallysparky/FM-1-Unholy-Union-generative-drone-firmware",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "valle",
+   "repo": "tammygucci/valee",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "skiff"
+   ],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "veffbox",
+   "repo": "galfaroth/veffbox",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": true,
+   "markers": [
+    "host_c",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "vibe-link",
+   "repo": "zvenson/vibe-link",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "wanderer",
+   "repo": "spinnicholas/lvm-wanderer-fm1",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "dinghy"
+   ],
+   "glue_family": "dinghy",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c"
+   ]
+  },
+  {
+   "hub": "waveloop",
+   "repo": "ELI7VH/Felucca",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "felucca_web",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "felucca_web",
+    "sloop_hostsim"
+   ]
+  },
+  {
+   "hub": "winampfm",
+   "repo": "hericdk/winampFM",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "sloop"
+   ],
+   "glue_family": "sloop",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "wasm"
+   ]
+  },
+  {
+   "hub": "x0xrmx",
+   "repo": "Mr-Roboto/fm1-x0x-rmx",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [
+    "x0x"
+   ],
+   "glue_family": "plat",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "host_c",
+    "x0x_plat"
+   ]
+  },
+  {
+   "hub": "xmod",
+   "repo": "KotMorderca/XMOD",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": true,
+   "markers": [
+    "host_c"
+   ]
+  },
+  {
+   "hub": "zp12",
+   "repo": "zvenson/zp12",
+   "license": "GPL-3.0",
+   "restriction": "no-build",
+   "hub_base": [],
+   "glue_family": "none",
+   "host_build_evidence": true,
+   "markers": [
+    "build_mvave_sdk",
+    "wasm"
+   ]
+  }
+ ]
+}
