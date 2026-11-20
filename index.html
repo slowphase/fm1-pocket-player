@@ -52,7 +52,7 @@
     <div class="fwlist" id="fwlist"></div>
     <div class="loadrow">
       <button class="chip" id="pick" type="button">open an .rfm1 file…</button>
-      <input type="file" id="file" accept=".rfm1,.wasm,application/wasm" hidden>
+      <input type="file" id="file" accept=".rfm1,.wasm,application/wasm,.fwsc" hidden>
       <input type="url" id="url" placeholder="or paste a link to an .rfm1 file" aria-label="Link to an .rfm1 file">
       <button class="chip" id="go" type="button">load</button>
     </div>
@@ -148,6 +148,7 @@
 <script>window.FM1_BUILTIN = [{ key: "builtin:h1", url: "firmware/h1.rfm1" }];</script>
 <script>window.FM1_SITE_NAME = "FM-1 Pocket Player";</script>
 <script src="src/rfm1.js"></script>
+<script src="src/emu-core.js"></script>
 <script src="src/pocket-picker.js"></script>
 <script src="src/app.js"></script>
 </body>

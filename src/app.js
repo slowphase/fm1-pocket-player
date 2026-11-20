@@ -535,8 +535,10 @@
   function run(entry) {
     showError("");
     return bytesOf(entry).then(function (bytes) {
-      var fw = R.parse(bytes);
-      return R.Core.create(fw).then(function (c) { return { fw: fw, c: c }; });
+      /* evaluation: an original .fwsc package runs on upstream fm1-emu (src/emu-core.js), an .rfm1 on src/rfm1.js */
+      var E = window.Fm1Emu && window.Fm1Emu.isPackage(bytes) ? window.Fm1Emu : R;
+      var fw = E === R ? R.parse(bytes) : E.parse(bytes, entry.meta || { id: entry.key, name: entry.name, version: entry.version, license: entry.license });
+      return E.Core.create(fw).then(function (c) { return { fw: fw, c: c }; });
     }).then(function (r) {
       if (core) { saveFlash(true); core.shutdown(); }
       return dbGet("flash", r.c.info.id || entry.key).then(function (flash) {
@@ -580,10 +582,11 @@
     $("title").textContent = m.name || i.name;
     $("fwname").textContent = (m.name || i.name) + " " + (m.version || "");
     document.title = (m.name || i.name) + " · " + (window.FM1_SITE_NAME || "FM-1 Browser Simulator");   /* pocket: its own name */
-    var h1 = cur.builtin && m.id === "h1", hub = "https://thefirmwarehub.com/firmware/h1/";
+    var h1 = cur.builtin && m.id === "h1", hub = "https://thefirmwarehub.com/firmware/h1/", emu = !!fw.emu;
     $("sub").innerHTML = h1
       ? "h1, a firmware for the M-VAVE FM-1, running from its own code: the same 240 × 240 pixels and 44.1 kHz sound. Put it on your FM-1 from <a href=\"" + hub + "\" target=\"_blank\" rel=\"noopener\">The Firmware Hub</a>. Load any other FM-1 firmware from the firmware button."
-      : esc("Running " + (m.name || i.name) + " " + (m.version || "") + (m.authors ? " by " + m.authors.join(", ") : "") + " from its .rfm1 file.");
+      : esc("Running " + (m.name || i.name) + " " + (m.version || "") + (m.authors && m.authors.length ? " by " + m.authors.join(", ") : "") +
+        (emu ? " from its original update package, on the emulator (evaluation)." : " from its .rfm1 file."));
     rows.push(["Name", m.name + " " + m.version]);
     if (m.authors && m.authors.length) rows.push(["By", m.authors.join(", ")]);
     rows.push(["Licence", lic(m.license) + (lic(m.license) !== m.license ? " (" + m.license + ")" : "")]);
@@ -591,7 +594,8 @@
     if (h1) rows.push(["Install", '<a href="' + hub + '" target="_blank" rel="noopener">h1 on The Firmware Hub</a>']);
     if (m.glue_url) rows.push(["Build glue", link(m.glue_url)]);
     if (m.built_by) rows.push(["Built by", m.built_by]);
-    rows.push(["Core", "fm1core ABI " + core.abi + (i.family ? ", " + i.family + " family" : "") + (core.sim1 ? ", with the sim1 extension" : "")]);
+    rows.push(["Core", emu ? "the original package on " + i.family + " (Joakim Eriksson, MIT), evaluation"
+      : "fm1core ABI " + core.abi + (i.family ? ", " + i.family + " family" : "") + (core.sim1 ? ", with the sim1 extension" : "")]);
     $("aboutmap").innerHTML = rows.map(function (r) { return "<dt>" + r[0] + "</dt><dd>" + (r[0] === "Source" || r[0] === "Build glue" || r[0] === "Install" ? r[1] : esc(r[1])) + "</dd>"; }).join("");
     var credits = fw.credits || i.credits;
     $("credits").hidden = !credits;
@@ -649,15 +653,18 @@
     current: function () { return cur; },
     run: function (e) { startAudio(); return run(e); },
     remove: removeEntry,
+    core: function () { return core; },          /* the running engine (the emulator evaluation's browser test) */
     lic: lic,
     esc: esc
   };
   window.FM1Sim = api;
   function addBytes(bytes, from) {
-    var fw;
-    try { fw = R.parse(bytes); } catch (e) { showError((from ? from + ": " : "") + e.message); return Promise.resolve(); }
+    var fw, pkg = window.Fm1Emu && window.Fm1Emu.isPackage(bytes);
+    var stem = String(from || "package").replace(/\.[^.]*$/, "");
+    try { fw = pkg ? window.Fm1Emu.parse(bytes, { id: stem.toLowerCase().replace(/[^a-z0-9_]+/g, "_"), name: stem }) : R.parse(bytes); }
+    catch (e) { showError((from ? from + ": " : "") + e.message); return Promise.resolve(); }
     return R.sha256(bytes).then(function (h) {
-      var m = fw.manifest, key = "fw:" + m.id + ":" + (h ? h.slice(0, 16) : m.version);
+      var m = fw.manifest, key = (pkg ? "pkg:" : "fw:") + m.id + ":" + (h ? h.slice(0, 16) : m.version);
       var same = function (x) {                  /* the same file as one already here, a built-in too */
         if (x.key === key) return true;
         if (!x.bytes || x.bytes.length !== bytes.length) return false;
