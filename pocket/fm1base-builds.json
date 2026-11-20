@@ -1,5 +1,5 @@
 {
- "about": "Firmware on The Firmware Hub with no .rfm1 anywhere, whose source uses fm1-base's own supported .rfm1 build (tools/build.py APP --rfm1, Emscripten 6.0.10 as fm1-base's release template pins it). Built at the authors' release tags. Found from the Hub snapshot of 2026-11-20T06:05Z. Building here proves a build is possible; publishing one needs a separate approval (pocket/policy.json).",
+ "about": "Firmware on The Firmware Hub with no .rfm1 in RemoteFM1FW, whose source uses fm1-base's own supported .rfm1 build (tools/build.py APP --rfm1, Emscripten 6.0.10 as fm1-base's release template pins it), either vendored or as a submodule at a commit that has --rfm1. Built at the authors' release tags; where the author's own release CI already makes an .rfm1 (author_rfm1), that file is taken from the author's release instead. From the Hub snapshot of 2026-11-20T06:05Z. Building here proves a build is possible; publishing one needs a separate approval (pocket/policy.json).",
  "emsdk": {
   "version": "6.0.10",
   "commit": "a2b92777574c2feda07994cd4f1079a3dfc151f8"
@@ -15,7 +15,8 @@
    "license": "MPL-2.0",
    "app": "src/apps/fm1-audio-gateway",
    "build": "src/tools/build.py",
-   "submodules": false
+   "submodules": false,
+   "layout": "vendored"
   },
   {
    "hub": "fmfam",
@@ -27,7 +28,8 @@
    "license": "MPL-2.0",
    "app": "fam",
    "build": "tools/build.py",
-   "submodules": true
+   "submodules": true,
+   "layout": "vendored"
   },
   {
    "hub": "audiorouter",
@@ -39,7 +41,8 @@
    "license": "MPL-2.0",
    "app": "src/apps/fm1-audio-gateway",
    "build": "src/tools/build.py",
-   "submodules": false
+   "submodules": false,
+   "layout": "vendored"
   },
   {
    "hub": "plissken",
@@ -51,7 +54,8 @@
    "license": "MPL-2.0",
    "app": ".",
    "build": "base/tools/build.py",
-   "submodules": false
+   "submodules": false,
+   "layout": "vendored"
   },
   {
    "hub": "sq80",
@@ -63,7 +67,8 @@
    "license": "MIT",
    "app": "app",
    "build": "fm1/base/tools/build.py",
-   "submodules": false
+   "submodules": false,
+   "layout": "vendored"
   },
   {
    "hub": "xenolith",
@@ -75,7 +80,8 @@
    "license": "GPL-3.0",
    "app": "app",
    "build": "vendor/fm1-base/tools/build.py",
-   "submodules": false
+   "submodules": false,
+   "layout": "vendored"
   },
   {
    "hub": "zenith1",
@@ -87,7 +93,249 @@
    "license": "MPL-2.0",
    "app": "app",
    "build": "base/tools/build.py",
-   "submodules": false
+   "submodules": false,
+   "layout": "vendored"
+  },
+  {
+   "hub": "choppah",
+   "name": "CHOPPAH",
+   "repo": "profikid/fm1-break-choppah",
+   "tag": "v1.4.1",
+   "commit": "fc35e78fb3f38a04407bc9224174b7c46761b667",
+   "version": "1.4.1",
+   "license": "MPL-2.0",
+   "app": "app",
+   "build": "base/tools/build.py",
+   "submodules": true,
+   "layout": "fm1-base submodule",
+   "fm1base": {
+    "url": "https://github.com/charlesvestal/fm1-base.git",
+    "commit": "c8e05997ce970875038156d2bbd69e712eac1543"
+   }
+  },
+  {
+   "hub": "deepfield",
+   "name": "DEEP FIELD",
+   "repo": "WisestWizard/deepfield",
+   "tag": "1.11",
+   "commit": "179e3723984aed0bf5f376c5bfec81558514103b",
+   "version": "1.11",
+   "license": "MPL-2.0",
+   "app": "deepfield",
+   "build": "base/tools/build.py",
+   "submodules": true,
+   "layout": "fm1-base submodule",
+   "fm1base": {
+    "url": "https://github.com/WisestWizard/fm1-base",
+    "commit": "646673be1a4275e38413a35de7598d2deb8973ba"
+   }
+  },
+  {
+   "hub": "fm1yoga",
+   "name": "FM1 YOGA",
+   "repo": "michamilz/fm1-yoga",
+   "tag": "v1.0",
+   "commit": "0186983bf72cba23ad5d96e0bc19d741cd98fd61",
+   "version": "1.0",
+   "license": "MPL-2.0",
+   "app": "app",
+   "build": "base/tools/build.py",
+   "submodules": true,
+   "layout": "fm1-base submodule",
+   "fm1base": {
+    "url": "https://github.com/charlesvestal/fm1-base",
+    "commit": "f66ac4a6af0d45e672e06fffad05767eb7b2901f"
+   }
+  },
+  {
+   "hub": "jamtrack",
+   "name": "JAMTRACK",
+   "repo": "Philip-Bos/jamtrack-fm1",
+   "tag": "v0.2.3",
+   "commit": "53e98ae12cbabd9b8d9a2ed804f72167ad5f4911",
+   "version": "0.2.3",
+   "license": "MIT",
+   "app": "app",
+   "build": "base/tools/build.py",
+   "submodules": true,
+   "layout": "fm1-base submodule",
+   "fm1base": {
+    "url": "https://github.com/charlesvestal/fm1-base",
+    "commit": "35a034849a5551be08e5c7de45295295fb6abb74"
+   }
+  },
+  {
+   "hub": "keystepone",
+   "name": "keySTEP ONE",
+   "repo": "dzwerg/keySTEP-ONE",
+   "tag": "v0.5.42",
+   "commit": "9438d510ea618cd543aadfeba5a7f3cb5ed97702",
+   "version": "0.5.42",
+   "license": "MPL-2.0",
+   "app": "app",
+   "build": "base/tools/build.py",
+   "submodules": true,
+   "layout": "fm1-base submodule",
+   "fm1base": {
+    "url": "https://github.com/charlesvestal/fm1-base",
+    "commit": "02f422c7d9de121ca099bb2fdebe5c035f59e8ad"
+   }
+  },
+  {
+   "hub": "metronome",
+   "name": "METRONOME",
+   "repo": "daviddwlee84/fm1-metronome",
+   "tag": "v0.3",
+   "commit": "aa1d2c7580cdee77b5fe760e2b97e05818bb7510",
+   "version": "0.3",
+   "license": "GPL-3.0",
+   "app": ".",
+   "build": "fm1-base/tools/build.py",
+   "submodules": true,
+   "layout": "fm1-base submodule",
+   "fm1base": {
+    "url": "https://github.com/charlesvestal/fm1-base.git",
+    "commit": "c8e05997ce970875038156d2bbd69e712eac1543"
+   }
+  },
+  {
+   "hub": "midimon",
+   "name": "MIDIMON",
+   "repo": "ignis32/midimonitor_fm1",
+   "tag": "v0.5",
+   "commit": "acde38e61c9678dfc7a1c3e73e1427e9874426d4",
+   "version": "0.5",
+   "license": "MPL-2.0",
+   "app": "app",
+   "build": "fm1-base/tools/build.py",
+   "submodules": true,
+   "layout": "fm1-base submodule",
+   "fm1base": {
+    "url": "https://github.com/charlesvestal/fm1-base",
+    "commit": "317cb86cc60d6286fa80a02743e94e6a60ff842d"
+   }
+  },
+  {
+   "hub": "moss1",
+   "name": "MOSS-1",
+   "repo": "theowecker/fm1-moss",
+   "tag": "v1.0",
+   "commit": "e5356834e05b35f8536869a91b8433e1ebd1197f",
+   "version": "1.0",
+   "license": "MPL-2.0",
+   "app": "app",
+   "build": "base/tools/build.py",
+   "submodules": true,
+   "layout": "fm1-base submodule",
+   "fm1base": {
+    "url": "https://github.com/charlesvestal/fm1-base.git",
+    "commit": "b0976f295ccaeaf77a8053a5a785a9cc21f5345f"
+   },
+   "author_rfm1": true
+  },
+  {
+   "hub": "paperlagoon",
+   "name": "PaperLagoon",
+   "repo": "hacha/paperlagoon",
+   "tag": "v1.1",
+   "commit": "6cdbb9994833d425dff0f486983a18763935b335",
+   "version": "1.1",
+   "license": "GPL-3.0",
+   "app": "app",
+   "build": "base/tools/build.py",
+   "submodules": true,
+   "layout": "fm1-base submodule",
+   "fm1base": {
+    "url": "https://github.com/charlesvestal/fm1-base",
+    "commit": "d83b64d6325da616e789ba8cf759493f68128c9f"
+   },
+   "author_rfm1": true
+  },
+  {
+   "hub": "pingos1",
+   "name": "PING OS-1",
+   "repo": "PINGAUDIO/PING-OS-1",
+   "tag": "v1.0.0",
+   "commit": "d3f8fc2295d07f06ba464f61737108e8880ad8c0",
+   "version": "1.0.0",
+   "license": "MPL-2.0",
+   "app": "app",
+   "build": "base/tools/build.py",
+   "submodules": true,
+   "layout": "fm1-base submodule",
+   "fm1base": {
+    "url": "https://github.com/PINGAUDIO/fm1-base",
+    "commit": "786c08f953f3ef5f6117c2c7d09b6a92aa478c8d"
+   }
+  },
+  {
+   "hub": "polly",
+   "name": "Polly",
+   "repo": "charlesvestal/fm1-polly",
+   "tag": "v0.6.4",
+   "commit": "fecf93ed5a08d294b6ee2f2bdabf37c30882930e",
+   "version": "0.6.4",
+   "license": "GPL-3.0",
+   "app": "app",
+   "build": "base/tools/build.py",
+   "submodules": true,
+   "layout": "fm1-base submodule",
+   "fm1base": {
+    "url": "https://github.com/charlesvestal/fm1-base",
+    "commit": "c8e05997ce970875038156d2bbd69e712eac1543"
+   },
+   "author_rfm1": true
+  },
+  {
+   "hub": "tack",
+   "name": "Tack",
+   "repo": "oikoaudio/tack",
+   "tag": "v0.15.0",
+   "commit": "1fdeea3d890237454511f2b7234eece854c1a0e5",
+   "version": "0.15.0",
+   "license": "GPL-3.0",
+   "app": "firmware/fm1",
+   "build": "third_party/fm1-base/tools/build.py",
+   "submodules": true,
+   "layout": "fm1-base submodule",
+   "fm1base": {
+    "url": "https://github.com/oikoaudio/fm1-base",
+    "commit": "be1754556341e69939edacfd746614c8062cac52"
+   }
+  },
+  {
+   "hub": "vnl1",
+   "name": "VNL-1",
+   "repo": "pianomansam/fm1-vnl",
+   "tag": "v0.9.2",
+   "commit": "43e65fa9d5caa431be2a4ddd292c0447049e5500",
+   "version": "0.9.2",
+   "license": "GPL-3.0",
+   "app": "app",
+   "build": "base/tools/build.py",
+   "submodules": true,
+   "layout": "fm1-base submodule",
+   "fm1base": {
+    "url": "https://github.com/pianomansam/fm1-base",
+    "commit": "65a5cf5fd7815096603808e124a7b67be35b55ac"
+   }
+  }
+ ],
+ "left_out": [
+  {
+   "hub": "blop",
+   "repo": "OSR-Experiment/OSR-1",
+   "why": "its fm1-base (4587fda) predates --rfm1; needs the author to update fm1-base"
+  },
+  {
+   "hub": "delrio",
+   "repo": "jsopdebeeck/fm1-delrio",
+   "why": "its fm1-base (67a2ced) predates --rfm1; needs the author to update fm1-base"
+  },
+  {
+   "hub": "playa",
+   "repo": "juan-ms2lab/playa",
+   "why": "its own Makefile around a forked fm1-base with SSH-only submodules: not the plain supported build"
   }
  ]
 }

@@ -25,6 +25,7 @@ for (const r of recipes.firmwares) {
     row.problems = [existsSync(join(dir, "FAILED.txt")) ? readFileSync(join(dir, "FAILED.txt"), "utf8").trim().split("\n").slice(-8).join("\n") : "no .rfm1 produced"];
     report.firmwares.push(row); continue;
   }
+  row.source = existsSync(join(dir, "SOURCE.txt")) ? readFileSync(join(dir, "SOURCE.txt"), "utf8").trim() : "built here";
   const file = join(dir, files[0]);
   const bytes = readFileSync(file);
   const chk = checkFile(bytes, { file: files[0], commit: r.commit }, null);
@@ -42,12 +43,12 @@ writeFileSync(arg("--out"), JSON.stringify(report, null, 1) + "\n");
 const n = (o) => report.firmwares.filter((f) => f.outcome === o).length;
 const lines = [`## fm1-base builds (not published)`, ``,
   `${report.firmwares.length} recipes: ${n("built-and-passed")} built and passed every check, ${n("built-with-problems")} built with problems, ${n("build-failed")} did not build. Emscripten ${recipes.emsdk.version}.`, ``,
-  `| Firmware | Tag | Result | Web | Native (Linux) | Notes |`, `| --- | --- | --- | --- | --- | --- |`];
+  `| Firmware | Tag | Source | Result | Web | Native (Linux) | Notes |`, `| --- | --- | --- | --- | --- | --- | --- |`];
 for (const f of report.firmwares) {
   const sp = (x) => (x && x.result && typeof x.result.speed === "number" ? ` ${x.result.speed}x` : "");
   const ok = (x) => (!x ? "-" : x.problems.length ? `fail${sp(x)}` : `pass${sp(x)}`);
   const notes = [...(f.problems || []), ...(f.fileProblems || []), ...(f.web ? f.web.problems : []), ...(f.native ? f.native.problems.map((p) => "native: " + p) : [])].join("; ").replace(/\n/g, " ").replace(/\|/g, "/");
-  lines.push(`| ${f.name} (${f.repo}) | ${f.tag} | ${f.outcome} | ${ok(f.web)} | ${ok(f.native)} | ${notes.slice(0, 300)} |`);
+  lines.push(`| ${f.name} (${f.repo}) | ${f.tag} | ${f.source || "-"} | ${f.outcome} | ${ok(f.web)} | ${ok(f.native)} | ${notes.slice(0, 300)} |`);
 }
 const text = lines.join("\n") + "\n";
 if (process.env.GITHUB_STEP_SUMMARY) writeFileSync(process.env.GITHUB_STEP_SUMMARY, text, { flag: "a" });

@@ -28,6 +28,11 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+      - name: Python for fm1-base's tools (Pillow as fm1-base's pyproject.toml pins it, with raqm as its template checks)
+        run: |
+          sudo apt-get install -y -qq libfribidi0
+          python3 -m pip install -q pillow==13.0.0
+          python3 -c "from PIL import features; assert features.check('raqm'), 'Pillow without raqm'"
       - name: Emscripten (the version and emsdk commit fm1-base's release template uses)
         run: |
           v=$(node -p "require('./pocket/fm1base-builds.json').emsdk.version")
@@ -37,15 +42,22 @@ jobs:
           "$RUNNER_TEMP/emsdk/emsdk" install "$v"
           "$RUNNER_TEMP/emsdk/emsdk" activate "$v"
           echo "EMSDK_DIR=$RUNNER_TEMP/emsdk" >> "$GITHUB_ENV"
-      - name: Build each firmware at its release tag
+      - name: Build each firmware at its release tag (or take the author's own .rfm1 when their release has one)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
           set +u; source "$EMSDK_DIR/emsdk_env.sh"; set -u
           emcc --version | head -1
           mkdir -p built src
-          node -e 'for (const r of require("./pocket/fm1base-builds.json").firmwares) console.log([r.hub, r.repo, r.commit, r.app, r.build, r.version, r.submodules].join("\t"))' |
-          while IFS=$'\t' read -r hub repo commit app build version subs; do
+          node -e 'for (const r of require("./pocket/fm1base-builds.json").firmwares) console.log([r.hub, r.repo, r.commit, r.app, r.build, r.version, r.submodules, r.tag, r.author_rfm1 ? "yes" : "no"].join("\t"))' |
+          while IFS=$'\t' read -r hub repo commit app build version subs tag author; do
             echo "::group::$hub ($repo @ ${commit:0:8})"
             mkdir -p "built/$hub"
+            if [ "$author" = "yes" ] && gh release download "$tag" -R "$repo" -p "*.rfm1" -D "built/$hub" 2>/dev/null && ls "built/$hub"/*.rfm1 >/dev/null 2>&1; then
+              echo "author's own release" > "built/$hub/SOURCE.txt"; ls -la "built/$hub"; echo "::endgroup::"; continue
+            fi
+            echo "built here" > "built/$hub/SOURCE.txt"
             (
               set -e
               git init -q "src/$hub"
