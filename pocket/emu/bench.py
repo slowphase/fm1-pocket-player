@@ -74,7 +74,9 @@ for id in ids:
         row["audioSeconds"] = round(secs, 2)
         row["screens"] = lcd_changes(f"{t}/frames") if os.path.isdir(f"{t}/frames") else None
         log = (r.stdout + r.stderr).lower()
-        row["stopped"] = secs < MS / 1000 - 0.5 or "halted" in log or "cpu exception" in log
+        # fm1-live exits 1 (with "halt:" and no JSON) when the emulated FM-1 stops; a shorter audio stream on its own
+        # is a firmware that started or paused its audio late, not a stop
+        row["stopped"] = r.returncode != 0 or "halt:" in log
         loud = {k: v for k, v in row["rms"].items() if v and v > SILENT}
         row["soundFrom"] = [k for k in WIN if k in loud]
         row["outcome"] = ("stopped" if row["stopped"] else "silent" if not loud else "sounds") + ("" if (row["screens"] or 0) > 1 else ", screen did not change")
