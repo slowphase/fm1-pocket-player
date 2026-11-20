@@ -1,0 +1,120 @@
+# Evaluation only: can upstream fm1-emu (joakimeriksson/fm1-emu, pinned in pocket/emu/upstream.json) play the
+# authors' original .fwsc packages, how fast, on which machines? Downloads each Hub firmware's package from its
+# maker's release (never from the Hub), keeps only SHA-256 matches, and runs every one in upstream's native player
+# (Linux x86-64, macOS Apple Silicon, macOS Intel) and in its browser engine (Node's V8). Boot checks with a
+# scripted session; nobody listens. Publishes nothing and reads the Hub's catalogue only from Pocket's saved copy.
+name: Pocket emulator evaluation
+
+on:
+  pull_request:
+    paths:
+      - pocket/emu/**
+      - .github/workflows/pocket-emu.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  packages:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Pocket's saved copies (read-only)
+        run: |
+          mkdir -p saved
+          for a in hub-catalog.json catalog-v2.json compat.json native-macos.json; do gh release download pocket-current -p "$a" -D saved --clobber; done
+      - name: The original packages from the makers' releases
+        run: |
+          node pocket/emu/packages.mjs --hub saved/hub-catalog.json --out pkgs
+          echo "=====RESULTS-BEGIN====="; cat pkgs/packages.json; echo "=====RESULTS-END====="
+      - uses: actions/upload-artifact@v7
+        with:
+          name: emu-packages
+          path: pkgs
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        with:
+          name: emu-saved
+          path: saved
+          retention-days: 14
+
+  native:
+    needs: packages
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-15, macos-15-intel]
+        shard: [1, 2, 3, 4]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+      - name: Upstream at the pinned commit
+        run: |
+          repo=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['repository'])")
+          commit=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['commit'])")
+          git init -q upstream && git -C upstream remote add origin "https://github.com/$repo"
+          git -C upstream fetch -q --depth 1 origin "$commit" && git -C upstream checkout -q FETCH_HEAD
+      - name: Linux libraries for fm1-live
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -y -qq libasound2-dev libx11-dev libxkbcommon-dev libxcursor-dev libxrandr-dev libxi-dev
+      - name: Build upstream's native player (fm1-live)
+        run: cd upstream && cargo build --release -p fm1-live
+      - uses: actions/download-artifact@v8
+        with:
+          name: emu-packages
+          path: pkgs
+      - name: Every package, one at a time
+        run: |
+          python3 pocket/emu/bench.py --live upstream/target/release/fm1-live --pkgs pkgs --shard ${{ matrix.shard }}/4 --out native-${{ matrix.os }}-${{ matrix.shard }}.json
+          echo "=====RESULTS-BEGIN====="; cat native-${{ matrix.os }}-${{ matrix.shard }}.json; echo "=====RESULTS-END====="
+      - uses: actions/upload-artifact@v7
+        with:
+          name: emu-native-${{ matrix.os }}-${{ matrix.shard }}
+          path: native-${{ matrix.os }}-${{ matrix.shard }}.json
+
+  wasm:
+    needs: packages
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Upstream at the pinned commit, its browser engine
+        run: |
+          repo=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['repository'])")
+          commit=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['commit'])")
+          git init -q upstream && git -C upstream remote add origin "https://github.com/$repo"
+          git -C upstream fetch -q --depth 1 origin "$commit" && git -C upstream checkout -q FETCH_HEAD
+          rustup target add wasm32-unknown-unknown
+          bash upstream/web/build.sh "$PWD/emu-web"
+      - uses: actions/download-artifact@v8
+        with:
+          name: emu-packages
+          path: pkgs
+      - name: Every package in the browser engine (V8)
+        run: |
+          pocket/emu/wasm_bench.sh upstream pkgs wasm-${{ matrix.shard }}.json ${{ matrix.shard }}/4 12
+          echo "=====RESULTS-BEGIN====="; cat wasm-${{ matrix.shard }}.json; echo "=====RESULTS-END====="
+      - uses: actions/upload-artifact@v7
+        with:
+          name: emu-wasm-${{ matrix.shard }}
+          path: wasm-${{ matrix.shard }}.json
+      - uses: actions/upload-artifact@v7
+        if: matrix.shard == 1
+        with:
+          name: emu-web-build
+          path: emu-web
