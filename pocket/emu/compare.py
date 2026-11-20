@@ -51,8 +51,13 @@ for id in sorted(set(WA) & set(WB)):
     if WB[id].get("error") and not WA[id].get("error"): problems.append((id, "the browser engine now fails"))
     elif WA[id].get("realtime") and WB[id].get("realtime") and WB[id]["realtime"] < WA[id]["realtime"] * 0.85 and WB[id]["realtime"] < 1.2:
         problems.append((id, f"browser engine slower: {WA[id]['realtime']}x to {WB[id]['realtime']}x"))
+wasm_n = len(set(WA) & set(WB))
 failing = [(i, w) for i, w in problems if i not in accepted]
-lines = [f"## Emulator upgrade check", "", f"{len(set(A) | set(B))} packages; {same} unchanged or better; {len(problems)} worse ({len(problems) - len(failing)} accepted)."]
+if not (set(A) | set(B)) and not wasm_n:
+    failing.append(("(none)", "nothing was compared: no measurements from either engine"))
+lines = [f"## Emulator upgrade check", "",
+         f"Native: {len(set(A) | set(B))} packages compared; browser engine: {wasm_n}. {same} native unchanged or better; "
+         f"{len(problems)} worse ({len(problems) - len([p for p in problems if p[0] not in accepted])} accepted)."]
 lines += ["", "**Worse**", *[f"- {i}: {w}{' (accepted: ' + accepted[i] + ')' if i in accepted else ''}" for i, w in problems]] if problems else []
 lines += ["", "**Better**", *[f"- {x}" for x in better[:60]]] if better else []
 text = "\n".join(lines) + "\n"
