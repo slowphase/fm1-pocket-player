@@ -1,0 +1,112 @@
+# FM-1 Pocket Player: checks for pull requests. Never publishes, never touches the pocket-current release, and never
+# reads The Firmware Hub (that is the nightly job's, at most once a day).
+#
+# 1. The unit tests and the simulator's own test.
+# 2. The native engine (pinned in pocket/native.json) on Linux: h1 and three published firmwares.
+# 3. A dry catalog-v2.json from the real published catalogue, RemoteFM1FW and the last compatibility ledger, kept as
+#    an artifact for review.
+# 4. The picker in Chromium against a local copy of the site with that catalogue (plus a made-up Hub sample, so the
+#    credit and "more" paths are exercised).
+name: Pocket check
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Unit tests
+        run: node --test pocket/tests/*.test.mjs
+
+      - name: The simulator's own test (h1)
+        run: node tests/run.js
+
+      - name: Which native engine to test
+        id: native
+        run: |
+          echo "repository=$(node -p "require('./pocket/native.json').repository")" >> "$GITHUB_OUTPUT"
+          echo "commit=$(node -p "require('./pocket/native.json').commit")" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ steps.native.outputs.repository }}
+          ref: ${{ steps.native.outputs.commit }}
+          path: native-engine
+      - name: Build the native engine's boot test (Linux)
+        run: make -C native-engine/Tests/ctest native_smoke
+
+      - name: The published data (read-only)
+        run: |
+          mkdir -p _site/data/fw _site/data/shots store
+          gh release download pocket-current --repo slowphase/fm1-pocket-player -p catalog.json -D _site/data
+          for a in compat.json native-macos.json hub-catalog.json; do
+            gh release download pocket-current --repo slowphase/fm1-pocket-player -p "$a" -D store 2>/dev/null || true
+          done
+          for id in fimba felucca grimm; do
+            f=$(node -p "(require('./_site/data/catalog.json').firmwares.find(x => x.id === '$id') || {}).file || ''")
+            [ -n "$f" ] && gh release download pocket-current --repo slowphase/fm1-pocket-player -p "$(basename "$f")" -D _site/data/fw
+            i=$(node -p "(require('./_site/data/catalog.json').firmwares.find(x => x.id === '$id') || {}).image || ''")
+            [ -n "$i" ] && gh release download pocket-current --repo slowphase/fm1-pocket-player -p "$(basename "$i")" -D _site/data/shots || true
+          done
+          ls -la _site/data _site/data/fw
+
+      - name: Native engine on h1 and published firmware
+        run: |
+          for f in firmware/h1.rfm1 _site/data/fw/*.rfm1; do native-engine/Tests/ctest/native_smoke "$f"; done | tee native.txt
+          ! grep -q '"crashed"' native.txt
+
+      - name: What RemoteFM1FW offers now
+        run: |
+          node -e 'import("./pocket/upstream.mjs").then(async (u) => { const o = await u.offer(); require("fs").writeFileSync("pocket-upstream.json", JSON.stringify({ items: o.items.map(({ asset, ...r }) => ({ ...r, asset: asset ? { size: asset.size, sha256: asset.sha256 } : null })), cards: o.cards })); console.log(o.items.length, "builds"); })'
+
+      - name: Dry catalog-v2.json (real data, no Hub read)
+        run: |
+          echo '{"pending":[],"rejected":[]}' > pocket-report.json
+          [ -f store/compat.json ] || echo '{"schema":1,"builds":{},"macos":{}}' > store/compat.json
+          node pocket/hub.mjs --cache store/hub-catalog.json --no-fetch
+          node pocket/discover.mjs --data _site/data --upstream pocket-upstream.json --report pocket-report.json \
+            --ledger store/compat.json --hub store/hub-catalog.json | tee -a "$GITHUB_STEP_SUMMARY"
+          cp _site/data/catalog-v2.json catalog-v2.dry.json
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: catalog-v2-dry
+          path: catalog-v2.dry.json
+          retention-days: 14
+
+      - name: Picker test catalogue (the dry v2 plus a made-up Hub sample)
+        run: |
+          node pocket/discover.mjs --data _site/data --upstream pocket-upstream.json --report pocket-report.json \
+            --ledger store/compat.json --hub pocket/tests/fixtures/hub-sample.json > /dev/null
+          cp -r index.html src firmware LICENSE _site/
+
+      - name: Install Chromium for Playwright
+        run: |
+          npm install --no-save --no-package-lock playwright@1
+          npx playwright install --with-deps chromium
+
+      - name: The picker in Chromium
+        run: |
+          (cd _site && python3 -m http.server 8000 >/dev/null 2>&1 &)
+          sleep 2
+          node pocket/tests/picker-v2.mjs http://localhost:8000/ picker-shots _site/data
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: picker-shots
+          path: picker-shots
+          retention-days: 14

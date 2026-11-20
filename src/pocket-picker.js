@@ -1,15 +1,20 @@
 /* FM-1 Pocket Player: the firmware picker (search, favourites, New, categories, a preview).
  *
  * Draws the firmware drawer's list in place of the simulator's own (src/app.js hands it the library
- * through window.FM1Sim). The hosted catalogue (data/catalog.json, built nightly by pocket/) adds one
- * library entry per firmware; its .rfm1 is fetched only when it is played, and app.js checks its
- * SHA-256 before running it. Favourites live in this browser, by firmware id, so they outlast updates.
- * Built-in and dropped-in firmwares keep working exactly as before. */
+ * through window.FM1Sim). The hosted catalogue adds one library entry per firmware; its .rfm1 is
+ * fetched only when it is played, and app.js checks its SHA-256 before running it. Favourites live in
+ * this browser, by firmware id, so they outlast updates. Built-in and dropped-in firmwares keep
+ * working exactly as before.
+ *
+ * The catalogue is data/catalog-v2.json when the site has it (built nightly by pocket/discover.mjs),
+ * else data/catalog.json. v2's downloadable entries are exactly catalog.json's; v2 also lists firmware
+ * that cannot be played here (no browser build yet, restricted, awaiting review...), shown only under
+ * the "more" filter, each with its reason and a link to its source. */
 (function () {
   "use strict";
   var DATA = "data/";
   var NEW_DAYS = 14;
-  var catalog = null, built = false, api = null;
+  var catalog = null, built = false, api = null, more = [];
   var state = { q: "", filter: "all", cat: "", open: "" };
 
   function $(id) { return document.getElementById(id); }
@@ -34,19 +39,34 @@
     return (Date.now() - Date.parse(a + "T00:00:00Z")) / 864e5 <= NEW_DAYS;
   }
 
-  /* ---- the catalogue ---- */
-  function load() {
-    return fetch(DATA + "catalog.json", { cache: "no-cache" }).then(function (r) {
+  /* ---- the catalogue: v2 when the site has it, else v1 ---- */
+  function fetchJson(name) {
+    return fetch(DATA + name, { cache: "no-cache" }).then(function (r) {
       if (!r.ok) throw new Error(r.status);
       return r.json();
-    }).then(function (c) {
-      if (!c || c.schema !== 1 || !Array.isArray(c.firmwares)) throw new Error("unknown catalogue");
+    });
+  }
+  var PLAYABLE = { playable: 1, experimental: 1 };
+  function webState(f) { return f.status && f.status.web ? f.status.web.state : "playable"; }
+  function entry(f) {
+    return { key: "cat:" + f.id, name: f.name, version: f.version, license: f.license,
+             url: DATA + f.file, sha256: f.sha256, catalog: true, meta: f };
+  }
+  function load() {
+    return fetchJson("catalog-v2.json").then(function (c) {
+      if (!c || c.schema !== 2 || !Array.isArray(c.firmwares)) throw new Error("unknown catalogue");
       catalog = c;
-      return c.firmwares.map(function (f) {
-        return { key: "cat:" + f.id, name: f.name, version: f.version, license: f.license,
-                 url: DATA + f.file, sha256: f.sha256, catalog: true, meta: f };
+      more = c.firmwares.filter(function (f) { return !(f.file && f.sha256 && PLAYABLE[webState(f)]); })
+        .map(function (f) { return { key: "more:" + f.id, name: f.name, version: f.version, license: f.license, more: true, meta: f }; });
+      return c.firmwares.filter(function (f) { return f.file && f.sha256 && PLAYABLE[webState(f)]; }).map(entry);
+    }).catch(function () {
+      more = [];
+      return fetchJson("catalog.json").then(function (c) {
+        if (!c || c.schema !== 1 || !Array.isArray(c.firmwares)) throw new Error("unknown catalogue");
+        catalog = c;
+        return c.firmwares.map(entry);
       });
-    }).catch(function () { catalog = null; return []; });   /* no catalogue: the simulator as it was */
+    }).catch(function () { catalog = null; more = []; return []; });   /* no catalogue: the simulator as it was */
   }
 
   /* ---- the drawer's controls, made once ---- */
@@ -61,6 +81,7 @@
         '<button type="button" class="chip" data-f="all">all</button>' +
         '<button type="button" class="chip" data-f="fav">&#9733; favourites</button>' +
         '<button type="button" class="chip" data-f="new">new</button>' +
+        '<button type="button" class="chip" data-f="more" hidden title="Firmware that cannot be played here, with where to get it">more</button>' +
         '<select id="pk-cat" aria-label="Category"><option value="">every category</option></select>' +
       "</div>";
     list.parentNode.insertBefore(bar, list);
@@ -143,6 +164,7 @@
       'Browser simulator by <a href="https://github.com/jakehandy/fm1-browser-simulator" target="_blank" rel="noopener">Jake Handy</a> (MIT). ' +
       '<code>.rfm1</code> builds from <a href="https://github.com/Quixotic7/RemoteFM1FW" target="_blank" rel="noopener">RemoteFM1FW</a> by Michael P Jones (Quixotic7). ' +
       "Every firmware is its authors' work, under its own licence: see <i>About this firmware</i>. " +
+      '<span id="pk-hub-credit"></span>' +
       'Integration and hosting by <a href="https://github.com/slowphase/fm1-pocket-player" target="_blank" rel="noopener">slowphase</a>.</p>' +
       "<p>An independent community project, not affiliated with or endorsed by M-VAVE, or by the authors above. " +
       'Firmware authors: to change or remove a listing, <a href="https://github.com/slowphase/fm1-pocket-player/issues" target="_blank" rel="noopener">open an issue</a>.</p>';
@@ -167,9 +189,10 @@
   }
   function matches(e) {
     var m = e.meta || {};
+    if ((state.filter === "more") !== !!e.more) return false;   /* "more" shows only what can't be played here */
     if (state.filter === "fav" && !isFav(e)) return false;
     if (state.filter === "new" && !isNew(e)) return false;
-    if (state.cat && (!e.catalog || m.category !== state.cat)) return false;
+    if (state.cat && ((!e.catalog && !e.more) || m.category !== state.cat)) return false;
     if (!state.q) return true;
     var hay = [e.name, e.version, by(e), m.about, m.tag, m.category].join(" ").toLowerCase();
     var bare = hay.replace(/[^a-z0-9]+/g, "");              /* "kwa" finds K-WA SUB, "fm1" finds FM-1 */
@@ -187,14 +210,41 @@
     el.innerHTML =
       '<button type="button" class="pk-row" aria-expanded="' + open + '">' + thumb(e) +
         '<span class="pk-meta"><b>' + esc(e.name) + " <small>" + esc(e.version || "") + "</small>" +
-          (isNew(e) ? ' <i class="pk-new">new</i>' : "") + (m.beta ? ' <i class="pk-beta">beta</i>' : "") + "</b>" +
+          (isNew(e) ? ' <i class="pk-new">new</i>' : "") + (m.beta ? ' <i class="pk-beta">beta</i>' : "") + badge(e) + "</b>" +
           "<small>" + esc([by(e), where, running ? "running" : ""].filter(Boolean).join(" · ")) + "</small></span>" +
       "</button>" +
-      '<button type="button" class="pk-star" aria-pressed="' + isFav(e) + '" aria-label="' + (isFav(e) ? "Remove from" : "Add to") + ' favourites: ' + esc(e.name) + '">' + (isFav(e) ? "&#9733;" : "&#9734;") + "</button>";
+      (e.more ? "<span></span>" : '<button type="button" class="pk-star" aria-pressed="' + isFav(e) + '" aria-label="' + (isFav(e) ? "Remove from" : "Add to") + ' favourites: ' + esc(e.name) + '">' + (isFav(e) ? "&#9733;" : "&#9734;") + "</button>");
     el.querySelector(".pk-row").addEventListener("click", function () { state.open = open ? "" : e.key; draw(); });
-    el.querySelector(".pk-star").addEventListener("click", function () { toggleFav(e); draw(); });
-    if (open) el.appendChild(preview(e, running));
+    if (!e.more) el.querySelector(".pk-star").addEventListener("click", function () { toggleFav(e); draw(); });
+    if (open) el.appendChild(e.more ? morePreview(e) : preview(e, running));
     return el;
+  }
+
+  /* what this player can do with a v2 entry, as a small tag (nothing for plain playable ones) */
+  var LABEL = { experimental: "untested", unsupported: "not supported", "source-only": "source only" };
+  function badge(e) {
+    var st = (e.meta || {}).status, s = st && st.web ? st.web.state : "";
+    return LABEL[s] ? ' <i class="pk-state pk-' + esc(s) + '" title="' + esc(st.web.reason || "") + '">' + LABEL[s] + "</i>" : "";
+  }
+  function link(href, text) { return '<a href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(text) + "</a>"; }
+  /* each maker, linked to their repository */
+  function makers(m) {
+    var list = m.makers && m.makers.length ? m.makers : (m.authors || []).map(function (n) { return { name: n, url: m.source }; });
+    return list.map(function (x) { return x.url ? link(x.url, x.name) : esc(x.name); }).join(", ");
+  }
+  /* a firmware this player can't run: why, who made it, where it lives */
+  function morePreview(e) {
+    var m = e.meta || {}, st = m.status && m.status.web || {}, p = document.createElement("div"), hub = m.provenance && m.provenance.hub;
+    p.className = "pk-preview";
+    var links = [m.source ? link(m.source, "source") : "", hub ? link(hub.url, "on The Firmware Hub") : ""].filter(Boolean).join(" · ");
+    p.innerHTML = '<div class="pk-pbody">' +
+      (m.tag ? '<p class="pk-tag">' + esc(m.tag) + "</p>" : "") +
+      (m.about ? "<p>" + esc(m.about) + "</p>" : "") +
+      '<p class="pk-why">' + esc(st.reason || (m.restriction && m.restriction.reason) || "") + "</p>" +
+      (makers(m) ? '<p class="pk-facts">by ' + makers(m) + "</p>" : "") +
+      '<p class="pk-facts">' + esc([m.version, m.category, m.license ? api.lic(m.license) : ""].filter(Boolean).join(" · ")) + (links ? " · " + links : "") + "</p>" +
+      "</div>";
+    return p;
   }
 
   function preview(e, running) {
@@ -206,6 +256,8 @@
       '<div class="pk-pbody">' +
         (m.tag ? '<p class="pk-tag">' + esc(m.tag) + "</p>" : "") +
         (m.about ? "<p>" + esc(m.about) + "</p>" : (e.builtin ? "<p>Built into this player.</p>" : (e.catalog ? "" : "<p>A file you added. It stays in this browser until you remove it.</p>"))) +
+        (m.status && makers(m) ? '<p class="pk-facts">by ' + makers(m) + "</p>" : "") +
+        (m.status && m.status.web && m.status.web.state === "experimental" ? '<p class="pk-why">' + esc(m.status.web.reason) + "</p>" : "") +
         '<p class="pk-facts">' + esc([e.version, m.category, e.license ? api.lic(e.license) : ""].filter(Boolean).join(" · ")) + (src ? " · " + src : "") + "</p>" +
         '<div class="pk-actions"></div>' +
       "</div>";
@@ -245,7 +297,7 @@
     if (!api) return;
     var lib = api.library(), cur = api.current(), host = $("fwlist");
     var cats = {};
-    lib.forEach(function (e) { if (e.catalog && e.meta.category) cats[e.meta.category] = 1; });
+    lib.concat(more).forEach(function (e) { if ((e.catalog || e.more) && e.meta.category) cats[e.meta.category] = 1; });
     var sel = $("pk-cat"), have = Array.prototype.map.call(sel.options, function (o) { return o.value; });
     Object.keys(cats).sort().forEach(function (c) { if (have.indexOf(c) < 0) sel.add(new Option(c, c)); });
     sel.value = state.cat;
@@ -253,25 +305,31 @@
       b.setAttribute("aria-pressed", String(b.dataset.f === state.filter));
     });
 
-    var shown = lib.filter(matches);
+    var mb = document.querySelector('.pk-filters [data-f="more"]');
+    if (mb) { mb.hidden = !more.length; mb.textContent = "more (" + more.length + ")"; }
+    if (state.filter === "more" && !more.length) state.filter = "all";
+    var shown = lib.concat(more).filter(matches);
     host.innerHTML = "";
     section(host, "Built in", shown.filter(function (e) { return e.builtin; }), cur);
     section(host, "Your files", shown.filter(function (e) { return !e.builtin && !e.catalog; }), cur);
-    var lib2 = shown.filter(function (e) { return e.catalog; });
+    var lib2 = shown.filter(function (e) { return e.catalog || e.more; });
     if (state.q) {                                          /* a name that matches comes first */
       var bare = function (x) { return String(x || "").toLowerCase().replace(/[^a-z0-9]+/g, ""); }, qb = bare(state.q);
       var rank = function (e) { var n = bare(e.name); return n.indexOf(qb) === 0 ? 0 : n.indexOf(qb) >= 0 ? 1 : 2; };
       lib2 = lib2.map(function (e, i) { return [rank(e), i, e]; }).sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; }).map(function (x) { return x[2]; });
     }
-    section(host, "Library", lib2, cur);
+    section(host, state.filter === "more" ? "Not playable here" : "Library", lib2, cur);
     if (!shown.length) {
       host.innerHTML = '<p class="note pk-none">' + (state.filter === "fav" ? "No favourites yet: tap the &#9734; beside a firmware." :
         state.filter === "new" ? "Nothing new in the last " + NEW_DAYS + " days." : "Nothing matches that.") + "</p>";
     }
-    var n = lib.filter(function (e) { return e.catalog; }).length;
+    var n = lib.filter(function (e) { return e.catalog; }).length, a = catalog && catalog.attribution;
     $("pk-info").innerHTML = catalog
-      ? esc(n + " firmwares in the library · catalogue last updated " + new Date(catalog.updated).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }))
+      ? esc(n + " firmwares in the library · catalogue last updated " + new Date(catalog.updated).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })) +
+        (a ? '<br>Firmware list: ' + link(a.url, "The Firmware Hub – thefirmwarehub.com") + " (" + link(a.licenseUrl, a.license) + "), combined with RemoteFM1FW's builds and this site's checks; makers' texts and pictures are not copied." : "")
       : "The hosted library isn't available right now. Built-in and your own files still work.";
+    var hc = $("pk-hub-credit");
+    if (hc) hc.innerHTML = a ? "The list of firmware that can't be played here comes from " + link(a.url, "The Firmware Hub") + " (" + link(a.licenseUrl, a.license) + "), combined with this site's own checks. " : "";
   }
 
   function render(a) { api = a; build(); draw(); }

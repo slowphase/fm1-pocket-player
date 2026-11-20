@@ -11,7 +11,8 @@
 //    New or updated -> downloaded, checked and boot-tested; it replaces the old version only if it
 //    passes; a first-time failure is not published.
 // 4. Builds OUT (catalog.json, fw/, shots/) and writes pocket-report.json for the workflow: what
-//    changed, what to upload to / delete from the release, what needs review, what failed.
+//    changed, what to upload to / delete from the release, what needs review, what failed; and
+//    pocket-upstream.json (what RemoteFM1FW offered) for discover.mjs, which builds catalog-v2.json.
 //
 // --local runs it from a folder of .rfm1 files and copies of RemoteFM1FW's README and catalog,
 // with no network: for trying it on a computer.
@@ -195,6 +196,12 @@ async function main() {
   report.checked = new Date().toISOString();
   rmSync(stage, { recursive: true, force: true });
   writeFileSync("pocket-report.json", JSON.stringify(report, null, 1) + "\n");
+  // what RemoteFM1FW offered, for discover.mjs (catalog-v2.json) so it need not read it again
+  writeFileSync("pocket-upstream.json", JSON.stringify({
+    read: report.checked,
+    items: up.items.map(({ asset, ...row }) => ({ ...row, asset: asset ? { size: asset.size, sha256: asset.sha256 } : null })),
+    cards: up.cards,
+  }) + "\n");
   summary(report);
 }
 

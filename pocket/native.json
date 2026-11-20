@@ -1,0 +1,8 @@
+{
+  "about": "The Mac app's native engine, used for FM-1 Pocket Player's native-compatibility checks. `commit` pins the exact fm1-pocket-mac commit whose Tests/ctest/native_smoke.c (fm1host + wasm3) is built: the nightly job runs it on Linux for every published firmware, and on macOS for the `representative` set (the next night's catalogue uses those macOS results). Changing `commit` re-tests everything. A build that runs slower than real time in the native engine stays experimental on the Mac (it may stutter), unless the macOS run measured it fast enough; `fizz`, the slowest on Linux, is in the representative set for that reason.",
+  "repository": "slowphase/fm1-pocket-mac",
+  "commit": "d03d801c85cba3276df6f9437f3d946f866511d6",
+  "tool": "Tests/ctest",
+  "engine": "fm1host + wasm3 0.5.0",
+  "representative": ["felucca", "sloop3", "grimm", "choralroot", "amb", "obervave", "chipbox", "skiff", "fimba", "tessera", "fizz"]
+}

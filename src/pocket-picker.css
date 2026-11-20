@@ -94,6 +94,18 @@ header, .drawer, .strip, .wrap > details, .pk-credits, .drop { --ink: var(--site
 }
 .pk-new { color: var(--bg); background: var(--ink); }
 .pk-beta { color: var(--dim); border: 1px solid var(--line); }
+.pk-state {
+  font: 600 9.5px var(--mono);
+  font-style: normal;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 999px;
+  vertical-align: 2px;
+  color: var(--dim);
+  border: 1px dashed var(--line);
+}
+.pk-why { color: var(--dim) !important; font-size: 13px !important; }
 .pk-star {
   align-self: center;
   border: 0;
