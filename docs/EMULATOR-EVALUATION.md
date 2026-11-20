@@ -111,14 +111,18 @@ Silicon in the emulator, and Hortator and MNM-1 sound after PLAY (they are silen
 check).
 
 **Interactive verification** (CI, not by ear):
-- Web prototype in Chromium 159 headless (Pocket's own page, `src/emu-core.js`): 13 of 15 original packages booted,
-  drew, sounded from keys, MIDI or PLAY, and kept a save across a reload; BEETLE (tracker, no song) and ChoralRoot
-  were silent there. ChoralRoot is a slow starter: in the same engine it plays once given about 8 s of emulated time,
-  and that test pressed keys after 3 s; the tests now wait 8 s. After them, the built-in `.rfm1` still ran on the
-  existing engine.
-- Mac prototype (`EmuCore`, upstream's engine linked into the app): Swift tests on Apple Silicon boot Felucca, draw,
-  sound a key and keep a save across a reboot; `--selftest-fwsc` runs 25 original packages inside the packaged app
-  (results in fm1-pocket-mac#8's run summary).
+- Web prototype in Chromium 159 headless (Pocket's own page, `src/emu-core.js`; Actions run 44717720559): **14 of
+  15** original packages booted, drew, sounded from keys, MIDI or PLAY, and kept a save across a reload, at 1.3x to
+  3.7x real time on the runner. BEETLE (a tracker, nothing to play without a song) was silent. After them, the
+  built-in `.rfm1` still ran on the existing engine. (A first run pressed keys after 3 s: ChoralRoot is a slow
+  starter and needs about 8 s; the tests now wait 8 s.)
+- Mac prototype (`EmuCore`, upstream's engine linked into the app; fm1-pocket-mac Actions run 44717713873, Apple M1
+  virtual): Swift tests (56, 0 failures) boot Felucca, draw, sound a key and keep a save across a reboot; inside the
+  packaged app `--selftest-fwsc` passed **23 of 25** original packages at 1.8x to 4.1x real time (B1 40x). BEETLE: no
+  song. Frodhes: silent with that test's three-key chord; it plays from single keys, and upstream's own native player
+  is silent on the chord alone too (a test artefact, not the engine).
+- Found and fixed in the prototype: calling upstream's render with no instruction budget let a package with no audio
+  yet hold the caller (the first Mac self-test hung on one); the adapters now use upstream's own worklet budgets.
 
 **Still needs Dean's Mac** (nothing above listened):
 - whether it sounds right (against the `.rfm1` and, where possible, a real FM-1), and whether keys, knobs and buttons
