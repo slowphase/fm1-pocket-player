@@ -26,10 +26,18 @@ for (const r of recipes.firmwares) {
     report.firmwares.push(row); continue;
   }
   row.source = existsSync(join(dir, "SOURCE.txt")) ? readFileSync(join(dir, "SOURCE.txt"), "utf8").trim() : "built here";
-  const file = join(dir, files[0]);
+  let name = files[0], file = join(dir, name);
   const bytes = readFileSync(file);
-  const chk = checkFile(bytes, { file: files[0], commit: r.commit }, null);
-  row.file = files[0]; row.sha256 = chk.sha; row.size = bytes.length;
+  // Pocket names a file <manifest id>-<version>.rfm1; fm1-base names it after fm1.toml's name, which can differ
+  // (VNL-1: "vnl" against the id "vnl_1"). The bytes are not touched, only the file name.
+  try {
+    const m0 = checkFile(bytes, { file: "x", commit: r.commit }, null).manifest;
+    if (m0 && m0.id && m0.version && name !== `${m0.id}-${m0.version}.rfm1`) {
+      name = `${m0.id}-${m0.version}.rfm1`; file = join(dir, name); writeFileSync(file, bytes); row.renamedFrom = files[0];
+    }
+  } catch { /* checkFile below reports it */ }
+  const chk = checkFile(bytes, { file: name, commit: r.commit }, null);
+  row.file = name; row.sha256 = chk.sha; row.size = bytes.length;
   row.manifest = chk.manifest ? { id: chk.manifest.id, name: chk.manifest.name, version: chk.manifest.version, license: chk.manifest.license, source_url: chk.manifest.source_url, built_by: chk.manifest.built_by, authors: chk.manifest.authors } : null;
   row.fileProblems = chk.problems; row.fileWarnings = chk.warnings;
   const web = await smokeTest(file, join(dir, "screen.png"));
