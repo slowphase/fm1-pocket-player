@@ -267,6 +267,7 @@
     var where = e.builtin ? "built in" : (e.catalog ? (m.category || "") : "your file");
     var el = document.createElement("div");
     el.className = "pk-item" + (running ? " cur" : "") + (open ? " open" : "");
+    el.dataset.key = e.key;
     el.innerHTML =
       '<button type="button" class="pk-row" aria-expanded="' + open + '">' + thumb(e) +
         '<span class="pk-meta"><b>' + esc(e.name) + " <small>" + esc(e.version || "") + "</small>" +

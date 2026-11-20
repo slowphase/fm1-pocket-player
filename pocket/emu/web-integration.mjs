@@ -141,8 +141,8 @@ try {
     const lib = window.FM1Sim.library();
     const h = [...document.querySelectorAll(".pk-h")].find((x) => /Library/.test(x.textContent));
     const names = [];
-    for (let el = h && h.nextElementSibling; el && el.classList.contains("pk-item"); el = el.nextElementSibling) names.push(el.querySelector(".pk-row b").firstChild.textContent.trim());
-    return names.map((n) => { const e = lib.find((x) => x.name === n && x.catalog); return { name: n, date: (e && e.meta.release && e.meta.release.date) || "" }; });
+    for (let el = h && h.nextElementSibling; el && el.classList.contains("pk-item"); el = el.nextElementSibling) names.push(el.dataset.key);
+    return names.map((k) => { const e = lib.find((x) => x.key === k); return { name: e ? e.name : k, date: (e && e.meta.release && e.meta.release.date) || "" }; });
   });
   const byRelease = await rows();
   const dated = byRelease.filter((r) => r.date);
@@ -158,7 +158,7 @@ try {
     const row = page.locator(".pk-item", { has: page.locator("b", { hasText: firstDated }) }).first();
     if ((await row.getAttribute("class")).indexOf("open") < 0) await row.locator(".pk-row").click();
     const facts = await row.locator(".pk-preview").textContent();
-    check("the preview shows the real release date", /released \d/.test(facts), (facts.match(/released [^·]*/) || [""])[0]);
+    check("the preview shows the real release date", /released .*\d{4}/.test(facts), (facts.match(/released [^·]*/) || [""])[0]);
     await page.fill("#pk-q", "");
   }
   await page.click('.pk-filters [data-f="new"]');
