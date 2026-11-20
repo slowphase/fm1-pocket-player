@@ -76,7 +76,19 @@ try {
   let s = await sound();
   check("preferred engine is the emulator (original package)", s.engine === "fm1-emu", `${pick.both}: ${s.engine}`);
   check("the original package makes sound", s.sounds && !s.halted, JSON.stringify(s));
-  await page.evaluate(() => { const c = window.FM1Sim.core(); c.flashImage(true); });
+  // a chord pressed between two renders plays every key (upstream's script call replaces its queue)
+  const chord = await page.evaluate(() => {
+    const c = window.FM1Sim.core();
+    const e = (n) => { const a = c.pull(n); let s = 0; for (const v of a) s += v * v; return s; };
+    e(44100);
+    [7, 11, 14].forEach((k) => c.key(k, 1, 110)); const three = e(22050); [7, 11, 14].forEach((k) => c.key(k, 0)); e(44100);
+    c.key(14, 1, 110); const one = e(22050); c.key(14, 0); e(22050);
+    return { three, one };
+  });
+  check("a chord pressed at once plays every key", Math.abs(chord.three - chord.one) > chord.one * 0.05, JSON.stringify(chord));
+  // a save waits until the firmware has finished writing, and a forced one (leaving the page) still comes back
+  const save = await page.evaluate(() => { const c = window.FM1Sim.core(); const img = c.flashImage(true); return img ? img.length % 4100 : -1; });
+  check("a save is whole sector records", save === 0, String(save));
   const row = await openPreview(pick.both);
   const line = await row.locator(".pk-engine").textContent();
   check("the preview names the engine and offers the other", /original package/.test(line) && /\.rfm1 build/.test(line), line.trim());

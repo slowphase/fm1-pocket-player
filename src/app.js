@@ -506,8 +506,9 @@
     var d = core.flashDirty();
     if (d === flashSeen && !sync) return;
     var img = core.flashImage(sync);
+    if (!img) return;                          /* still writing (the emulator): try again next second, unmarked */
     flashSeen = core.flashDirty();
-    if (img) dbPut("flash", core.info.id || cur.key, img);
+    dbPut("flash", core.info.id || cur.key, img);
   }
 
   /* ---- loading a firmware ---- */

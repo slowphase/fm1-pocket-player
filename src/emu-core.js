@@ -80,6 +80,9 @@
     }
     if (flash && flash.length && flash.length % (SECTOR + 4) === 0) x.fm1_flash_restore(this._copy(flash), flash.length);
     x.fm1_pot(this.pot);
+    this.lastRev = x.fm1_flash_revision() >>> 0;
+    this.flashChangedMs = 0;
+    this.pendingKeys = [];
   };
   Core.prototype._halt = function (code, err) {
     if (this.halted) return;
@@ -91,6 +94,9 @@
     var budget = this.playing ? MHZ * 1e6 * 1.5 * n / FS : MHZ * 1e6 * 0.02, have;
     try { have = this.x.fm1_render(n, budget); } catch (e) { this._halt(0x1ff, e); return 0; }
     if (have > 0) this.playing = true;
+    this.pendingKeys = [];                     /* every scripted key queued before this render is now delivered */
+    var rev = this.x.fm1_flash_revision() >>> 0;
+    if (rev !== this.lastRev) { this.lastRev = rev; this.flashChangedMs = this.x.fm1_ms() >>> 0; }
     if (this.x.fm1_halted()) this._halt(0x1ff, new Error("the emulated FM-1 stopped (a CPU exception)"));
     return have;
   };
@@ -112,12 +118,15 @@
     return out;
   };
   Core.prototype.drop = function () {};
+  /* Keys go through upstream's input script (the only way in for the velocity, Action::KeyVel), releases too so
+   * they cannot overtake a press. Its script call replaces the whole queue, so each event is queued together with
+   * those not yet delivered: otherwise keys pressed between two renders (a chord) lose all but the last. */
   Core.prototype.key = function (k, down, vel) {
     if (k < 0 || k >= 27) return;
-    if (down) {   /* the velocity goes through upstream's own input script (Action::KeyVel) */
-      var s = new TextEncoder().encode(this.x.fm1_ms() + ":n" + k + "@" + Math.max(1, Math.min(127, vel || 100)));
-      this.x.fm1_bench_script(this._copy(s), s.length);
-    } else this.x.fm1_key(14 + k, 0);
+    var ms = this.x.fm1_ms() >>> 0;
+    (this.pendingKeys = this.pendingKeys || []).push(down ? ms + ":" + (14 + k) + "@" + Math.max(1, Math.min(127, vel || 100)) : ms + ":" + (14 + k) + "^");
+    var s = new TextEncoder().encode(this.pendingKeys.join(","));
+    this.x.fm1_bench_script(this._copy(s), s.length);
   };
   Core.prototype.button = function (b, down) { if (LABEL_TO_ID[b] !== undefined) this.x.fm1_key(LABEL_TO_ID[b], down ? 1 : 0); };
   Core.prototype.turn = function (role, d) { if (ROLE_TO_ENC[role] !== undefined && d) this.x.fm1_enc(ROLE_TO_ENC[role], d | 0); };
@@ -149,7 +158,17 @@
   Core.prototype.ctl = function () { return null; };
   Core.prototype.ctlSet = function () {};
   Core.prototype.flashDirty = function () { return this.x.fm1_flash_revision() >>> 0; };
-  Core.prototype.flashImage = function () {
+  /* A save only once the firmware has finished writing: none in progress and none for 250 ms of its time (as
+   * upstream's web player waits). null while it writes; with sync (leaving, switching) it runs on, silently, for up
+   * to 1.5 s of its time until it has finished. */
+  Core.prototype._quiet = function () {
+    return !this.x.fm1_flash_busy() && ((this.x.fm1_ms() >>> 0) - (this.flashChangedMs || 0)) >= 250;
+  };
+  Core.prototype.flashImage = function (sync) {
+    if (!this._quiet()) {
+      if (!sync) return null;
+      for (var w = 0; w < 1500 && !this._quiet() && !this.halted; w += 10) this._render(441);
+    }
     var x = this.x, len = x.fm1_flash_len(), now = new Uint8Array(x.memory.buffer, x.fm1_flash(), len),
       base = new Uint8Array(x.memory.buffer, x.fm1_flash_base(), len), out = [], at, i, rec;
     for (at = 0; at < len; at += SECTOR) {
