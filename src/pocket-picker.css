@@ -195,3 +195,7 @@ header, .drawer, .strip, .wrap > details, .pk-credits, .drop { --ink: var(--site
 }
 .pk-close:hover { border-color: var(--dim); }
 .drawer.pk-pop .pk-bar { margin-right: 44px; }
+/* the engine line in a preview: as quiet as the other facts */
+.pk-pbody .pk-engine .pk-link { background: none; border: 0; padding: 0; font: inherit; color: var(--dim); text-decoration: underline; cursor: pointer; }
+.pk-pbody .pk-engine .pk-link:hover { color: var(--ink, inherit); }
+.pk-pbody .pk-engine .pk-link:disabled { opacity: .5; cursor: default; }

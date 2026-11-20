@@ -19,6 +19,13 @@
 #    - Compatibility (pocket/compat.mjs): every published build in the web runtime and in the Mac app's native
 #      engine built for Linux; the native-macos job then runs a representative set on macOS, which the next
 #      night's catalogue uses to mark native results verified.
+# 7. The emulator engine (pocket/emu/): the makers' original .fwsc packages, run unchanged in upstream fm1-emu
+#    (pinned in pocket/emu/upstream.json). The emu job fetches new packages from the makers' releases (SHA-256 checked
+#    against the Hub's list), measures them on Linux and in the browser engine, and keeps packages, ledger and the web
+#    engine in this repository's rolling release `pocket-packages`; emu-macos measures them on macOS. The sync job adds
+#    each firmware's `emu` block to catalog-v2.json and puts the hostable packages under data/pkg/ and the browser
+#    engine under emu/, only when the repository variable POCKET_PUBLISH_EMU is "true" (and v2 is published).
+#    Otherwise it is built for review only (the catalog-v2-emu-preview artifact). catalog.json never changes.
 name: Pocket sync
 
 on:
@@ -127,6 +134,39 @@ jobs:
             echo "catalog-v2.json was built but not added to the site (POCKET_PUBLISH_V2 is not \"true\")." >> "$GITHUB_STEP_SUMMARY"
           fi
 
+      - name: The emulator engine (original packages)
+        id: emu
+        run: |
+          mkdir -p emu-state emu-store
+          gh release download pocket-packages -p packages.json -p emu-compat.json -D emu-state --clobber 2>/dev/null || true
+          if [ ! -s emu-state/packages.json ]; then
+            echo "No pocket-packages release yet: the emulator engine is left out tonight." >> "$GITHUB_STEP_SUMMARY"; exit 0
+          fi
+          commit=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['commit'][:12])")
+          flags=""
+          if gh release download pocket-packages -p "fm1-emu-web-$commit.tar.gz" -D emu-state --clobber 2>/dev/null; then
+            mkdir -p emu-web && tar -xzf "emu-state/fm1-emu-web-$commit.tar.gz" -C emu-web
+          else
+            flags="--no-web-engine"; echo "No browser engine built for fm1-emu@$commit yet." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          gh release download pocket-packages -p '*.fwsc' -D emu-store --skip-existing 2>/dev/null || true
+          publish=false
+          [ "${{ vars.POCKET_PUBLISH_V2 }}" = "true" ] && [ "${{ vars.POCKET_PUBLISH_EMU }}" = "true" ] && [ -f _site/data/catalog-v2.json ] && publish=true
+          if [ "$publish" = "true" ]; then
+            python3 pocket/emu/catalog.py --v2 _site/data/catalog-v2.json --packages emu-state/packages.json --emu-ledger emu-state/emu-compat.json \
+              --rfm1-ledger pocket-store/compat.json --store emu-store --site _site/data $flags
+            [ -d emu-web ] && mkdir -p _site/emu && cp emu-web/* _site/emu/
+            cp _site/data/catalog-v2.json pocket-store/catalog-v2.json
+            old=$(python3 -c "import json;print(json.dumps([e.get('emu') for e in json.load(open('pocket-store/catalog-v2.previous.json'))['firmwares']],sort_keys=True))" 2>/dev/null | sha256sum)
+            new=$(python3 -c "import json;print(json.dumps([e.get('emu') for e in json.load(open('_site/data/catalog-v2.json'))['firmwares']],sort_keys=True))" | sha256sum)
+            [ "$old" != "$new" ] && echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            cp pocket-store/catalog-v2.json catalog-v2.emu-preview.json
+            python3 pocket/emu/catalog.py --v2 catalog-v2.emu-preview.json --packages emu-state/packages.json --emu-ledger emu-state/emu-compat.json \
+              --rfm1-ledger pocket-store/compat.json --store emu-store $flags
+            echo "The emulator engine was built for review, not published (POCKET_PUBLISH_EMU is not \"true\")." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Keep the Hub copy and the compatibility ledger
         # in the release whether or not the site is published, so the Hub is not re-read and builds are not
         # re-tested every night
@@ -144,6 +184,7 @@ jobs:
           path: |
             _site/data/catalog-v2.json
             catalog-v2.unpublished.json
+            catalog-v2.emu-preview.json
           if-no-files-found: ignore
           retention-days: 14
 
@@ -159,6 +200,7 @@ jobs:
         run: |
           changed=$(node -p "require('./pocket-report.json').changed")
           v2changed="${{ steps.v2.outputs.changed }}"
+          [ "${{ steps.emu.outputs.changed }}" = "true" ] && v2changed=true
           [ "${{ vars.POCKET_PUBLISH_V2 }}" = "true" ] || v2changed=false
           if [ "$changed" = "true" ] || [ "$v2changed" = "true" ] || [ "${{ github.event_name }}" != "schedule" ]; then
             echo "deploy=true" >> "$GITHUB_OUTPUT"
@@ -271,6 +313,130 @@ jobs:
         run: |
           node pocket/compat.mjs --macos --data rep --ledger rep/compat.json --native native-engine/Tests/ctest/native_smoke --out native-macos.json | tee -a "$GITHUB_STEP_SUMMARY"
           gh release upload pocket-current native-macos.json --clobber
+
+  # The emulator engine's packages and measurements, for the next night's catalogue. Never blocks publishing.
+  emu:
+    needs: sync
+    if: always() && needs.sync.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    permissions:
+      contents: write     # the pocket-packages release
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Saved state
+        run: |
+          mkdir -p state saved
+          gh release download pocket-packages -p packages.json -p emu-compat.json -D state --clobber 2>/dev/null || true
+          for a in hub-catalog.json catalog-v2.json compat.json; do gh release download pocket-current -p "$a" -D saved --clobber; done
+          # first run: start the ledger from the evaluation's measurements (same engine commit, same packages by SHA-256)
+          [ -s state/emu-compat.json ] || python3 pocket/emu/ledger.py seed --ledger state/emu-compat.json --from docs/emu-evaluation-results.json
+      - name: Restore fetched packages
+        uses: actions/cache/restore@v6
+        with:
+          path: pkgs
+          key: emu-pkgs-${{ github.run_id }}
+          restore-keys: emu-pkgs-
+      - name: New or changed packages, from the makers' releases (SHA-256 checked)
+        run: |
+          node pocket/emu/packages.mjs --hub saved/hub-catalog.json --out pkgs --previous state/packages.json
+          cp pkgs/packages.json state/packages.json
+      - name: What needs measuring with the pinned engine
+        id: todo
+        run: |
+          echo "linux=$(python3 pocket/emu/ledger.py todo --ledger state/emu-compat.json --packages state/packages.json --machine linux)" >> "$GITHUB_OUTPUT"
+          echo "wasm=$(python3 pocket/emu/ledger.py todo --ledger state/emu-compat.json --packages state/packages.json --machine wasm)" >> "$GITHUB_OUTPUT"
+          commit=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['commit'][:12])")
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+          gh release view pocket-packages --json assets -q '.assets[].name' 2>/dev/null | grep -qx "fm1-emu-web-$commit.tar.gz" && echo "web=have" >> "$GITHUB_OUTPUT" || echo "web=build" >> "$GITHUB_OUTPUT"
+      - name: Upstream at the pinned commit
+        if: steps.todo.outputs.linux != '' || steps.todo.outputs.wasm != '' || steps.todo.outputs.web == 'build'
+        run: |
+          repo=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['repository'])")
+          commit=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['commit'])")
+          git init -q upstream && git -C upstream remote add origin "https://github.com/$repo"
+          git -C upstream fetch -q --depth 1 origin "$commit" && git -C upstream checkout -q FETCH_HEAD
+      - name: Measure on Linux (upstream's native player)
+        if: steps.todo.outputs.linux != ''
+        run: |
+          sudo apt-get install -y -qq libasound2-dev libx11-dev libxkbcommon-dev libxcursor-dev libxrandr-dev libxi-dev
+          (cd upstream && cargo build --release -q -p fm1-live)
+          python3 pocket/emu/bench.py --live upstream/target/release/fm1-live --pkgs pkgs --out linux.json ${{ steps.todo.outputs.linux }}
+          python3 pocket/emu/ledger.py merge --ledger state/emu-compat.json --packages state/packages.json --machine linux --native linux.json
+      - name: The browser engine
+        if: steps.todo.outputs.wasm != '' || steps.todo.outputs.web == 'build'
+        run: |
+          rustup target add wasm32-unknown-unknown
+          pocket/emu/build-web.sh upstream web-site
+          tar -czf "fm1-emu-web-${{ steps.todo.outputs.commit }}.tar.gz" -C web-site/emu .
+      - name: Measure in the browser engine (V8)
+        if: steps.todo.outputs.wasm != ''
+        run: |
+          mkdir -p todo && for id in ${{ steps.todo.outputs.wasm }}; do cp "pkgs/$id.fwsc" todo/; done
+          pocket/emu/wasm_bench.sh upstream todo wasm.json 1/1 12
+          python3 pocket/emu/ledger.py merge --ledger state/emu-compat.json --packages state/packages.json --machine wasm --wasm wasm.json
+      - name: Save fetched packages
+        if: always()
+        uses: actions/cache/save@v6
+        with:
+          path: pkgs
+          key: emu-pkgs-${{ github.run_id }}
+      - name: Keep packages, ledger and engine in pocket-packages
+        # only the packages Pocket may host (an open licence, not excluded by policy.json), as <hub>-<sha8>.fwsc
+        run: |
+          cp saved/catalog-v2.json hostable.json
+          python3 pocket/emu/catalog.py --v2 hostable.json --packages state/packages.json --emu-ledger state/emu-compat.json \
+            --rfm1-ledger saved/compat.json --store pkgs --site hosted > /dev/null
+          gh release view pocket-packages >/dev/null 2>&1 || gh release create pocket-packages --title "Original firmware packages (rolling)" --latest=false \
+            --notes "The makers' original .fwsc packages that Pocket may host (open licences, not excluded), each identical to the maker's release asset and checked against The Firmware Hub's SHA-256, plus the emulator engine's measurements. Kept for the web player, which cannot fetch the makers' files itself. Updated automatically; not a release of this project. Each firmware is its makers' work under its own licence: see the source link for each in catalog-v2.json. The emulator is joakimeriksson/fm1-emu (MIT)."
+          have=$(gh release view pocket-packages --json assets -q '.assets[].name')
+          files="state/packages.json state/emu-compat.json"
+          [ -f "fm1-emu-web-${{ steps.todo.outputs.commit }}.tar.gz" ] && files="$files fm1-emu-web-${{ steps.todo.outputs.commit }}.tar.gz"
+          for f in hosted/pkg/*.fwsc; do [ -e "$f" ] || continue; echo "$have" | grep -qx "$(basename "$f")" || files="$files $f"; done
+          gh release upload pocket-packages $files --clobber
+          # packages no longer hostable or superseded come down
+          ls hosted/pkg 2>/dev/null > keep.txt || true
+          echo "$have" | grep '\.fwsc$' | while read -r name; do grep -qx "$name" keep.txt || gh release delete-asset pocket-packages "$name" -y; done
+
+  # The emulator engine on macOS (Apple Silicon): packages not yet measured there with the pinned engine.
+  emu-macos:
+    needs: emu
+    if: always() && needs.emu.result == 'success'
+    runs-on: macos-15
+    timeout-minutes: 120
+    permissions:
+      contents: write     # emu-compat.json in pocket-packages
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: What needs measuring
+        id: todo
+        run: |
+          mkdir -p state pkgs
+          gh release download pocket-packages -p packages.json -p emu-compat.json -D state --clobber
+          echo "ids=$(python3 pocket/emu/ledger.py todo --ledger state/emu-compat.json --packages state/packages.json --machine mac)" >> "$GITHUB_OUTPUT"
+      - name: Measure on macOS
+        if: steps.todo.outputs.ids != ''
+        run: |
+          ids="${{ steps.todo.outputs.ids }}"
+          python3 pocket/emu/fetch.py --packages state/packages.json --dir pkgs --only "${ids// /,}"
+          repo=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['repository'])")
+          commit=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['commit'])")
+          git init -q upstream && git -C upstream remote add origin "https://github.com/$repo"
+          git -C upstream fetch -q --depth 1 origin "$commit" && git -C upstream checkout -q FETCH_HEAD
+          (cd upstream && cargo build --release -q -p fm1-live)
+          python3 pocket/emu/bench.py --live upstream/target/release/fm1-live --pkgs pkgs --out mac.json $(ls pkgs | sed -n 's/\.fwsc$//p')
+          # the ledger may have moved while this ran: merge into the latest copy
+          gh release download pocket-packages -p emu-compat.json -D state --clobber
+          python3 pocket/emu/ledger.py merge --ledger state/emu-compat.json --packages state/packages.json --machine mac --native mac.json
+          gh release upload pocket-packages state/emu-compat.json --clobber
 
   deploy:
     needs: sync

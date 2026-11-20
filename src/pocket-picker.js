@@ -9,7 +9,11 @@
  * The catalogue is data/catalog-v2.json when the site has it (built nightly by pocket/discover.mjs),
  * else data/catalog.json. v2's downloadable entries are exactly catalog.json's; v2 also lists firmware
  * that cannot be played here (no browser build yet, restricted, awaiting review...), shown only under
- * the "more" filter, each with its reason and a link to its source. */
+ * the "more" filter, each with its reason and a link to its source.
+ *
+ * Where v2 has an `emu` block, a firmware can also run as its maker's original .fwsc package on the emulator: Pocket's
+ * copy (data/pkg/, identical to the maker's release asset; its SHA-256 checked before it runs). Each firmware runs on
+ * the catalogue's preferred engine unless the listener picked the other one in its preview. */
 (function () {
   "use strict";
   var DATA = "data/";
@@ -48,23 +52,64 @@
   }
   var PLAYABLE = { playable: 1, experimental: 1 };
   function webState(f) { return f.status && f.status.web ? f.status.web.state : "playable"; }
+
+  /* ---- engines: a firmware may run as its .rfm1 build (src/rfm1.js) and/or as the maker's original package on the
+   * emulator (src/emu-core.js, upstream fm1-emu). The catalogue names the preferred one per firmware (emu.preferred);
+   * a listener can switch, per firmware, and that choice is kept in this browser. Saves are kept per engine. ---- */
+  var overrides = get("pocket.engine", {});
+  function hasRfm1(f) { return !!(f.file && f.sha256 && PLAYABLE[webState(f)]); }
+  function hasEmu(f) {
+    var em = f.emu;
+    return !!(em && em.package && em.package.file && em.web && PLAYABLE[em.web.state] && window.Fm1Emu);
+  }
+  function engines(f) { return (hasRfm1(f) ? ["rfm1"] : []).concat(hasEmu(f) ? ["fm1-emu"] : []); }
+  function engineFor(f) {
+    var have = engines(f), want = overrides[f.id], pref = f.emu && f.emu.preferred && f.emu.preferred.web;
+    if (want && have.indexOf(want) >= 0) return want;
+    if (pref && have.indexOf(pref.engine) >= 0) return pref.engine;
+    return have[0];
+  }
+  /* what this player's engine for the entry says about it: {state, reason} */
+  function webStatus(e) {
+    var m = e.meta || {};
+    if (e.engine === "fm1-emu") return m.emu.web;
+    return m.status && m.status.web;
+  }
+  function use(e, engine) {
+    var f = e.meta;
+    e.engine = engine;
+    if (engine === "fm1-emu") {
+      var p = f.emu.package;
+      e.url = DATA + p.file; e.sha256 = p.sha256; e.version = p.version || f.version;
+      e.emuMeta = { id: f.id, name: f.name, version: e.version, license: p.license || f.license, source_url: p.source || f.source, authors: f.authors };
+    } else {
+      e.url = DATA + f.file; e.sha256 = f.sha256; e.version = f.version; e.emuMeta = null;
+    }
+    return e;
+  }
+  function setEngine(e, engine) {
+    var pref = e.meta.emu && e.meta.emu.preferred && e.meta.emu.preferred.web;
+    if (pref && pref.engine === engine) delete overrides[e.meta.id]; else overrides[e.meta.id] = engine;
+    put("pocket.engine", overrides);
+    use(e, engine);
+  }
   function entry(f) {
-    return { key: "cat:" + f.id, name: f.name, version: f.version, license: f.license,
-             url: DATA + f.file, sha256: f.sha256, catalog: true, meta: f };
+    return use({ key: "cat:" + f.id, name: f.name, version: f.version, license: f.license, catalog: true, meta: f }, engineFor(f));
   }
   function load() {
     return fetchJson("catalog-v2.json").then(function (c) {
       if (!c || c.schema !== 2 || !Array.isArray(c.firmwares)) throw new Error("unknown catalogue");
       catalog = c;
-      more = c.firmwares.filter(function (f) { return !(f.file && f.sha256 && PLAYABLE[webState(f)]); })
+      more = c.firmwares.filter(function (f) { return !engines(f).length; })
         .map(function (f) { return { key: "more:" + f.id, name: f.name, version: f.version, license: f.license, more: true, meta: f }; });
-      return c.firmwares.filter(function (f) { return f.file && f.sha256 && PLAYABLE[webState(f)]; }).map(entry);
+      return c.firmwares.filter(function (f) { return engines(f).length; }).map(entry);
     }).catch(function () {
       more = [];
       return fetchJson("catalog.json").then(function (c) {
         if (!c || c.schema !== 1 || !Array.isArray(c.firmwares)) throw new Error("unknown catalogue");
         catalog = c;
-        return c.firmwares.map(entry);
+        return c.firmwares.map(function (f) { return { key: "cat:" + f.id, name: f.name, version: f.version, license: f.license,
+          url: DATA + f.file, sha256: f.sha256, catalog: true, engine: "rfm1", meta: f }; });
       });
     }).catch(function () { catalog = null; more = []; return []; });   /* no catalogue: the simulator as it was */
   }
@@ -163,6 +208,7 @@
       "<p><b>FM-1 Pocket Player</b> plays FM-1 community firmware in the browser. " +
       'Browser simulator by <a href="https://github.com/jakehandy/fm1-browser-simulator" target="_blank" rel="noopener">Jake Handy</a> (MIT). ' +
       '<code>.rfm1</code> builds from <a href="https://github.com/Quixotic7/RemoteFM1FW" target="_blank" rel="noopener">RemoteFM1FW</a> by Michael P Jones (Quixotic7). ' +
+      '<span id="pk-emu-credit"></span>' +
       "Every firmware is its authors' work, under its own licence: see <i>About this firmware</i>. " +
       '<span id="pk-hub-credit"></span>' +
       'Integration and hosting by <a href="https://github.com/slowphase/fm1-pocket-player" target="_blank" rel="noopener">slowphase</a>.</p>' +
@@ -223,8 +269,32 @@
   /* what this player can do with a v2 entry, as a small tag (nothing for plain playable ones) */
   var LABEL = { experimental: "untested", unsupported: "not supported", "source-only": "source only" };
   function badge(e) {
-    var st = (e.meta || {}).status, s = st && st.web ? st.web.state : "";
-    return LABEL[s] ? ' <i class="pk-state pk-' + esc(s) + '" title="' + esc(st.web.reason || "") + '">' + LABEL[s] + "</i>" : "";
+    var st = e.more ? (e.meta.status && e.meta.status.web) : webStatus(e), s = st ? st.state : "";
+    return LABEL[s] ? ' <i class="pk-state pk-' + esc(s) + '" title="' + esc(st.reason || "") + '">' + LABEL[s] + "</i>" : "";
+  }
+  /* the engine line in a preview: small, and a switch only where both engines can run it */
+  var ENGINE = { rfm1: ".rfm1 build", "fm1-emu": "original package (emulator)" };
+  function engineLine(e, running) {
+    var have = engines(e.meta), el = document.createElement("p");
+    el.className = "pk-facts pk-engine";
+    var pref = e.meta.emu && e.meta.emu.preferred && e.meta.emu.preferred.web;
+    var t = "runs as its " + ENGINE[e.engine] + (pref && pref.engine !== e.engine && have.length > 1 ? " (your choice)" : "");
+    el.innerHTML = esc(t);
+    if (pref && pref.engine === e.engine) el.title = pref.reason || "";
+    if (have.length > 1) {
+      var other = have[0] === e.engine ? have[1] : have[0], b = document.createElement("button");
+      b.type = "button";
+      b.className = "pk-link";
+      b.textContent = "use the " + ENGINE[other] + (pref && pref.engine === other ? " (recommended)" : "");
+      b.title = "Each engine keeps its own saved state for this firmware.";
+      b.addEventListener("click", function () {
+        setEngine(e, other);
+        if (running) { b.disabled = true; api.run(e).then(function () { draw(); }); } else draw();
+      });
+      el.appendChild(document.createTextNode(" · "));
+      el.appendChild(b);
+    }
+    return el;
   }
   function link(href, text) { return '<a href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(text) + "</a>"; }
   /* each maker, linked to their repository */
@@ -250,17 +320,19 @@
   function preview(e, running) {
     var m = e.meta || {}, p = document.createElement("div");
     p.className = "pk-preview";
-    var src = m.source ? '<a href="' + esc(m.source + (m.commit ? "/tree/" + m.commit : "")) + '" target="_blank" rel="noopener">source</a>' : "";
+    var srcUrl = e.engine === "fm1-emu" ? (m.emu.package.source || m.source) : m.source && m.source + (m.commit ? "/tree/" + m.commit : "");
+    var src = srcUrl ? '<a href="' + esc(srcUrl) + '" target="_blank" rel="noopener">source</a>' : "";
     p.innerHTML =
       (m.image ? '<img class="pk-shot" src="' + esc(DATA + m.image) + '" alt="' + esc(e.name) + ' on the FM-1 screen" loading="lazy" decoding="async">' : "") +
       '<div class="pk-pbody">' +
         (m.tag ? '<p class="pk-tag">' + esc(m.tag) + "</p>" : "") +
         (m.about ? "<p>" + esc(m.about) + "</p>" : (e.builtin ? "<p>Built into this player.</p>" : (e.catalog ? "" : "<p>A file you added. It stays in this browser until you remove it.</p>"))) +
         (m.status && makers(m) ? '<p class="pk-facts">by ' + makers(m) + "</p>" : "") +
-        (m.status && m.status.web && m.status.web.state === "experimental" ? '<p class="pk-why">' + esc(m.status.web.reason) + "</p>" : "") +
+        (webStatus(e) && webStatus(e).state === "experimental" ? '<p class="pk-why">' + esc(webStatus(e).reason) + "</p>" : "") +
         '<p class="pk-facts">' + esc([e.version, m.category, e.license ? api.lic(e.license) : ""].filter(Boolean).join(" · ")) + (src ? " · " + src : "") + "</p>" +
         '<div class="pk-actions"></div>' +
       "</div>";
+    if (e.catalog && m.emu) p.querySelector(".pk-pbody").insertBefore(engineLine(e, running), p.querySelector(".pk-actions"));
     var acts = p.querySelector(".pk-actions"), play = document.createElement("button");
     play.type = "button";
     play.className = "chip pk-play";
@@ -328,6 +400,9 @@
       ? esc(n + " firmwares in the library · catalogue last updated " + new Date(catalog.updated).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })) +
         (a ? '<br>Firmware list: ' + link(a.url, "The Firmware Hub – thefirmwarehub.com") + " (" + link(a.licenseUrl, a.license) + "), combined with RemoteFM1FW's builds and this site's checks; makers' texts and pictures are not copied." : "")
       : "The hosted library isn't available right now. Built-in and your own files still work.";
+    var rt = catalog && catalog.runtimes && catalog.runtimes["fm1-emu"], ec = $("pk-emu-credit");
+    if (ec) ec.innerHTML = rt && window.Fm1Emu ? "Original packages run on " + link("https://github.com/" + rt.repository, "fm1-emu") +
+      " by Joakim Eriksson (MIT; the emulator's licence, not the firmware's), unchanged, as the makers released them. " : "";
     var hc = $("pk-hub-credit");
     if (hc) hc.innerHTML = a ? "The list of firmware that can't be played here comes from " + link(a.url, "The Firmware Hub") + " (" + link(a.licenseUrl, a.license) + "), combined with this site's own checks. " : "";
   }

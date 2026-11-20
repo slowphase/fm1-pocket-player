@@ -465,5 +465,16 @@
       "since": "2026-11-19"
     }
   },
-  "withdrawn": {}
+  "withdrawn": {},
+  "emuNotes": {
+    "about": "Firmwares that are silent in the emulator's scripted session for a known reason (pocket/emu/catalog.py): kept experimental with this reason, never counted as a failure.",
+    "sidj": "Its original package ships with no songs: they are sent over USB from its web page (thomasj.github.io/fm1-sidj), which neither player can do. The .rfm1 build carries songs of its own.",
+    "beetle": "A tracker: nothing plays until a song is written or loaded.",
+    "beetleblue": "A drum tracker: nothing plays until a pattern is written.",
+    "lsdjburrito": "Plays only an LSDJ song sent over USB from its web page, which neither player can do.",
+    "dubbox": "Processes audio coming in over USB or Bluetooth; neither player has an audio input.",
+    "audiorouter": "Processes audio coming in over USB or Bluetooth; neither player has an audio input.",
+    "midimon": "A MIDI monitor: it shows MIDI, it does not make sound.",
+    "vibe-link": "Upstream fm1-emu holds it back: it shows its own crash screen a second or two after boot."
+  }
 }

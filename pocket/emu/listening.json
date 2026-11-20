@@ -1,0 +1,4 @@
+{
+ "about": "Real-world listening tests, recorded by hand (pocket/emu/catalog.py copies them into catalog-v2.json as emu.listened, kept apart from the automated boot checks). One entry per test: firmware (Pocket id), engine (fm1-emu or rfm1), engine commit or app build, package or build SHA-256, machine, who, date, verdict (good, problems, unusable) and notes.",
+ "tests": []
+}

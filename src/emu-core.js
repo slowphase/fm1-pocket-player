@@ -1,4 +1,4 @@
-/* Evaluation: an author's original FM-1 update package (.fwsc) on upstream fm1-emu (Joakim Eriksson, MIT;
+/* An author's original FM-1 update package (.fwsc) on upstream fm1-emu (Joakim Eriksson, MIT;
  * github.com/joakimeriksson/fm1-emu at the commit in pocket/emu/upstream.json), behind the same interface as
  * src/rfm1.js's Core, so the page (src/app.js) runs either. Upstream's files are used unchanged: emu/fm1_web.wasm
  * (its crates/fm1-web) and emu/jit.js (its web/jit.js), copied into the site by pocket/emu/build-web.sh.

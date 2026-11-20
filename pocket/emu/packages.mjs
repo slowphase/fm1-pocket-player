@@ -2,7 +2,7 @@
 // ("download the packages from the makers' releases, not from the hub"), and keeps it only if its SHA-256 is the
 // one the Hub lists. Reads the Hub's catalogue from a saved copy (pocket/hub.mjs keeps it); never fetches it.
 //
-//   node pocket/emu/packages.mjs --hub hub-catalog.json --out DIR [--only id,id]
+//   node pocket/emu/packages.mjs --hub hub-catalog.json --out DIR [--previous packages.json] [--only id,id]
 //   DIR/<hub id>.fwsc for each one found, DIR/packages.json: every Hub firmware and what happened.
 // GitHub releases are read with the GitHub API (GITHUB_TOKEN); a maker release elsewhere is reported, not guessed.
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
@@ -14,6 +14,9 @@ const out = arg("--out"); mkdirSync(out, { recursive: true });
 const hubCopy = JSON.parse(readFileSync(arg("--hub"), "utf8"));
 const cat = hubCopy.catalog || hubCopy;
 const only = arg("--only") ? new Set(arg("--only").split(",")) : null;
+// incremental: a package already fetched (same Hub SHA-256, its file still in --out) is not fetched again
+let previous = {};
+try { previous = Object.fromEntries(JSON.parse(readFileSync(arg("--previous"), "utf8")).firmwares.map((r) => [r.hub, r])); } catch { /* first run */ }
 const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
 const UA = "FM-1 Pocket Player emulator evaluation (+https://github.com/slowphase/fm1-pocket-player)";
 const sha = (b) => createHash("sha256").update(b).digest("hex");
@@ -33,7 +36,13 @@ const rows = [];
 for (const f of cat.firmwares) {
   if (only && !only.has(f.id)) continue;
   const row = { hub: f.id, name: f.name, version: f.version, author: f.author, repo: f.repo, license: f.lic, chip: f.chip, product: f.product,
-    hubPackage: basename(f.pkg || ""), hubSha256: f.sha256, hubSize: f.size, release: f.release };
+    hubPackage: basename(f.pkg || ""), hubSha256: f.sha256, hubSize: f.size, release: f.release, source: f.source };
+  const prev = previous[f.id];
+  if (prev && prev.status === "found" && prev.sha256 === f.sha256) {
+    try {
+      if (sha(readFileSync(join(out, `${f.id}.fwsc`))) === f.sha256) { rows.push({ ...row, ...prev, reused: true }); continue; }
+    } catch { /* gone: fetch it again */ }
+  }
   const m = String(f.release || "").match(/^https:\/\/github\.com\/([^/]+\/[^/]+)\/releases\/tag\/(.+)$/);
   if (!m) { row.status = "maker release not on GitHub"; rows.push(row); continue; }
   try {
@@ -59,6 +68,7 @@ for (const f of cat.firmwares) {
 }
 writeFileSync(join(out, "packages.json"), JSON.stringify({ read: new Date().toISOString(), hubRead: hubCopy.fetchedAt || null, firmwares: rows }, null, 1) + "\n");
 const n = {}; for (const r of rows) n[r.status] = (n[r.status] || 0) + 1;
-const text = `## Original packages from the makers' releases\n\n${rows.length} Hub firmwares: ${Object.entries(n).map(([k, v]) => `${v} ${k}`).join(", ")}.\n`;
+const reused = rows.filter((r) => r.reused).length;
+const text = `## Original packages from the makers' releases\n\n${rows.length} Hub firmwares: ${Object.entries(n).map(([k, v]) => `${v} ${k}`).join(", ")} (${reused} unchanged since the last run, not fetched again).\n`;
 if (process.env.GITHUB_STEP_SUMMARY) writeFileSync(process.env.GITHUB_STEP_SUMMARY, text, { flag: "a" });
 console.log(text);

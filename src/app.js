@@ -535,9 +535,9 @@
   function run(entry) {
     showError("");
     return bytesOf(entry).then(function (bytes) {
-      /* evaluation: an original .fwsc package runs on upstream fm1-emu (src/emu-core.js), an .rfm1 on src/rfm1.js */
+      /* an original .fwsc package runs on upstream fm1-emu (src/emu-core.js), an .rfm1 on src/rfm1.js */
       var E = window.Fm1Emu && window.Fm1Emu.isPackage(bytes) ? window.Fm1Emu : R;
-      var fw = E === R ? R.parse(bytes) : E.parse(bytes, entry.meta || { id: entry.key, name: entry.name, version: entry.version, license: entry.license });
+      var fw = E === R ? R.parse(bytes) : E.parse(bytes, entry.emuMeta || entry.meta || { id: entry.key, name: entry.name, version: entry.version, license: entry.license });
       return E.Core.create(fw).then(function (c) { return { fw: fw, c: c }; });
     }).then(function (r) {
       if (core) { saveFlash(true); core.shutdown(); }
@@ -586,7 +586,7 @@
     $("sub").innerHTML = h1
       ? "h1, a firmware for the M-VAVE FM-1, running from its own code: the same 240 × 240 pixels and 44.1 kHz sound. Put it on your FM-1 from <a href=\"" + hub + "\" target=\"_blank\" rel=\"noopener\">The Firmware Hub</a>. Load any other FM-1 firmware from the firmware button."
       : esc("Running " + (m.name || i.name) + " " + (m.version || "") + (m.authors && m.authors.length ? " by " + m.authors.join(", ") : "") +
-        (emu ? " from its original update package, on the emulator (evaluation)." : " from its .rfm1 file."));
+        (emu ? " from its original update package, on the emulator." : " from its .rfm1 file."));
     rows.push(["Name", m.name + " " + m.version]);
     if (m.authors && m.authors.length) rows.push(["By", m.authors.join(", ")]);
     rows.push(["Licence", lic(m.license) + (lic(m.license) !== m.license ? " (" + m.license + ")" : "")]);
@@ -594,7 +594,7 @@
     if (h1) rows.push(["Install", '<a href="' + hub + '" target="_blank" rel="noopener">h1 on The Firmware Hub</a>']);
     if (m.glue_url) rows.push(["Build glue", link(m.glue_url)]);
     if (m.built_by) rows.push(["Built by", m.built_by]);
-    rows.push(["Core", emu ? "the original package on " + i.family + " (Joakim Eriksson, MIT), evaluation"
+    rows.push(["Core", emu ? "the original package on " + i.family + " (Joakim Eriksson; MIT is the emulator's licence, not the firmware's)"
       : "fm1core ABI " + core.abi + (i.family ? ", " + i.family + " family" : "") + (core.sim1 ? ", with the sim1 extension" : "")]);
     $("aboutmap").innerHTML = rows.map(function (r) { return "<dt>" + r[0] + "</dt><dd>" + (r[0] === "Source" || r[0] === "Build glue" || r[0] === "Install" ? r[1] : esc(r[1])) + "</dd>"; }).join("");
     var credits = fw.credits || i.credits;
@@ -653,7 +653,7 @@
     current: function () { return cur; },
     run: function (e) { startAudio(); return run(e); },
     remove: removeEntry,
-    core: function () { return core; },          /* the running engine (the emulator evaluation's browser test) */
+    core: function () { return core; },          /* the running engine (the browser tests) */
     lic: lic,
     esc: esc
   };

@@ -1,0 +1,3 @@
+{
+ "about": "Reviewed, known differences for a candidate fm1-emu commit, so the upgrade check reports them without failing: { \"<candidate commit>\": { \"<firmware id>\": \"why it is acceptable\" } }. Empty means every regression fails the check."
+}
