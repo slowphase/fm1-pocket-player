@@ -44,8 +44,9 @@ jobs:
         run: |
           repo=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['repository'])")
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            base=$(git show "origin/${{ github.base_ref }}:pocket/emu/upstream.json" | python3 -c "import json,sys;print(json.load(sys.stdin)['commit'])")
             cand=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['commit'])")
+            # no pin on the base branch yet (the first integration): the pin against itself, a check of the check
+            base=$(git show "origin/${{ github.base_ref }}:pocket/emu/upstream.json" 2>/dev/null | python3 -c "import json,sys;print(json.load(sys.stdin)['commit'])" 2>/dev/null || echo "$cand")
           else
             base=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['commit'])")
             cand="${{ inputs.candidate }}"
@@ -59,12 +60,19 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
       - name: Every original package Pocket knows, checked against its SHA-256
         run: |
-          mkdir -p state pkgs
-          gh release download pocket-packages -p packages.json -D state --clobber
-          gh release download pocket-packages -p '*.fwsc' -D pkgs --clobber || true
-          python3 pocket/emu/fetch.py --packages state/packages.json --dir pkgs
+          mkdir -p state pkgs saved
+          if gh release download pocket-packages -p packages.json -D state --clobber 2>/dev/null; then
+            gh release download pocket-packages -p '*.fwsc' -D pkgs --clobber || true
+            python3 pocket/emu/fetch.py --packages state/packages.json --dir pkgs
+          else                                     # no pocket-packages release yet: straight from the makers
+            gh release download pocket-current -p hub-catalog.json -D saved --clobber
+            node pocket/emu/packages.mjs --hub saved/hub-catalog.json --out pkgs
+          fi
       - uses: actions/upload-artifact@v7
         with:
           name: upgrade-packages
