@@ -45,6 +45,7 @@ await step("the library lists catalog.json's playable firmware, plus h1", async 
   const n = await count();
   if (n !== playable + 1) throw new Error(`${n} rows, expected ${playable + 1}`);
   if (playable !== v1.count) throw new Error(`v2 offers ${playable} for play, catalog.json ${v1.count}`);
+  await page.screenshot({ path: join(OUT, "library.png") });
   return `${n} rows`;
 });
 await step("a library firmware downloads and runs", async () => {

@@ -311,7 +311,7 @@
     var shown = lib.concat(more).filter(matches);
     host.innerHTML = "";
     section(host, "Built in", shown.filter(function (e) { return e.builtin; }), cur);
-    section(host, "Your files", shown.filter(function (e) { return !e.builtin && !e.catalog; }), cur);
+    section(host, "Your files", shown.filter(function (e) { return !e.builtin && !e.catalog && !e.more; }), cur);
     var lib2 = shown.filter(function (e) { return e.catalog || e.more; });
     if (state.q) {                                          /* a name that matches comes first */
       var bare = function (x) { return String(x || "").toLowerCase().replace(/[^a-z0-9]+/g, ""); }, qb = bare(state.q);
