@@ -132,7 +132,9 @@ jobs:
         # re-tested every night
         run: |
           files="pocket-store/compat.json"
-          [ "${{ steps.hub.outputs.fetched }}" = "true" ] && files="$files pocket-store/hub-catalog.json"
+          # the Hub copy too whenever there is one (fetched today or reused): the radar and pull-request checks
+          # read it from the release, and uploading a copy is not a read of the Hub
+          [ -s pocket-store/hub-catalog.json ] && files="$files pocket-store/hub-catalog.json"
           gh release view pocket-current >/dev/null 2>&1 && gh release upload pocket-current $files --clobber || echo "no pocket-current release yet"
 
       - name: Keep catalog-v2.json for review
