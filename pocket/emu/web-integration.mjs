@@ -76,16 +76,21 @@ try {
   let s = await sound();
   check("preferred engine is the emulator (original package)", s.engine === "fm1-emu", `${pick.both}: ${s.engine}`);
   check("the original package makes sound", s.sounds && !s.halted, JSON.stringify(s));
-  // a chord pressed between two renders plays every key (upstream's script call replaces its queue)
-  const chord = await page.evaluate(() => {
-    const c = window.FM1Sim.core();
-    const e = (n) => { const a = c.pull(n); let s = 0; for (const v of a) s += v * v; return s; };
-    e(44100);
-    [7, 11, 14].forEach((k) => c.key(k, 1, 110)); const three = e(22050); [7, 11, 14].forEach((k) => c.key(k, 0)); e(44100);
-    c.key(14, 1, 110); const one = e(22050); c.key(14, 0); e(22050);
-    return { three, one };
-  });
-  check("a chord pressed at once plays every key", Math.abs(chord.three - chord.one) > chord.one * 0.05, JSON.stringify(chord));
+  // a chord pressed between two renders plays every key (upstream's script call replaces its queue, which used to
+  // keep only the last): two fresh, identical machines, one given the chord and one its last key alone; with the
+  // bug both play exactly the same samples
+  const chord = await page.evaluate(async (url) => {
+    const bytes = new Uint8Array(await (await fetch(url)).arrayBuffer());
+    const run = async (keys) => {
+      const c = await window.Fm1Emu.Core.create(window.Fm1Emu.parse(bytes, { id: "chord-test", name: "t" }));
+      c.boot(null);
+      c.runMs(8000);
+      keys.forEach((k) => c.key(k, 1, 110));
+      const a = c.pull(22050); let s = 0; for (const v of a) s += v * v; return s;
+    };
+    return { three: await run([7, 11, 14]), one: await run([14]) };
+  }, await page.evaluate(() => window.FM1Sim.current().url));
+  check("a chord pressed at once plays every key", chord.three !== chord.one && chord.three > 0, JSON.stringify(chord));
   // a save waits until the firmware has finished writing, and a forced one (leaving the page) still comes back
   const save = await page.evaluate(() => { const c = window.FM1Sim.core(); const img = c.flashImage(true); return img ? img.length % 4100 : -1; });
   check("a save is whole sector records", save === 0, String(save));
