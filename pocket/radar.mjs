@@ -12,7 +12,8 @@
 //   no-browser-build  no .rfm1 anywhere: a `needs-rfm1` issue, unless it was already missing when the
 //                     radar started (the baseline), so the first run doesn't open a flood of issues
 // An issue closes itself, naming the published version, once a browser build is on the site.
-// The radar never downloads a .fwsc and never compiles anything.
+// The radar never downloads a .fwsc and never compiles anything, and it no longer fetches the Hub itself: it reads
+// the copy pocket/hub.mjs keeps (fetched at most once a day, as the Hub asks).
 //
 //   node pocket/radar.mjs [--dry]      (--dry: print the sorting, touch no issues or state)
 //
@@ -23,9 +24,11 @@ import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import { parseTable, RAW } from "./upstream.mjs";
 import { licenceOk, idFromFile } from "./validate.mjs";
+import { readCache } from "./hub.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const HUB = "https://thefirmwarehub.com/";
+const HUB_CACHE = process.env.HUB_CACHE || "hub-catalog.json";
 const REPO = process.env.GITHUB_REPOSITORY;
 const TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
 const DRY = process.argv.includes("--dry");
@@ -120,7 +123,14 @@ function saveState(state) {
 
 async function main() {
   const policy = JSON.parse(readFileSync(join(here, "policy.json"), "utf8"));
-  const hub = await (await fetch(HUB + "catalog.json", { signal: AbortSignal.timeout(60_000) })).json();
+  // the copy hub.mjs keeps (read at most once a day by the sync job); the radar never fetches the Hub itself
+  let cached = readCache(HUB_CACHE);
+  if (!cached) {
+    try { execFileSync("gh", ["release", "download", "pocket-current", "-p", "hub-catalog.json", "-O", HUB_CACHE, "--clobber", "--repo", REPO], { stdio: "ignore" }); } catch { /* none yet */ }
+    cached = readCache(HUB_CACHE);
+  }
+  if (!cached) { console.log("Firmware radar: no copy of The Firmware Hub's catalogue yet (the sync job keeps one); nothing to compare."); return; }
+  const hub = cached.catalog;
   const rows = parseTable(await (await fetch(RAW + "README.md")).text());
   const published = existsSync("_site/data/catalog.json") ? JSON.parse(readFileSync("_site/data/catalog.json", "utf8")).firmwares
     : JSON.parse(execFileSync("gh", ["release", "download", "pocket-current", "-p", "catalog.json", "-O", "-", "--repo", REPO], { encoding: "utf8" })).firmwares;

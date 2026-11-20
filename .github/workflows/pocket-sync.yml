@@ -12,6 +12,13 @@
 #    nothing, so the working site stays up.
 # 5. Open, update or close the review and failure issues, and run the missing-firmware radar against
 #    The Firmware Hub (their own job: they never block publishing).
+# 6. The expanded catalogue, catalog-v2.json (pocket/discover.mjs): everything discovered, with each player's
+#    compatibility. Built every night; published on the site only when the repository variable
+#    POCKET_PUBLISH_V2 is "true". catalog.json is unchanged either way.
+#    - The Firmware Hub's catalogue is read at most once a day (pocket/hub.mjs keeps a copy in pocket-current).
+#    - Compatibility (pocket/compat.mjs): every published build in the web runtime and in the Mac app's native
+#      engine built for Linux; the native-macos job then runs a representative set on macOS, which the next
+#      night's catalogue uses to mark native results verified.
 name: Pocket sync
 
 on:
@@ -78,6 +85,66 @@ jobs:
       - name: Sync with RemoteFM1FW
         run: node pocket/sync.mjs --out _site/data --store pocket-store
 
+      - name: The Firmware Hub's catalogue (read at most once a day)
+        id: hub
+        run: |
+          gh release download pocket-current -p hub-catalog.json -O pocket-store/hub-catalog.json --clobber 2>/dev/null || true
+          node pocket/hub.mjs --cache pocket-store/hub-catalog.json
+
+      - name: Which native engine to test
+        id: native
+        run: |
+          echo "repository=$(node -p "require('./pocket/native.json').repository")" >> "$GITHUB_OUTPUT"
+          echo "commit=$(node -p "require('./pocket/native.json').commit")" >> "$GITHUB_OUTPUT"
+
+      - name: Check out the native engine (the Mac app's C core)
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ steps.native.outputs.repository }}
+          ref: ${{ steps.native.outputs.commit }}
+          path: native-engine
+
+      - name: Build the native engine's boot test (Linux)
+        run: make -C native-engine/Tests/ctest native_smoke
+
+      - name: Compatibility (web runtime and native engine)
+        id: compat
+        run: |
+          gh release download pocket-current -p compat.json -O pocket-store/compat.json --clobber 2>/dev/null || true
+          gh release download pocket-current -p native-macos.json -O pocket-store/native-macos.json --clobber 2>/dev/null || true
+          node pocket/compat.mjs --data _site/data --ledger pocket-store/compat.json \
+            --native native-engine/Tests/ctest/native_smoke --macos-results pocket-store/native-macos.json
+
+      - name: Catalogue v2
+        id: v2
+        run: |
+          gh release download pocket-current -p catalog-v2.json -O pocket-store/catalog-v2.previous.json --clobber 2>/dev/null || true
+          node pocket/discover.mjs --data _site/data --upstream pocket-upstream.json --report pocket-report.json \
+            --ledger pocket-store/compat.json --hub pocket-store/hub-catalog.json --previous pocket-store/catalog-v2.previous.json
+          cp _site/data/catalog-v2.json pocket-store/catalog-v2.json
+          if [ "${{ vars.POCKET_PUBLISH_V2 }}" != "true" ]; then
+            mv _site/data/catalog-v2.json catalog-v2.unpublished.json
+            echo "catalog-v2.json was built but not added to the site (POCKET_PUBLISH_V2 is not \"true\")." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Keep the Hub copy and the compatibility ledger
+        # in the release whether or not the site is published, so the Hub is not re-read and builds are not
+        # re-tested every night
+        run: |
+          files="pocket-store/compat.json"
+          [ "${{ steps.hub.outputs.fetched }}" = "true" ] && files="$files pocket-store/hub-catalog.json"
+          gh release view pocket-current >/dev/null 2>&1 && gh release upload pocket-current $files --clobber || echo "no pocket-current release yet"
+
+      - name: Keep catalog-v2.json for review
+        uses: actions/upload-artifact@v7
+        with:
+          name: catalog-v2
+          path: |
+            _site/data/catalog-v2.json
+            catalog-v2.unpublished.json
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Save downloaded firmware
         if: always()
         uses: actions/cache/save@v6
@@ -89,12 +156,14 @@ jobs:
         id: decide
         run: |
           changed=$(node -p "require('./pocket-report.json').changed")
-          if [ "$changed" = "true" ] || [ "${{ github.event_name }}" != "schedule" ]; then
+          v2changed="${{ steps.v2.outputs.changed }}"
+          [ "${{ vars.POCKET_PUBLISH_V2 }}" = "true" ] || v2changed=false
+          if [ "$changed" = "true" ] || [ "$v2changed" = "true" ] || [ "${{ github.event_name }}" != "schedule" ]; then
             echo "deploy=true" >> "$GITHUB_OUTPUT"
           else
             echo "deploy=false" >> "$GITHUB_OUTPUT"
           fi
-          echo "library changed: $changed"
+          echo "library changed: $changed; catalogue v2 changed (and published): $v2changed"
 
       - name: Update the pocket-current release
         if: steps.decide.outputs.deploy == 'true'
@@ -103,6 +172,7 @@ jobs:
             --title "Published firmware (rolling)" --latest=false \
             --notes "The .rfm1 files, screenshots and catalogue currently published by FM-1 Pocket Player, kept so the nightly sync can recover and roll back. Updated automatically; not a release of this project. Each firmware is its authors' work under its own licence (see the licence texts inside each file)."
           node -e "for (const f of require('./pocket-report.json').upload) console.log(f)" > upload.txt
+          [ "${{ vars.POCKET_PUBLISH_V2 }}" = "true" ] && echo pocket-store/catalog-v2.json >> upload.txt
           [ -s upload.txt ] && xargs -a upload.txt -d '\n' gh release upload pocket-current --clobber
           node -e "for (const f of require('./pocket-report.json').remove) console.log(f)" | while read -r name; do
             gh release delete-asset pocket-current "$name" -y || true
@@ -158,6 +228,45 @@ jobs:
       - name: Missing-firmware radar
         # Compares The Firmware Hub with the browser builds; never downloads a .fwsc or builds anything.
         run: node pocket/radar.mjs
+
+  # The native engine on macOS (Apple Silicon), for pocket/native.json's representative set. Runs after the sync and
+  # never blocks publishing; the next night's catalogue uses its result (native-macos.json in pocket-current).
+  native-macos:
+    needs: sync
+    if: always() && needs.sync.result == 'success'
+    runs-on: macos-15
+    timeout-minutes: 30
+    permissions:
+      contents: write     # native-macos.json in the pocket-current release
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Which native engine to test
+        id: native
+        run: |
+          echo "repository=$(node -p "require('./pocket/native.json').repository")" >> "$GITHUB_OUTPUT"
+          echo "commit=$(node -p "require('./pocket/native.json').commit")" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ steps.native.outputs.repository }}
+          ref: ${{ steps.native.outputs.commit }}
+          path: native-engine
+      - name: Build the native engine's boot test (macOS)
+        run: make -C native-engine/Tests/ctest native_smoke
+      - name: Fetch the representative firmware
+        run: |
+          mkdir -p rep/fw
+          gh release download pocket-current -p catalog.json -D rep --clobber
+          node -e 'const c=require("./rep/catalog.json"),n=require("./pocket/native.json");for(const f of c.firmwares) if(n.representative.includes(f.id)) console.log(f.file.replace(/^fw\//,""))' |
+            while read -r f; do gh release download pocket-current -p "$f" -D rep/fw --clobber; done
+      - name: Run them in the native engine on macOS
+        run: |
+          node pocket/compat.mjs --macos --data rep --native native-engine/Tests/ctest/native_smoke --out native-macos.json | tee -a "$GITHUB_STEP_SUMMARY"
+          gh release upload pocket-current native-macos.json --clobber
 
   deploy:
     needs: sync

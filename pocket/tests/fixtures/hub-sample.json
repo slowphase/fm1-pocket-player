@@ -1,0 +1,13 @@
+{
+ "fetchedAt": "2026-11-20T00:00:00.000Z",
+ "url": "https://thefirmwarehub.com/catalog.json",
+ "note": "A made-up sample in the Hub's format, for the pull-request check's browser test only (pull-request checks never read the Hub).",
+ "catalog": {
+  "license": "CC-BY-4.0",
+  "firmwares": [
+   { "id": "sample-groove", "name": "Sample Groove", "author": "Example Maker", "repo": "example/sample-groove", "lic": "GPL-3.0", "kind": "groove", "version": "1.0" },
+   { "id": "sample-drums", "name": "Sample Drums", "author": "Another Maker", "repo": "example/sample-drums", "lic": "MPL-2.0", "kind": "drums", "version": "0.3" },
+   { "id": "sample-closed", "name": "Sample Closed", "author": "Third Maker", "repo": "example/sample-closed", "lic": "" }
+  ]
+ }
+}
