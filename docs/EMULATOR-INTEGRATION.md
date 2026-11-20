@@ -12,6 +12,7 @@ The .rfm1 engine, its catalogue entries (`catalog.json`, untouched) and its save
 retires it. The evaluation that led here is in `docs/EMULATOR-EVALUATION.md`.
 
 Status: integrated on branch `emu-eval` (Pocket PR #7) and `emu-prototype` (Mac PR #8), **not merged, not published**.
+Feature freeze since 20 November 2026: stabilisation only (see the last section).
 Publishing is behind the repository variable `POCKET_PUBLISH_EMU` (unset).
 
 ## How a firmware gets its emulator engine
@@ -100,3 +101,55 @@ bundled tunes from the maker; neither is planned.
 - Preferred engine: web 223 emulator / 21 .rfm1; Mac 228 emulator / 17 .rfm1.
 - Web test build: 12 of 12 automated page checks passed in Chromium (`pocket/emu/web-integration.mjs`). Site size with
   packages: about 207 MB (GitHub Pages allows 1 GB).
+
+## Stabilisation (after the first hands-on test, 20 November 2026)
+
+Dean's first test on his MacBook (app build 34) found Hortator silent on the original package and settings not
+persisting. Findings and fixes:
+
+- **Saves.** The engines save and restore correctly, through the app, on both engines (the app-level integration
+  test below proves it for Felucca on both engines, AMB-1 and Amenity: saved while playing, kept on quit, the same
+  flash after a relaunch, separate per engine). Most "lost" settings are the firmwares' own design: measured on 126
+  packages, 40 write their settings by themselves when a knob turns, 22 write on one SAVE tap, and 64 need their own
+  save steps (Felucca: SAVE, OCT+, OCT+, which stores a user preset; it always starts on its first factory sound)
+  or keep nothing. Three integration bugs were fixed: an emulator save could be taken in the middle of a write; a
+  change was marked saved even when no save was made; an empty emulator save let an older backup come back.
+- **Chords.** Upstream's input script replaces its whole queue, so keys pressed between two audio buffers (a chord
+  from the computer keyboard) lost all but the last. Keys now go through the script together with those still
+  waiting; releases too, so they cannot overtake a press.
+- **Mute** let 10 to 20% of the sound through for a while (the mixer's volume ramp); it now silences the next
+  buffer.
+- **Hortator.** Not an integration fault: the original package starts with an empty pattern, so PLAY plays silence
+  until steps are entered on the keys. With steps entered it plays through the app's own controls and audio graph.
+  Its preferred engine is the .rfm1 build until a listening test confirms the package (`policy.json` emuPrefer).
+- **Counts.** The Mac footer counted library files (an .rfm1 build and a package of one firmware twice: 328 for
+  245 firmwares). It now counts firmwares, matching the sidebar.
+
+## Confidence
+
+Each firmware, per player and per engine, is one of:
+
+- **Listened to**: a person listened in that app to that exact file (its SHA-256) and found it good
+  (`pocket/emu/listening.json`);
+- **Automated checks only**: it passed the automated checks; nobody has listened;
+- **Known issue**: `policy.json` knownIssues, the emulator's known silent firmwares, or a listening report with
+  problems for that file. A known issue moves the preference to the other engine when that one has none.
+
+An automated pass is never shown as listened. Both apps show the level for the engine in use; the Mac footer tallies
+the library on each firmware's chosen engine.
+
+## Integration testing
+
+- **App-level** (`FM1Pocket --integration`, fm1-pocket-mac `Sources/FM1Pocket/IntegrationTest.swift`, run by CI on the
+  packaged app): the app's own player model, input handlers (keybed, buttons, encoders, computer keyboard, the MIDI
+  handler), audio graph (rendered offline) and save, quit and relaunch path, over representative firmwares: keyboard
+  synths (Felucca, AMB-1, h1, ATEK-303), drum machines (Hortator, Choppah), a groovebox (Aether), a sequencer that
+  saves by itself (Amenity), a generative instrument (Amb Pond), a MIDI-only firmware (CursedOS), on both engines
+  where both exist (Felucca, AMB-1, Hortator).
+- **Engine-level**: every package booted, keys, MIDI and PLAY in a scripted session, speed, on Linux, macOS and the
+  browser engine (the nightly ledger), plus the upgrade check.
+- **Web**: the page with both engines in Chromium (`pocket/emu/web-integration.mjs`).
+
+What automated tests cannot verify: whether it sounds right (pitch, timbre, timing feel), the real output device, real
+mouse gestures and layout, real MIDI hardware, a firmware's behaviour beyond the steps scripted for it, and the
+firmwares not in the representative set beyond booting and making some sound.
