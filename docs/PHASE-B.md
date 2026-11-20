@@ -24,7 +24,7 @@ release instead of building one. The other 3 are left out, with reasons:
 | delrio (jsopdebeeck/fm1-delrio) | its fm1-base (67a2ced) predates `--rfm1`: the same |
 | playa (juan-ms2lab/playa) | its own Makefile around a forked fm1-base with SSH-only submodules: not the plain supported build |
 
-Results (run 44704371915, before the VNL-1 file-name fix):
+Results (run 44704999537):
 
 | Firmware | Tag | Source | Result | Web | Native engine (Linux) |
 | --- | --- | --- | --- | --- | --- |
@@ -41,7 +41,7 @@ Results (run 44704371915, before the VNL-1 file-name fix):
 | MOSS-1 | v1.0 | author's release | passed | pass | pass 3.2x |
 | PaperLagoon | v1.1 | author's release | passed | pass | pass 8.5x |
 | Polly | v0.6.4 | author's release | passed | pass | pass 34.5x |
-| VNL-1 | v0.9.2 | built here | file-name mismatch only (fixed in packaging) | pass | pass 4.3x |
+| VNL-1 | v0.9.2 | built here | passed (file named after its manifest id, vnl_1) | pass | pass 3.1x |
 | DUB-BOX | v1.0.9 | built here | silent | no sound | no sound |
 | FM1 Audio Router | v0.6.1 | built here | silent | no sound | no sound |
 | FM-FAM | v0.3.1 | - | did not build | | |
