@@ -1,0 +1,93 @@
+{
+ "about": "Firmware on The Firmware Hub with no .rfm1 anywhere, whose source uses fm1-base's own supported .rfm1 build (tools/build.py APP --rfm1, Emscripten 6.0.10 as fm1-base's release template pins it). Built at the authors' release tags. Found from the Hub snapshot of 2026-11-20T06:05Z. Building here proves a build is possible; publishing one needs a separate approval (pocket/policy.json).",
+ "emsdk": {
+  "version": "6.0.10",
+  "commit": "a2b92777574c2feda07994cd4f1079a3dfc151f8"
+ },
+ "firmwares": [
+  {
+   "hub": "dubbox",
+   "name": "DUB-BOX",
+   "repo": "altessproduction/DUB-BOX-FM1",
+   "tag": "v1.0.9",
+   "commit": "24b6e9978f0318e89a5f5b1f4dce3164eeba10b5",
+   "version": "1.0.9",
+   "license": "MPL-2.0",
+   "app": "src/apps/fm1-audio-gateway",
+   "build": "src/tools/build.py",
+   "submodules": false
+  },
+  {
+   "hub": "fmfam",
+   "name": "FM-FAM",
+   "repo": "davidamomusic/fm-fam",
+   "tag": "v0.3.1",
+   "commit": "5737d79b70bdeb1a850d1fae92bfeae89edcd091",
+   "version": "0.3.1",
+   "license": "MPL-2.0",
+   "app": "fam",
+   "build": "tools/build.py",
+   "submodules": true
+  },
+  {
+   "hub": "audiorouter",
+   "name": "FM1 Audio Router",
+   "repo": "maxravedj/fm1-audio-router",
+   "tag": "v0.6.1",
+   "commit": "bcb1df3ea42da382370ea7ecbce4565092c55b99",
+   "version": "0.6.1",
+   "license": "MPL-2.0",
+   "app": "src/apps/fm1-audio-gateway",
+   "build": "src/tools/build.py",
+   "submodules": false
+  },
+  {
+   "hub": "plissken",
+   "name": "Plissken",
+   "repo": "dustekin/plissken",
+   "tag": "v0.14",
+   "commit": "73915b6fb6ab1e389f0f227a59efbaa1ec598075",
+   "version": "0.14",
+   "license": "MPL-2.0",
+   "app": ".",
+   "build": "base/tools/build.py",
+   "submodules": false
+  },
+  {
+   "hub": "sq80",
+   "name": "SQ-80",
+   "repo": "leonardolopezchavira/sq80-fm1",
+   "tag": "v0.14.0",
+   "commit": "69639507670e871fb5c48e7ff49868f8ddb087eb",
+   "version": "0.14.0",
+   "license": "MIT",
+   "app": "app",
+   "build": "fm1/base/tools/build.py",
+   "submodules": false
+  },
+  {
+   "hub": "xenolith",
+   "name": "XENOLITH",
+   "repo": "CaptainChronosis/XENOLITH",
+   "tag": "v1.0",
+   "commit": "77483a9e74a9aebf12da07551411f8e0337c7b08",
+   "version": "1.0",
+   "license": "GPL-3.0",
+   "app": "app",
+   "build": "vendor/fm1-base/tools/build.py",
+   "submodules": false
+  },
+  {
+   "hub": "zenith1",
+   "name": "ZENITH-1",
+   "repo": "sparky480v/zenith-1",
+   "tag": "v1.0",
+   "commit": "de3b854459f72b00ee82036816a76772ac2ccacd",
+   "version": "1.0",
+   "license": "MPL-2.0",
+   "app": "app",
+   "build": "base/tools/build.py",
+   "submodules": false
+  }
+ ]
+}
