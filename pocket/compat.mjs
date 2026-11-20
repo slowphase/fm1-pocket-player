@@ -168,7 +168,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     `Tested now: ${tested.web} in the web runtime, ${tested.native} in the native engine (the rest unchanged since their last test).`,
     `Web (${ledger.runtimes.web.id}): ${count("web", "pass")} pass, ${count("web", "pass-with-exception")} pass with a documented exception, ${count("web", "fail")} fail.`,
     ledger.runtimes.native && arg("--native") ? `Native (${ledger.runtimes.native.id}, ${ledger.runtimes.native.environment}): ${count("native", "pass")} pass, ${count("native", "pass-with-exception")} with an exception, ${count("native", "fail")} fail.` : `Native: not run.`,
-    (() => { const m = macosFor(ledger, nativeRuntime().id); return m ? `macOS (${m.environment}, ${m.date}): representative set ${m.verified ? "passed: native results count as verified" : "did not fully pass: native results stay experimental"}.` : `macOS: no representative run yet for this engine commit, so native results stay experimental.`; })(),
+    (() => { const m = macosFor(ledger, nativeRuntime().id); return m ? `macOS (${m.environment}, ${m.date}): ${Object.keys(m.results || {}).length} builds run individually; representative set ${m.verified ? "passed, so the rest count as covered by the sample (not run on macOS themselves)" : "did not fully pass: native results stay experimental"}.` : `macOS: no representative run yet for this engine commit, so native results stay experimental.`; })(),
     ``];
   for (const b of Object.values(ledger.builds)) for (const k of ["web", "native"]) if (b[k] && b[k].outcome === "fail") lines.push(`- ${b.id} ${b.version} (${k}): ${b[k].problems.join("; ")}`);
   const text = lines.join("\n") + "\n";
