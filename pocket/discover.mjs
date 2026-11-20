@@ -99,6 +99,18 @@ export function playerStatus(player, rec, macos) {
   return { state: "playable", verification, reason: `Passed the Mac app's engine on Linux; not run individually on macOS, but a representative sample passed there with the same engine version.${note}`, tested: t };
 }
 
+// "92 playable (31 tested individually on macOS, 61 covered by the macOS sample), 3 experimental (...)"
+export function macLine(k) {
+  const by = k.macByVerification || {};
+  const part = (st) => {
+    const v = by[st] || {};
+    const bits = [v.macos ? `${v.macos} tested individually on macOS` : "", v.representative ? `${v.representative} covered by the macOS sample` : "",
+      v.linux ? `${v.linux} Linux only` : "", v.none ? `${v.none} untested` : ""].filter(Boolean);
+    return `${k.mac[st]} ${st}${bits.length ? ` (${bits.join(", ")})` : ""}`;
+  };
+  return `${part("playable")}, ${part("experimental")}`;
+}
+
 export function build({ v1, upstream, report = {}, policy, ledger = { builds: {} }, hub = null, now = new Date() }) {
   const items = upstream.items || [], cards = upstream.cards || {};
   const pub = new Map((v1.firmwares || []).map((f) => [f.id, f]));
@@ -208,6 +220,9 @@ export function build({ v1, upstream, report = {}, policy, ledger = { builds: {}
       linux: firmwares.filter((e) => e.file && e.status.mac.verification === "linux").length,
       mayStutter: firmwares.filter((e) => e.file && e.status.mac.performance === "may-stutter").length,
     },
+    // each Mac state split by how it was established, so individual macOS tests are never reported as sample coverage
+    macByVerification: Object.fromEntries(STATES.map((st) => [st, Object.fromEntries(["macos", "representative", "linux", "none"].map((v) =>
+      [v, firmwares.filter((e) => e.status.mac.state === st && e.status.mac.verification === v).length]))])),
   };
   const nr = nativeRuntime();
   return {
@@ -263,8 +278,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const text = [`## Catalogue v2`, ``,
     `Snapshot ${c.snapshot}. **${k.discovered}** firmwares discovered (${k.builtIn} built in), ${k.withBuild} with a browser build, **${k.downloadable} downloadable** (the same as catalog.json).`,
     k.onHub == null ? `The Firmware Hub: no copy available, so discovery covers RemoteFM1FW only.` : `The Firmware Hub lists ${k.onHub} (read ${c.attribution.read}).`,
-    `Web: ${line("web")}.`, `Mac: ${line("mac")}.`,
-    `Mac, of the ${k.downloadable} downloadable: ${k.macVerification.macos} tested individually on macOS, ${k.macVerification.representative} tested on Linux and covered by the representative macOS sample, ${k.macVerification.linux} Linux only; ${k.macVerification.mayStutter} may stutter.`,
+    `Web: ${line("web")}.`,
+    `Mac: ${macLine(k)}; ${k.mac.unsupported} unsupported, ${k.mac["source-only"]} source-only.`,
+    `Mac, of the ${k.downloadable} downloadable: ${k.macVerification.macos} tested individually on macOS, ${k.macVerification.representative} tested on Linux and covered by the representative macOS sample (not run on macOS themselves), ${k.macVerification.linux} Linux only; ${k.macVerification.mayStutter} may stutter.`,
     `${changed ? "Changed since the last v2." : "No change since the last v2."}`, ``].join("\n");
   if (process.env.GITHUB_STEP_SUMMARY) writeFileSync(process.env.GITHUB_STEP_SUMMARY, text, { flag: "a" });
   console.log(text);

@@ -6,7 +6,7 @@ import { mkdtempSync, writeFileSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { hubCatalogue, MAX_AGE_MS, USER_AGENT, ATTRIBUTION } from "../hub.mjs";
-import { build, playerStatus, fingerprint, STATES } from "../discover.mjs";
+import { build, playerStatus, fingerprint, STATES, macLine } from "../discover.mjs";
 import { outcome, update, macosRun, nativeRuntime, webRuntime, emptyLedger } from "../compat.mjs";
 
 const day = 24 * 3600 * 1000;
@@ -164,6 +164,9 @@ test("a macOS run for this engine commit turns Linux passes into playable; a fai
   assert.match(by.berlinan.status.mac.reason, /not run individually on macOS/);
   assert.equal(by.berlinan.status.mac.tested.macos.sample, true);
   assert.equal(c.counts.macVerification.macos, 1);
+  assert.equal(c.counts.macByVerification.playable.macos, 1, "felucca: individually on macOS");
+  assert.equal(c.counts.macByVerification.playable.representative, 1, "berlinan: sample coverage, counted apart");
+  assert.match(macLine(c.counts), /1 tested individually on macOS, 1 covered by the macOS sample/);
   assert.equal(by.grimm.status.mac.state, "unsupported", "a native failure stays a failure");
   const bad = { ...ledger, macos: { [nat.id]: { runtime: nat.id, verified: false, date: "2026-11-20", environment: "macOS arm64", results: {} } } };
   assert.equal(build({ v1, upstream, report, policy, ledger: bad, hub }).firmwares.find((e) => e.id === "felucca").status.mac.state, "experimental");
