@@ -263,6 +263,15 @@ test("the macOS job also runs every build slow or borderline on Linux", async ()
   assert.equal(run.results.hortator.sha256, "a");
 });
 
+test("the sync never prunes the pipeline's own state from pocket-current", () => {
+  const src = readFileSync(new URL("../sync.mjs", import.meta.url), "utf8");
+  const set = src.match(/STATE_ASSETS = new Set\((\[[^\]]*\])\)/);
+  assert.ok(set, "STATE_ASSETS is defined");
+  const names = JSON.parse(set[1]);
+  for (const n of ["compat.json", "hub-catalog.json", "native-macos.json", "catalog-v2.json", "radar-state.json"]) assert.ok(names.includes(n), n);
+  assert.match(src, /if \(!want\.has\(name\) && !STATE_ASSETS\.has\(name\)\) report\.remove\.push\(name\)/);
+});
+
 test("STATES are the four the players understand", () => {
   assert.deepEqual(STATES, ["playable", "experimental", "unsupported", "source-only"]);
 });

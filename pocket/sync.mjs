@@ -24,6 +24,9 @@ import { offer, parseTable } from "./upstream.mjs";
 import { checkFile, smokeTest, judgeSmoke, idFromFile } from "./validate.mjs";
 import { build } from "./catalog.mjs";
 
+// pocket-current also holds the pipeline's own state, written by other steps and jobs; never prune it
+export const STATE_ASSETS = new Set(["compat.json", "hub-catalog.json", "native-macos.json", "catalog-v2.json", "radar-state.json"]);
+
 const here = dirname(fileURLToPath(import.meta.url));
 const RELEASE = "pocket-current";
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
@@ -182,7 +185,7 @@ async function main() {
   const want = new Set(["catalog.json"]);
   for (const f of cat.firmwares) { want.add(f.file.replace(/^fw\//, "")); if (f.image) want.add(f.image.replace(/^shots\//, "")); }
   for (const name of want) if (name !== "catalog.json" && !prev.assets.has(name)) report.upload.push(join(STORE, name));
-  for (const name of prev.assets.keys()) if (!want.has(name)) report.remove.push(name);
+  for (const name of prev.assets.keys()) if (!want.has(name) && !STATE_ASSETS.has(name)) report.remove.push(name);
   const before = JSON.stringify((prev.catalog?.firmwares || []).map((f) => [f.id, f.sha256, f.about, f.category, f.tag]));
   const after = JSON.stringify(cat.firmwares.map((f) => [f.id, f.sha256, f.about, f.category, f.tag]));
   report.changed = before !== after || !prev.catalog;

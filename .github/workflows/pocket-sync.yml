@@ -261,7 +261,8 @@ jobs:
         run: |
           mkdir -p rep/fw
           gh release download pocket-current -p catalog.json -D rep --clobber
-          gh release download pocket-current -p compat.json -D rep --clobber || true
+          gh release download pocket-current -p compat.json -D rep --clobber ||
+            echo "::warning::No compatibility ledger in pocket-current: macOS runs the representative set only, so slow builds are not timed on macOS this time."
           node pocket/compat.mjs --macos-list --data rep --ledger rep/compat.json | sed 's#^fw/##' |
             while read -r f; do gh release download pocket-current -p "$f" -D rep/fw --clobber; done
       - name: Run them in the native engine on macOS
