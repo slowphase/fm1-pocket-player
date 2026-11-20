@@ -16,9 +16,12 @@ Per entry, `emu`:
               the web player needs Pocket's copy (browsers cannot fetch makers' GitHub assets: no CORS).
   web / mac   state (playable, experimental, unsupported, unavailable), reason, and `tested`: the automated runs
               (engine commit, machine, speed, where sound came from, package SHA-256). Automated boot checks only.
-  listened    real-world listening tests (pocket/emu/listening.json), never mixed with `tested`
   preferred   {web, mac}: "fm1-emu" or "rfm1", the best-performing compatible engine, with why. The apps follow it
               unless the user overrides it for that firmware.
+Per entry, beside it (both engines): `listened`, the real listening tests in the apps (pocket/emu/listening.json),
+never mixed with `tested`; `knownIssues` {player: {engine: why}}; `confidence` {player: {engine: {level, note}}},
+level one of listened (a person listened in that app to that exact file), automated (passed the automated checks
+only), known-issue.
 """
 import hashlib, json, os, re, shutil, sys
 
@@ -82,26 +85,80 @@ def rfm1_speed(e, player):
     r = (b.get("web") if player == "web" else b.get("native")) or {}
     return (r.get("result") or {}).get("speed")
 
-def prefer(e, em, player):
+emu_prefer = {k: v for k, v in policy.get("emuPrefer", {}).items() if k != "about"}
+known = {k: v for k, v in policy.get("knownIssues", {}).items() if k != "about"}
+
+def builds(e, em):
+    """each engine's exact file (SHA-256): a listening test counts only for the file it was made with"""
+    return {"rfm1": e.get("sha256"), "fm1-emu": (em.get("package") or {}).get("sha256")}
+
+def issues(e, em, ids, player):
+    """known problems per engine: policy.json's knownIssues, the emulator's known silent firmwares (emuNotes), and
+    the latest listening report for this player and exact file when it found problems"""
+    out = {}
+    for i in ids:
+        for eng, why in (known.get(i) or {}).items(): out.setdefault(eng, why)
+    note = next((notes[i] for i in ids if i in notes), None)
+    if note and em.get("package"): out.setdefault("fm1-emu", note)
+    for eng, sha in builds(e, em).items():
+        tests = [t for t in listening if t.get("firmware") in ids and t.get("player") == player and t.get("engine") == eng and sha and t.get("build") == sha]
+        if tests:
+            last = sorted(tests, key=lambda t: t.get("date", ""))[-1]
+            if last.get("verdict") in ("problems", "unusable"):
+                out[eng] = f"Reported in a listening test ({last.get('date')}): {last.get('notes', '')}"
+            else:
+                out.pop(eng, None) if eng not in {k for i in ids for k in (known.get(i) or {})} else None
+    return out
+
+def confidence(e, em, ids, player, iss):
+    """per engine: known-issue, listened (a human listened in the actual app to this exact file and found it good),
+    automated (passed the automated checks only; nobody has listened), or untested"""
+    out = {}
+    sha = builds(e, em)
+    states = {"rfm1": e["status"][player]["state"] if e.get("file") else None, "fm1-emu": em[player]["state"] if em.get("package") else None}
+    for eng in ("rfm1", "fm1-emu"):
+        st = states[eng]
+        if st not in ("playable", "experimental"): continue
+        if eng in iss:
+            out[eng] = {"level": "known-issue", "note": iss[eng]}
+            continue
+        good = [t for t in listening if t.get("firmware") in ids and t.get("player") == player and t.get("engine") == eng
+                and sha[eng] and t.get("build") == sha[eng] and t.get("verdict") == "good"]
+        if good:
+            t = sorted(good, key=lambda t: t.get("date", ""))[-1]
+            out[eng] = {"level": "listened", "note": f"Listened to in the app by {t.get('who')} on {t.get('machine')}, {t.get('date')} ({t.get('app')})."}
+        else:
+            out[eng] = {"level": "automated", "note": "Passed the automated checks only; nobody has listened to it in the app yet."}
+    return out
+
+def prefer(e, em, player, ids=(), iss=None):
     """The best-performing compatible engine. Both fully playable: the original package (fm1-emu), since it is the
-    maker's own firmware, fingerprint-checked, and runs with real-time headroom. Only one fully playable: that one.
-    Both only experimental: the one with more measured headroom."""
+    maker's own firmware, fingerprint-checked, and runs with real-time headroom. Only one fully playable: that one
+    (a known issue counts against it). Both only experimental: the one with more measured headroom. policy.json's
+    emuPrefer names an engine for a firmware outright."""
+    iss = iss or {}
     have_rfm1 = bool(e.get("file")) and e["status"][player]["state"] in ("playable", "experimental")
     have_emu = em[player]["state"] in ("playable", "experimental") and (player == "mac" or (em.get("package") or {}).get("file"))
     if not have_emu: return {"engine": "rfm1", "reason": "Only the .rfm1 build runs in this player."} if have_rfm1 else None
     if not have_rfm1: return {"engine": "fm1-emu", "reason": "Only the original package runs in this player."}
-    r_ok, e_ok = e["status"][player]["state"] == "playable", em[player]["state"] == "playable"
+    for i in ids:
+        if i in emu_prefer: return {"engine": emu_prefer[i]["engine"], "reason": emu_prefer[i]["reason"]}
+    r_ok = e["status"][player]["state"] == "playable" and "rfm1" not in iss
+    e_ok = em[player]["state"] == "playable" and "fm1-emu" not in iss
     if r_ok and e_ok: return {"engine": "fm1-emu", "reason": "Both run well; the original package is the maker's own fingerprint-checked firmware."}
     if r_ok != e_ok:
         win = "rfm1" if r_ok else "fm1-emu"
-        return {"engine": win, "reason": f"Only the {'.rfm1 build' if win == 'rfm1' else 'original package'} passed every automated check here."}
+        lose = "fm1-emu" if win == "rfm1" else "rfm1"
+        why = "has a known issue" if lose in iss else "did not pass every automated check here"
+        return {"engine": win, "reason": f"The {'original package' if lose == 'fm1-emu' else '.rfm1 build'} {why}."}
     rs, es = rfm1_speed(e, player), (em[player].get("tested") or {}).get("speed")
     if rs is not None and es is not None and rs > es:
         return {"engine": "rfm1", "reason": f"Neither is fully proven here; the .rfm1 build has more headroom ({rs}x against {es}x)."}
     return {"engine": "fm1-emu", "reason": "Neither is fully proven here; the original package is tried first."}
 
 hosted = []
-counts = {"packages": 0, "hosted": 0, "web": {}, "mac": {}, "preferred": {"web": {}, "mac": {}}}
+counts = {"packages": 0, "hosted": 0, "web": {}, "mac": {}, "preferred": {"web": {}, "mac": {}},
+          "confidence": {"web": {}, "mac": {}}, "preferredConfidence": {"web": {}, "mac": {}}}
 for e in v2["firmwares"]:
     hub = ((e.get("provenance") or {}).get("hub") or {}).get("id") or (e["id"] if e["id"] in pk else None)
     p = pk.get(hub) if hub else None
@@ -143,11 +200,18 @@ for e in v2["firmwares"]:
             em["mac"] = {**em["mac"], "state": "unavailable", "reason": f"Pocket does not distribute it ({excl}). Download it from the maker and open it from disk."}
         intel = run_of(p["sha256"], "intel")
         if intel and em["mac"].get("tested") is not None: em["mac"]["tested"]["intelSpeed"] = intel.get("speed")
-    em["listened"] = [t for t in listening if t.get("firmware") in ids]
+    e["listened"] = [t for t in listening if t.get("firmware") in ids]
     em["preferred"] = {}
+    e["knownIssues"], e["confidence"] = {}, {}
     for player in ("web", "mac"):
         if em[player]["state"] not in ("playable", "experimental", "unsupported", "unavailable"): em[player]["state"] = "experimental"
-        pr = prefer(e, em, player)
+        iss = issues(e, em, ids, player)
+        if iss: e["knownIssues"][player] = iss
+        conf = confidence(e, em, ids, player, iss)
+        if conf: e["confidence"][player] = conf
+        for lv in conf.values(): counts["confidence"][player][lv["level"]] = counts["confidence"][player].get(lv["level"], 0) + 1
+        pr = prefer(e, em, player, ids, iss)
+        if pr and conf.get(pr["engine"]): counts["preferredConfidence"][player][conf[pr["engine"]]["level"]] = counts["preferredConfidence"][player].get(conf[pr["engine"]]["level"], 0) + 1
         if pr: em["preferred"][player] = pr
         counts[player][em[player]["state"]] = counts[player].get(em[player]["state"], 0) + 1
         if pr: counts["preferred"][player][pr["engine"]] = counts["preferred"][player].get(pr["engine"], 0) + 1

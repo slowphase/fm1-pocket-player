@@ -279,8 +279,13 @@
     el.className = "pk-facts pk-engine";
     var pref = e.meta.emu && e.meta.emu.preferred && e.meta.emu.preferred.web;
     var t = "runs as its " + ENGINE[e.engine] + (pref && pref.engine !== e.engine && have.length > 1 ? " (your choice)" : "");
+    // how sure we are, for this engine in this player: a person listened, automated checks only, or a known issue
+    var c = e.meta.confidence && e.meta.confidence.web && e.meta.confidence.web[e.engine];
+    var CONF = { listened: "listened to", automated: "automated checks only", "known-issue": "known issue" };
+    if (c && CONF[c.level]) t += " · " + CONF[c.level];
     el.innerHTML = esc(t);
-    if (pref && pref.engine === e.engine) el.title = pref.reason || "";
+    if (c) el.title = c.note || "";
+    if (pref && pref.engine === e.engine) el.title = (el.title ? el.title + " " : "") + (pref.reason || "");
     if (have.length > 1) {
       var other = have[0] === e.engine ? have[1] : have[0], b = document.createElement("button");
       b.type = "button";
@@ -332,7 +337,7 @@
         '<p class="pk-facts">' + esc([e.version, m.category, e.license ? api.lic(e.license) : ""].filter(Boolean).join(" · ")) + (src ? " · " + src : "") + "</p>" +
         '<div class="pk-actions"></div>' +
       "</div>";
-    if (e.catalog && m.emu) p.querySelector(".pk-pbody").insertBefore(engineLine(e, running), p.querySelector(".pk-actions"));
+    if (e.catalog && (m.emu || m.confidence)) p.querySelector(".pk-pbody").insertBefore(engineLine(e, running), p.querySelector(".pk-actions"));
     var acts = p.querySelector(".pk-actions"), play = document.createElement("button");
     play.type = "button";
     play.className = "chip pk-play";

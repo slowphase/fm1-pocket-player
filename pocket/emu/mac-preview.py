@@ -12,9 +12,15 @@ out = {"about": "Test-build preview of catalog-v2.json's emu blocks (fm1-pocket-
        "made": v2.get("updated"), "engine": (v2.get("runtimes") or {}).get("fm1-emu"), "firmwares": {}}
 for e in v2["firmwares"]:
     em = e.get("emu")
-    if not em or not em.get("package"): continue
-    em = json.loads(json.dumps(em)); em["package"].pop("file", None); em.pop("web", None)
-    if em.get("preferred"): em["preferred"].pop("web", None)
-    out["firmwares"][e["id"]] = {"hubVersion": ((e.get("provenance") or {}).get("hub") or {}).get("version"), "emu": em}
+    item = {"hubVersion": ((e.get("provenance") or {}).get("hub") or {}).get("version")}
+    if em and em.get("package"):
+        em = json.loads(json.dumps(em)); em["package"].pop("file", None); em.pop("web", None)
+        if em.get("preferred"): em["preferred"].pop("web", None)
+        item["emu"] = em
+    # the Mac's confidence and known issues, and the listening tests behind them
+    if (e.get("confidence") or {}).get("mac"): item["confidence"] = {"mac": e["confidence"]["mac"]}
+    if (e.get("knownIssues") or {}).get("mac"): item["knownIssues"] = {"mac": e["knownIssues"]["mac"]}
+    if e.get("listened"): item["listened"] = e["listened"]
+    if len(item) > 1: out["firmwares"][e["id"]] = item
 json.dump(out, open(sys.argv[2], "w"), indent=1, sort_keys=True); open(sys.argv[2], "a").write("\n")
 print(f"{len(out['firmwares'])} emu blocks")
