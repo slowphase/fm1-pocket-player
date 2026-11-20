@@ -113,8 +113,9 @@ check).
 **Interactive verification** (CI, not by ear):
 - Web prototype in Chromium 159 headless (Pocket's own page, `src/emu-core.js`): 13 of 15 original packages booted,
   drew, sounded from keys, MIDI or PLAY, and kept a save across a reload; BEETLE (tracker, no song) and ChoralRoot
-  were silent there (ChoralRoot sounds in the native player: to look at). After them, the built-in `.rfm1` still ran
-  on the existing engine.
+  were silent there. ChoralRoot is a slow starter: in the same engine it plays once given about 8 s of emulated time,
+  and that test pressed keys after 3 s; the tests now wait 8 s. After them, the built-in `.rfm1` still ran on the
+  existing engine.
 - Mac prototype (`EmuCore`, upstream's engine linked into the app): Swift tests on Apple Silicon boot Felucca, draw,
   sound a key and keep a save across a reboot; `--selftest-fwsc` runs 25 original packages inside the packaged app
   (results in fm1-pocket-mac#8's run summary).

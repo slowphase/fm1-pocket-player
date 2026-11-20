@@ -22,7 +22,7 @@ for (const id of ids) {
     const r = await page.evaluate(async () => {
       const core = window.FM1Sim.core();
       const rms = (n) => { const a = core.pull(n); let s = 0; for (const v of a) s += v * v; return Math.sqrt(s / a.length); };
-      const t0 = performance.now(); rms(44100 * 3); const boot = (performance.now() - t0) / 1000;
+      const t0 = performance.now(); rms(44100 * 8); const boot = (performance.now() - t0) / 1000;   // past a slow start (ChoralRoot)
       const lcd = core.lcdBytes(); let lit = 0; for (let i = 0; i < lcd.length; i += 2) if (lcd[i] | lcd[i + 1]) lit++;
       [7, 11, 14].forEach((k) => core.key(k, 1, 110)); const keys = rms(44100); [7, 11, 14].forEach((k) => core.key(k, 0));
       rms(13230);
