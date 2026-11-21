@@ -91,6 +91,8 @@ export function editorListings({ firmwares, directory, aliases, reserved = [], b
     if (seen && editorOnly(seen) && seen.provenance.editor.listedBackfill) entry.provenance.editor.listedBackfill = true;
     return entry;
   });
+  // the report shows each new entry's release date too (or that none is known)
+  for (const n of r.new) n.released = (releases[n.key] && releases[n.key].date) || null;
   return { entries, report: r };
 }
 

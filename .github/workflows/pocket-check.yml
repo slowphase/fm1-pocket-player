@@ -92,6 +92,8 @@ jobs:
             --editor store/editor-directory.json --editor-releases editor-releases.dry.json \
             --reconciliation editor-reconciliation.json --reconciliation-md editor-reconciliation.md | tee -a "$GITHUB_STEP_SUMMARY"
           [ -s editor-reconciliation.md ] && sed -n '1,/^## Pocket firmwares/p' editor-reconciliation.md | sed '$d' >> "$GITHUB_STEP_SUMMARY" || true
+          # the full report in the log, for review
+          [ -s editor-reconciliation.md ] && cat editor-reconciliation.md || true
           cp _site/data/catalog-v2.json catalog-v2.dry.json
 
       - uses: actions/upload-artifact@v7

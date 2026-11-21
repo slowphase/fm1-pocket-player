@@ -149,7 +149,7 @@ export function markdown(r) {
   for (const x of r.new) { const k = x.kinds[0] || "unsorted"; (kinds[k] ||= []).push(x); }
   for (const k of Object.keys(kinds).sort()) {
     L.push(`### ${k} (${kinds[k].length})`, "");
-    for (const x of kinds[k]) L.push(`- ${x.name} (id ${x.id}) by ${x.maker || "?"}${x.repository ? `, ${x.repository}` : ", no repository"}${x.channel ? `, ${x.channel}` : ""}${x.version ? ` ${x.version}` : ""}`);
+    for (const x of kinds[k]) L.push(`- ${x.name} (id ${x.id}) by ${x.maker || "?"}${x.repository ? `, ${x.repository}` : ", no repository"}${x.channel ? `, ${x.channel}` : ""}${x.version ? ` ${x.version}` : ""}${x.released !== undefined ? (x.released ? `, released ${x.released.slice(0, 10)}` : ", release date unknown") : ""}`);
     L.push("");
   }
   return L.join("\n");
