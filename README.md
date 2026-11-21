@@ -41,11 +41,6 @@ Pocket Player runs firmware two ways:
 It recommends an engine for each firmware based on compatibility and performance checks. Where both work, you can
 switch between them.
 
-<!-- ROLLOUT NOTICE: delete this note once the emulator catalogue is published (see docs/EMULATOR-INTEGRATION.md,
-     "Going live"). -->
-> **Rolling out.** Original-package playback, including opening your own `.fwsc` files, is switched on with the next
-> library update. Until then the player uses `.rfm1` builds only.
-
 ## Compatibility
 
 Each firmware's details say how it was checked. Automated checks start the firmware, play it in a scripted test and
