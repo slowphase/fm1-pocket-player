@@ -11,7 +11,7 @@ COMMIT = json.load(open(os.path.join(HERE, "upstream.json")))["commit"]
 def sha(b): return hashlib.sha256(b).hexdigest()
 
 class Catalog(unittest.TestCase):
-    def build(self, listening=None, policy_extra=None):
+    def build(self, listening=None, policy_extra=None, b_rfm1="playable"):
         d = tempfile.mkdtemp()
         pk = {"a": b"A" * 5000, "b": b"B" * 5000, "c": b"C" * 5000}
         store = os.path.join(d, "store"); os.makedirs(store)
@@ -23,7 +23,7 @@ class Catalog(unittest.TestCase):
             {"id": "a", "name": "A", "license": "GPL-3.0", "file": "fw/a.rfm1", "sha256": "1" * 64, "version": "1",
              "status": {"web": st("playable"), "mac": st("playable")}},
             {"id": "b", "name": "B", "license": "GPL-3.0", "file": "fw/b.rfm1", "sha256": "2" * 64, "version": "1",
-             "status": {"web": st("playable"), "mac": st("playable")}},
+             "status": {"web": st(b_rfm1), "mac": st(b_rfm1)}},
             {"id": "c", "name": "C", "license": "All rights reserved", "status": {"web": st("source-only"), "mac": st("source-only")}},
         ]}
         open(os.path.join(d, "v2.json"), "w").write(json.dumps(v2))
@@ -60,6 +60,13 @@ class Catalog(unittest.TestCase):
         self.assertEqual(f["c"]["emu"]["web"]["state"], "unavailable")
         self.assertEqual(f["c"]["emu"]["preferred"]["mac"]["engine"], "fm1-emu", "the Mac downloads it from the maker")
         self.assertTrue(os.path.exists(os.path.join(d, "site", "pkg", f"a-{sha(pk['a'])[:8]}.fwsc")))
+
+    def test_experimental_is_never_described_as_passed(self):
+        f, d, pk = self.build(b_rfm1="experimental")
+        note = f["b"]["confidence"]["web"]["rfm1"]["note"]
+        self.assertNotIn("Passed", note)
+        self.assertIn("did not pass", note)
+        self.assertIn("Passed", f["a"]["confidence"]["web"]["rfm1"]["note"], "a playable build still says it passed")
 
     def test_screens_for_firmware_without_a_picture(self):
         f, d, pk = self.build()
