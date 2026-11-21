@@ -163,7 +163,8 @@ jobs:
             cp _site/data/catalog-v2.json pocket-store/catalog-v2.json
             old=$(python3 -c "import json;print(json.dumps([e.get('emu') for e in json.load(open('pocket-store/catalog-v2.previous.json'))['firmwares']],sort_keys=True))" 2>/dev/null | sha256sum)
             new=$(python3 -c "import json;print(json.dumps([e.get('emu') for e in json.load(open('_site/data/catalog-v2.json'))['firmwares']],sort_keys=True))" | sha256sum)
-            [ "$old" != "$new" ] && echo "changed=true" >> "$GITHUB_OUTPUT"
+            # (an if, not "&&": an unchanged catalogue must not end the step with a failure)
+            if [ "$old" != "$new" ]; then echo "changed=true" >> "$GITHUB_OUTPUT"; fi
           else
             cp pocket-store/catalog-v2.json catalog-v2.emu-preview.json
             python3 pocket/emu/catalog.py --v2 catalog-v2.emu-preview.json --packages emu-state/packages.json --emu-ledger emu-state/emu-compat.json \
