@@ -100,8 +100,10 @@ await step("an FM1 Editor listing credits the Editor and never the Hub", async (
   const text = await prev.textContent();
   if (!/listed by FM1 Editor/.test(text)) throw new Error("no Editor credit on " + ed.id);
   if (/The Firmware Hub/.test(text)) throw new Error("the Hub's credit on Editor-only " + ed.id);
-  if (ed.about && !text.includes(ed.about.slice(0, 40))) throw new Error("the Editor's description is not shown for " + ed.id);
-  if (ed.about && !/Description from FM1 Editor/.test(text) ) throw new Error("no credit for the Editor's description on " + ed.id);
+  const d = ed.attributedDescription;
+  if (ed.about) throw new Error("an Editor description in about, where 0.9.0 would show it without credit: " + ed.id);
+  if (d && !text.includes(d.text.slice(0, 40))) throw new Error("the Editor's description is not shown for " + ed.id);
+  if (d && !(/Description from FM1 Editor/.test(text) && /MIT/.test(text))) throw new Error("no credit and licence with the Editor's description on " + ed.id);
   if (await prev.locator(".pk-play").count()) throw new Error("a play button on a listing-only entry");
   await page.screenshot({ path: join(OUT, "editor-listing.png") });
   return ed.name;
@@ -120,6 +122,35 @@ await step("without catalog-v2.json it falls back to catalog.json", async () => 
   if (n !== v1.count + 1) throw new Error(`${n} rows, expected ${v1.count + 1}`);
   if (await fb.locator('.pk-filters [data-f="more"]').isVisible()) throw new Error('"more" shown without v2');
   return `${n} rows`;
+});
+// a promoted firmware: catalog-v2.json keeps a permanent Pocket id and lists the build's own id (catalog.json's) as an
+// alias. A favourite under the Pocket id must still show on a night with catalog.json alone.
+const ctx = await browser.newContext();
+const pp = await ctx.newPage();
+const target = v1.firmwares[0];
+const promoted = { ...v2, firmwares: v2.firmwares.map((f) => (f.id === target.id ? { ...f, id: target.id + "-pocket", aliases: [target.id] } : f)) };
+await pp.route("**/data/catalog-v2.json", (r) => r.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(promoted) }));
+await step("a promoted firmware keeps its Pocket id and its favourite, also on catalog.json alone", async () => {
+  await pp.addInitScript((id) => { if (!localStorage.getItem("pocket.favs")) localStorage.setItem("pocket.favs", JSON.stringify([id, "more:legacy-listed"])); }, target.id + "-pocket");
+  await pp.goto(URL_, { waitUntil: "load" });
+  await pp.waitForFunction(() => /h1/.test(document.getElementById("fwname").textContent), null, { timeout: 30000 });
+  await pp.click("#fwbtn");
+  await pp.waitForSelector("#pk-q", { state: "visible" });
+  await pp.click('.pk-filters [data-f="fav"]');
+  const withV2 = await pp.locator("#fwlist .pk-item").count();
+  const aliases = await pp.evaluate(() => JSON.parse(localStorage.getItem("pocket.aliases") || "{}"));
+  if (aliases[target.id] !== target.id + "-pocket") throw new Error("the alias was not remembered");
+  await pp.unroute("**/data/catalog-v2.json");
+  await pp.route("**/data/catalog-v2.json", (r) => r.fulfill({ status: 404, body: "" }));
+  await pp.reload({ waitUntil: "load" });
+  await pp.waitForFunction(() => /h1/.test(document.getElementById("fwname").textContent), null, { timeout: 30000 });
+  await pp.click("#fwbtn");
+  await pp.waitForSelector("#pk-q", { state: "visible" });
+  await pp.click('.pk-filters [data-f="fav"]');
+  const rows = await pp.locator("#fwlist .pk-item").count();
+  const text = await pp.locator("#fwlist").textContent();
+  if (withV2 !== 1 || rows !== 1 || !text.includes(target.name)) throw new Error(`favourites: ${withV2} with v2, ${rows} on catalog.json alone`);
+  return `${target.name} (${target.id} in catalog.json) stays ${target.id}-pocket`;
 });
 await browser.close();
 

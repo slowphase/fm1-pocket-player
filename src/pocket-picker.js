@@ -27,8 +27,10 @@
   function put(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* fine */ } }
 
   /* ---- favourites, by stable firmware id (a catalogue id, or a dropped file's manifest id) ---- */
-  var favs = get("pocket.favs", []);
-  function favId(e) { return e.catalog ? e.meta.id : (e.builtin ? e.key : e.key.replace(/^fw:([^:]+):.*$/, "$1")); }
+  /* a listed-only firmware is favourited under its catalogue id too, so the favourite follows it when it becomes
+     playable; favourites saved as "more:<id>" by earlier versions are read as "<id>" */
+  var favs = get("pocket.favs", []).map(function (f) { return String(f).replace(/^more:/, ""); });
+  function favId(e) { return (e.catalog || e.more) ? e.meta.id : (e.builtin ? e.key : e.key.replace(/^fw:([^:]+):.*$/, "$1")); }
   function isFav(e) { return favs.indexOf(favId(e)) >= 0; }
   function toggleFav(e) {
     var id = favId(e), i = favs.indexOf(id);
@@ -111,6 +113,11 @@
     return fetchJson("catalog-v2.json").then(function (c) {
       if (!c || c.schema !== 2 || !Array.isArray(c.firmwares)) throw new Error("unknown catalogue");
       catalog = c;
+      /* remember which ids catalog.json uses for firmware catalog-v2.json keeps under a permanent Pocket id (a
+         promoted firmware's .rfm1 build), so a night on catalog.json alone still shows them under that id */
+      var aliases = {};
+      c.firmwares.forEach(function (f) { (f.aliases || []).forEach(function (a) { aliases[a] = f.id; }); });
+      put("pocket.aliases", aliases);
       more = c.firmwares.filter(function (f) { return !engines(f).length; })
         .map(function (f) { return { key: "more:" + f.id, name: f.name, version: f.version, license: f.license, more: true, meta: f }; });
       return c.firmwares.filter(function (f) { return engines(f).length; }).map(entry);
@@ -119,8 +126,12 @@
       return fetchJson("catalog.json").then(function (c) {
         if (!c || c.schema !== 1 || !Array.isArray(c.firmwares)) throw new Error("unknown catalogue");
         catalog = c;
-        return c.firmwares.map(function (f) { return { key: "cat:" + f.id, name: f.name, version: f.version, license: f.license,
-          url: DATA + f.file, sha256: f.sha256, catalog: true, engine: "rfm1", meta: f }; });
+        var aliases = get("pocket.aliases", {});
+        return c.firmwares.map(function (f) {
+          var m = aliases[f.id] && !c.firmwares.some(function (x) { return x.id === aliases[f.id]; }) ? Object.assign({}, f, { id: aliases[f.id] }) : f;
+          return { key: "cat:" + m.id, name: f.name, version: f.version, license: f.license,
+            url: DATA + f.file, sha256: f.sha256, catalog: true, engine: "rfm1", meta: m };
+        });
       });
     }).catch(function () { catalog = null; more = []; return []; });   /* no catalogue: the simulator as it was */
   }
@@ -254,7 +265,7 @@
     if (state.filter === "new" && !isNew(e)) return false;
     if (state.cat && ((!e.catalog && !e.more) || m.category !== state.cat)) return false;
     if (!state.q) return true;
-    var hay = [e.name, e.version, by(e), m.about, m.tag, m.category].join(" ").toLowerCase();
+    var hay = [e.name, e.version, by(e), m.about, m.attributedDescription && m.attributedDescription.text, m.tag, m.category].join(" ").toLowerCase();
     var bare = hay.replace(/[^a-z0-9]+/g, "");              /* "kwa" finds K-WA SUB, "fm1" finds FM-1 */
     return state.q.toLowerCase().split(/\s+/).every(function (w) {
       var b = w.replace(/[^a-z0-9]+/g, "");
@@ -324,9 +335,14 @@
   }
   /* a firmware this player can't run: why, who made it, where it lives */
   /* a description written by another source carries its credit and licence (FM1 Editor's are MIT) */
-  function aboutNote(m) {
-    var c = m.aboutCredit;
-    return c ? '<p class="pk-facts">' + esc(c.text || "Description") + (c.url ? " · " + link(c.url, "view") : "") + (c.license ? " (" + esc(c.license) + ")" : "") + "</p>" : "";
+  /* the description to show: the entry's own, else one written by another source, which is only ever shown with its
+     credit and licence (FM1 Editor's are MIT) */
+  function description(m) {
+    if (m.about) return "<p>" + esc(m.about) + "</p>";
+    var d = m.attributedDescription;
+    if (!d || !d.text) return "";
+    return "<p>" + esc(d.text) + "</p>" + '<p class="pk-facts">' + (d.url ? link(d.url, d.credit || "Description") : esc(d.credit || "Description")) +
+      (d.license ? " · " + (d.licenseUrl ? link(d.licenseUrl, d.license) : esc(d.license)) : "") + (d.copyright ? " · " + esc(d.copyright) : "") + "</p>";
   }
   function morePreview(e) {
     var m = e.meta || {}, st = m.status && m.status.web || {}, p = document.createElement("div"), hub = m.provenance && m.provenance.hub,
@@ -337,7 +353,7 @@
       ed ? link(ed.url || (m.credit && m.credit.url), "listed by FM1 Editor") : ""].filter(Boolean).join(" · ");
     p.innerHTML = picture(e) + '<div class="pk-pbody">' +
       (m.tag ? '<p class="pk-tag">' + esc(m.tag) + "</p>" : "") +
-      (m.about ? "<p>" + esc(m.about) + "</p>" + aboutNote(m) : "") +
+      description(m) +
       '<p class="pk-why">' + esc(st.reason || (m.restriction && m.restriction.reason) || "") + "</p>" +
       (makers(m) ? '<p class="pk-facts">by ' + makers(m) + "</p>" : "") +
       '<p class="pk-facts">' + esc([m.version, m.category, m.license ? api.lic(m.license) : ""].filter(Boolean).join(" · ")) + (links ? " · " + links : "") + "</p>" +
@@ -361,7 +377,7 @@
     p.innerHTML = picture(e) +
       '<div class="pk-pbody">' +
         (m.tag ? '<p class="pk-tag">' + esc(m.tag) + "</p>" : "") +
-        (m.about ? "<p>" + esc(m.about) + "</p>" + aboutNote(m) : (e.builtin ? "<p>Built into this player.</p>" : (e.catalog ? "" : "<p>A file you added. It stays in this browser until you remove it.</p>"))) +
+        (description(m) || (e.builtin ? "<p>Built into this player.</p>" : (e.catalog ? "" : "<p>A file you added. It stays in this browser until you remove it.</p>"))) +
         (m.status && makers(m) ? '<p class="pk-facts">by ' + makers(m) + "</p>" : "") +
         (webStatus(e) && webStatus(e).state === "experimental" ? '<p class="pk-why">' + esc(webStatus(e).reason) + "</p>" : "") +
         '<p class="pk-facts">' + esc([e.version, m.category, e.license ? api.lic(e.license) : ""].filter(Boolean).join(" · ")) + (src ? " · " + src : "") + "</p>" +

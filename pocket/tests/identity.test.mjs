@@ -53,8 +53,9 @@ test("identity: when the Hub adds an Editor-first firmware, it keeps its Pocket 
   assert.equal(k.provenance.editor.key, "kickside");
   assert.equal(k.provenance.editor.listedBackfill, true);
   assert.equal(k.credit.text, "Listed by FM1 Editor");
-  assert.equal(k.aboutCredit.text, "Description from FM1 Editor");
-  assert.ok(k.about.length > 50);
+  assert.equal(k.attributedDescription.credit, "Description from FM1 Editor");
+  assert.ok(k.attributedDescription.text.length > 50);
+  assert.equal(k.about, "", "about stays the new source's own (the Hub's card text is never copied)");
   assert.deepEqual(k.promoted, { from: "FM1 Editor", sources: ["hub"], listed: "2026-10-07" });
   assert.equal(N2.counts.promotedFromEditor, 1);
   assert.equal(N2.counts.fromEditor, 158);

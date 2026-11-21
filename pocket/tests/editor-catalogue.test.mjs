@@ -54,9 +54,13 @@ test("editor catalogue: every new entry is listing-only, never downloadable, pla
     assert.equal(e.license, "", "licences come from the Hub or the maker, never the Editor");
     assert.equal(DESCRIPTIONS, true);
     const raw = EDITOR.entries.find((x) => x.key === e.provenance.editor.key).description;
-    assert.equal(e.about, normaliseDescription(raw), `${e.id}: the Editor's description, normalised`);
-    assert.ok(e.about.length > 50 && e.about.length <= MAX_ABOUT + 1, e.id);
-    assert.deepEqual(e.aboutCredit, { text: "Description from FM1 Editor", url: e.provenance.editor.url, license: "MIT", copyright: "Copyright (c) 2026 Ben Sparrow" });
+    assert.equal(e.about, "", `${e.id}: never in about, which 0.9.0 shows without a credit`);
+    const d = e.attributedDescription;
+    assert.equal(d.text, normaliseDescription(raw), `${e.id}: the Editor's description, normalised`);
+    assert.ok(d.text.length > 50 && d.text.length <= MAX_ABOUT + 1, e.id);
+    assert.deepEqual({ ...d, text: undefined }, { text: undefined, credit: "Description from FM1 Editor", source: "FM1 Editor", url: e.provenance.editor.url,
+      license: "MIT", licenseUrl: "https://github.com/benny-sparra/fm1-dx7-patch-importer/blob/c017be1c6b34213f794c2c5b4afc8bab808a6a78/LICENSE",
+      copyright: "Copyright (c) 2026 Ben Sparrow" });
     assert.equal(e.provenance.editor.commit, EDITOR.source.commit);
     assert.match(e.provenance.editor.url, /^https:\/\/fm1-editor\.com\/firmware\/#/);
     assert.deepEqual(e.makers, e.authors.map((name) => ({ name, url: e.source })));

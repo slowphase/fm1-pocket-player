@@ -12,8 +12,10 @@
 //   release date                   the maker's GitHub release (pocket/editor-releases.mjs), then the Hub; never the
 //                                  Editor's "updated" date (that is when the Editor last edited its card).
 //   everything else                the Editor fills gaps only: name, maker, version, channel, kinds, links.
-// Descriptions: Pocket is a discovery tool, so each listing carries the Editor's own description (MIT licensed), with
-// its credit and licence on the entry (aboutCredit). The text is normalised for safe, readable display without changing
+// Descriptions: Pocket is a discovery tool, so each listing carries the Editor's own description (MIT licensed), in
+// attributedDescription: { text, credit, url, license, licenseUrl, copyright, source }. It is never put in `about`,
+// which apps up to FM-1 Pocket 0.9.0 show without any credit: a client shows the text only if it also shows the credit,
+// so no release order can put the Editor's words on screen unattributed. The text is normalised for safe, readable display without changing
 // its meaning: Unicode NFC, any leftover markup or entities decoded or removed, control, zero-width and direction
 // characters removed, whitespace collapsed, and an over-long text (over MAX_ABOUT) shortened at a word with an ellipsis.
 //
@@ -50,10 +52,14 @@ export function normaliseDescription(text, max = MAX_ABOUT) {
   if (t.length > max) t = t.slice(0, max).replace(/\s+\S*$/, "").replace(/[\s,;:.\-]+$/, "") + "…";
   return t;
 }
-// the credit and licence for a description taken from the Editor
-export function aboutCredit(key, directory) {
-  const lic = (directory && directory.source && directory.source.license) || {};
-  return { text: "Description from FM1 Editor", url: key ? `${SITE}#${encodeURIComponent(key)}` : SITE, license: "MIT",
+// a description taken from the Editor, with its credit and licence (null when there is no text)
+export function attributedDescription(text, key, directory) {
+  const t = normaliseDescription(text);
+  if (!t) return null;
+  const src = (directory && directory.source) || {};
+  const lic = src.license || {};
+  return { text: t, credit: "Description from FM1 Editor", source: "FM1 Editor", url: key ? `${SITE}#${encodeURIComponent(key)}` : SITE,
+           license: "MIT", licenseUrl: `https://github.com/benny-sparra/fm1-dx7-patch-importer/blob/${src.commit || "main"}/LICENSE`,
            copyright: lic.copyright || "Copyright (c) 2026 Ben Sparrow" };
 }
 
@@ -81,7 +87,7 @@ export function listing(e, id, source, directory = null) {
     id, name: e.name, version: e.version || "", authors: e.maker ? [e.maker] : [],
     category: editorCategory(e.kinds),
     tag: (e.kinds || []).includes("tools") ? UTILITY_TAG : "",
-    about: DESCRIPTIONS ? normaliseDescription(e.description) : "",
+    about: "",
     license: "", source: sourceOf(e), commit: null,
     beta: !!e.channel && !RELEASED.has(e.channel),
     restriction: { code: "listing-only", reason },
@@ -95,7 +101,8 @@ export function listing(e, id, source, directory = null) {
     links: (e.links || []).map((l) => ({ role: l.role, url: l.url })),
   };
   if ((e.kinds || []).includes("tools")) entry.utility = true;
-  if (entry.about) entry.aboutCredit = aboutCredit(e.key, directory || { source });
+  const desc = DESCRIPTIONS ? attributedDescription(e.description, e.key, directory || { source }) : null;
+  if (desc) entry.attributedDescription = desc;
   return entry;
 }
 

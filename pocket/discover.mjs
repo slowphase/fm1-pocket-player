@@ -292,7 +292,7 @@ export function build({ v1, upstream, report = {}, policy, ledger = { builds: {}
       ...(editorInfo || firmwares.some((e) => e.provenance.editor) ? [{ name: "FM1 Editor", url: CREDIT.url, role: "discovery (listing only)", credit: CREDIT.text,
                          license: "MIT", copyright: (editor && editor.source && editor.source.license && editor.source.license.copyright) || "Copyright (c) 2026 Ben Sparrow",
                          commit: editorInfo ? editorInfo.commit : null, read: editorInfo ? editorInfo.checked : null,
-                         includes: "listings and their descriptions (each marked aboutCredit)",
+                         includes: "listings, and their descriptions in attributedDescription (each with its credit and licence)",
                          licenseUrl: `https://github.com/benny-sparra/fm1-dx7-patch-importer/blob/${(editorInfo && editorInfo.commit) || "main"}/LICENSE` }] : []),
       { name: "FM-1 Pocket Player", url: "https://github.com/slowphase/fm1-pocket-player", role: "review, checks and hosting" },
     ],

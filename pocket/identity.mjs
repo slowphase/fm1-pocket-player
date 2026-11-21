@@ -21,7 +21,7 @@
 // it. Ambiguous cases are reported and the record stays listed as it is, until a hand-made mapping settles them.
 // Firmware already established in the catalogue under its own id is never renamed.
 import { pocketRepositories, editorOnly } from "./reconcile.mjs";
-import { normaliseDescription, aboutCredit } from "./editor-catalogue.mjs";
+import { attributedDescription } from "./editor-catalogue.mjs";
 
 const SOURCES = ["hub", "remotefm1fw"];
 
@@ -104,8 +104,8 @@ export function preserveIds({ byId, known, previous = null, directory = null, mo
     e.upstreamIds = { ...(e.upstreamIds || {}), ...ids };
     const aliases = [...new Set([...(e.aliases || []), was, ...Object.values(ids)])].filter((a) => a !== id);
     if (aliases.length) e.aliases = aliases; else delete e.aliases;
-    // the record keeps its Editor credit, its first-listed day (and whether that was the backfill) and, where the new
-    // source has no description of its own, the Editor's description with its credit
+    // the record keeps its Editor credit, its first-listed day (and whether that was the backfill) and the Editor's
+    // description with its credit
     const before = prevById.get(id);
     const live = rec.editor && byKey.get(rec.editor);
     const prevEd = before && before.provenance && before.provenance.editor;
@@ -115,10 +115,9 @@ export function preserveIds({ byId, known, previous = null, directory = null, mo
       : { ...(prevEd || { key: rec.editor || null, url: rec.editor ? `https://fm1-editor.com/firmware/#${encodeURIComponent(rec.editor)}` : null, repository: rec.repository || null }) };
     if ((prevEd && prevEd.listedBackfill) || rec.backfill) e.provenance.editor.listedBackfill = true;
     e.credit = (before && before.credit) || { text: "Listed by FM1 Editor", url: "https://fm1-editor.com/firmware/" };
-    if (!e.about) {
-      const text = live ? normaliseDescription(live.description) : (before && before.aboutCredit ? before.about : "");
-      if (text) { e.about = text; e.aboutCredit = live ? aboutCredit(live.key, directory) : before.aboutCredit; }
-    }
+    // the Editor's description rides along with its credit (never in `about`, which the new source owns)
+    const desc = live ? attributedDescription(live.description, live.key, directory) : (before && before.attributedDescription) || null;
+    if (desc) e.attributedDescription = desc;
     e.promoted = { from: "FM1 Editor", sources: Object.keys(ids).sort(), listed: (before && before.listed) || rec.since || null };
     byId.set(id, e);
     report.promoted.push({ id, was, sources: Object.keys(ids).sort(), editor: rec.editor || null });
