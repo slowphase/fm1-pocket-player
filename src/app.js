@@ -785,7 +785,7 @@
     requestAnimationFrame(frame);
     if (q && /^https?:\/\//.test(q)) return fromUrl(q);
     if (q) pick = library.filter(function (e) { return e.key === "builtin:" + q || e.key === "cat:" + q || e.name.toLowerCase() === q.toLowerCase(); })[0] || pick;   /* pocket: cat: */
-    if (!pick) { showError("No firmware to run yet: open an .rfm1 file."); return; }
+    if (!pick) { showError("No firmware to run yet: open a .fwsc or .rfm1 file."); return; }
     return run(pick);
   });
 })();
