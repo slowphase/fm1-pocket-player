@@ -186,60 +186,61 @@ class Golden(unittest.TestCase):
 
 
 class Promotion(unittest.TestCase):
-    """An Editor-first firmware (KickSide, Pocket id "kickside") that The Firmware Hub later adds under its own id
-    ("kicksidefm") with a verified package: through discover.mjs and this emulator layer, it keeps its Pocket id and
-    becomes playable, its package found through the Hub's id, and every existing entry stays as it was."""
+    """The final, post-emulator catalogue after two Editor-first firmware are promoted (tests/golden/make_expanded.py):
+    The Firmware Hub adds KickSide (Pocket id "kickside") as "kicksidefm" with a verified package, and RemoteFM1FW
+    builds GLITCH ("glitch-ttreu") as "glitchdrums". Both keep their Pocket ids and expose their playback."""
 
-    def test_editor_first_firmware_becomes_playable_through_the_hub_under_its_pocket_id(self):
-        import gzip
-        g = os.path.join(HERE, "..", "tests", "golden")
-        rd = lambda f: json.load(gzip.open(os.path.join(g, f)))
-        emu, want = rd("emu-inputs.json.gz"), rd("emu-expected.json.gz")
-        # a package the golden run found playable on the Mac, re-used as KickSide's (the ledger is keyed by SHA-256)
-        good = next(e for e in want["firmwares"] if (e.get("emu") or {}).get("mac", {}).get("state") == "playable"
-                    and ((e.get("provenance") or {}).get("hub") or {}).get("id"))
-        hid = good["provenance"]["hub"]["id"]
-        pkg = dict(next(p for p in emu["packages"]["firmwares"] if p["hub"] == hid), hub="kicksidefm", name="KickSide",
-                   repo="kjs4discovery/kicksidesidekick", license=good.get("license") or "GPL-3.0")
-        packages = dict(emu["packages"], firmwares=emu["packages"]["firmwares"] + [pkg])
-        script = ("import { goldenBuild } from './pocket/tests/golden/golden.mjs';"
-                  "import { hubWithKickSide } from './pocket/tests/golden/promotion.mjs';"
-                  "import { snapshot } from './pocket/editor.mjs'; import { IDENTITIES } from './pocket/discover.mjs';"
-                  "import { readFileSync } from 'node:fs'; import { gunzipSync } from 'node:zlib';"
-                  "const f = 'pocket/tests/fixtures/';"
-                  "const editor = snapshot({ html: gunzipSync(readFileSync(f + 'fm1-editor-c017be1.html.gz')).toString(),"
-                  " licenceText: readFileSync(f + 'fm1-editor-LICENSE', 'utf8'), commit: 'c017be1', committed: null, checked: '2026-11-21T13:00:00Z' });"
-                  "const editorAliases = JSON.parse(readFileSync('pocket/editor-aliases.json', 'utf8'));"
-                  "const n1 = goldenBuild({ editor, editorAliases });"
-                  "const n2 = goldenBuild({ editor, editorAliases, previous: n1, identityLedger: n1[IDENTITIES], hub: hubWithKickSide() });"
-                  "process.stdout.write(JSON.stringify(n2));")
-        root = os.path.join(HERE, "..", "..")
-        v2 = json.loads(subprocess.run(["node", "--input-type=module", "-e", script], cwd=root, check=True, capture_output=True, text=True).stdout)
-        with tempfile.TemporaryDirectory() as t:
-            for name, obj in (("v2.json", v2), ("packages.json", packages), ("emu.json", emu["emuLedger"]),
-                              ("compat.json", rd("discover-inputs.json.gz")["ledger"])):
-                json.dump(obj, open(os.path.join(t, name), "w"))
-            subprocess.run([sys.executable, os.path.join(HERE, "catalog.py"), "--v2", os.path.join(t, "v2.json"), "--packages",
-                            os.path.join(t, "packages.json"), "--emu-ledger", os.path.join(t, "emu.json"), "--rfm1-ledger",
-                            os.path.join(t, "compat.json")], check=True, capture_output=True)
-            got = json.load(open(os.path.join(t, "v2.json")))
-        by = {e["id"]: e for e in got["firmwares"]}
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, os.path.join(HERE, "..", "tests", "golden"))
+        import make_expanded
+        cls.r = make_expanded.build()
+        cls.by = {e["id"]: e for e in cls.r["night2"]["firmwares"]}
+
+    def test_kickside_is_playable_on_the_mac_through_the_hubs_package_under_its_pocket_id(self):
+        by, pkg, good = self.by, self.r["package"], self.r["good"]
         self.assertNotIn("kicksidefm", by, "no duplicate under the Hub's id")
         k = by["kickside"]
         self.assertEqual(k["provenance"]["hub"]["id"], "kicksidefm")
         self.assertEqual(k["emu"]["package"]["sha256"], pkg["sha256"], "the package is found through the Hub's id")
-        self.assertEqual(k["emu"]["mac"]["state"], "playable", "playable on the Mac under its Pocket id")
+        self.assertEqual(k["emu"]["package"]["url"], pkg["url"], "downloaded from the maker's release")
+        self.assertEqual(k["emu"]["mac"]["state"], "playable")
         self.assertEqual(k["emu"]["mac"]["state"], good["emu"]["mac"]["state"])
+        self.assertEqual(k["emu"]["preferred"]["mac"]["engine"], "fm1-emu", "the Mac plays its original package")
+        # the web needs Pocket's hosted copy, as for every Hub package; this test has no package store
+        self.assertEqual(k["emu"]["web"]["state"], "unavailable")
         self.assertEqual(k["listed"], "2026-10-07")
         self.assertEqual(k["provenance"]["editor"]["key"], "kickside")
-        self.assertEqual(got["counts"]["emu"]["packages"], want["counts"]["emu"]["packages"] + 1)
+        self.assertEqual(k["attributedDescription"]["credit"], "Description from FM1 Editor")
+        self.assertEqual(self.r["night2"]["counts"]["emu"]["packages"], self.r["want"]["counts"]["emu"]["packages"] + 1)
+
+    def test_glitch_is_playable_in_both_players_through_its_rfm1_build_under_its_pocket_id(self):
+        by = self.by
+        self.assertNotIn("glitchdrums", by)
+        g = by["glitch-ttreu"]
+        self.assertEqual(g["aliases"], ["glitchdrums"])
+        self.assertEqual(g["status"]["web"]["state"], "playable")
+        self.assertEqual(g["status"]["mac"]["state"], "playable")
+        self.assertEqual(g["emu"]["preferred"]["mac"]["engine"], "rfm1")
+        self.assertEqual(g["emu"]["preferred"]["web"]["engine"], "rfm1")
+        self.assertIsNone(g["emu"]["package"], "no Hub package: never matched to one through its ids")
+        self.assertEqual(by["glitch"]["name"], "GR!MM")
+
+    def test_listings_stay_listing_only_and_every_existing_entry_is_unchanged(self):
+        by = self.by
+        listing = [e for e in self.r["night2"]["firmwares"] if set(e.get("provenance") or {}) == {"editor"}]
+        self.assertEqual(len(listing), 157)
+        for e in listing:
+            self.assertIsNone(e["emu"]["package"], e["id"])
+            self.assertEqual(e["emu"]["mac"]["state"], "unavailable")
+            self.assertEqual(e["about"], "", "Editor text only in attributedDescription")
         def ints(o):
             if isinstance(o, float) and o.is_integer(): return int(o)
             if isinstance(o, dict): return {k: ints(v) for k, v in o.items()}
             if isinstance(o, list): return [ints(v) for v in o]
             return o
         norm = lambda o: json.dumps(ints(o), sort_keys=True)
-        for e in want["firmwares"]:
+        for e in self.r["want"]["firmwares"]:
             for key, v in e.items():
                 self.assertEqual(norm(by[e["id"]].get(key)), norm(v), f"{e['id']}.{key} changed")
 
