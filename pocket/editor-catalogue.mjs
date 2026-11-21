@@ -76,8 +76,8 @@ export function listing(e, id, source) {
 //   reserved   ids no new entry may take (policy ids, built-in ids)
 //   releases   Editor key -> { version, date, url } from editor-releases.mjs
 //   builtIn    firmware built into the players: { id, repositories }
-export function editorListings({ firmwares, directory, aliases, reserved = [], builtIn = [], previous = null, releases = {}, today }) {
-  const r = reconcile({ firmwares }, directory, aliases, { reserved, builtIn, published: previousIds(previous) });
+export function editorListings({ firmwares, directory, aliases, reserved = [], builtIn = [], previous = null, releases = {}, today, catalogueDate = null }) {
+  const r = reconcile({ firmwares, updated: catalogueDate || today }, directory, aliases, { reserved, builtIn, published: previousIds(previous) });
   const byKey = new Map((directory.entries || []).map((e) => [e.key, e]));
   const prevById = new Map(((previous && previous.firmwares) || []).map((f) => [f.id, f]));
   const firstImport = !((previous && previous.firmwares) || []).some(editorOnly);

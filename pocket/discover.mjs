@@ -213,7 +213,7 @@ export function build({ v1, upstream, report = {}, policy, ledger = { builds: {}
     const reserved = [...Object.keys(policy.approved || {}), ...Object.keys(policy.excluded || {}), ...Object.keys(policy.withdrawn || {}), ...builtIn];
     const players = builtIn.map((id) => ({ id, repositories: items.filter((it) => idFromFile(it.file) === id).map((it) => editorRepo(it.source)).filter(Boolean) }));
     const got = editorListings({ firmwares: [...byId.values()], directory: editor, aliases: editorAliases || {}, reserved, builtIn: players, previous, releases: editorReleases,
-                                 today: now.toISOString().slice(0, 10) });
+                                 today: now.toISOString().slice(0, 10), catalogueDate: now.toISOString() });
     for (const e of got.entries) byId.set(e.id, e);
     editorInfo = { commit: editor.source?.commit || null, checked: editor.status?.checked || null, listed: (editor.entries || []).length, added: got.entries.length,
                    kept: !!editor.status?.kept, reconciliation: got.report };

@@ -131,7 +131,7 @@ export function markdown(r) {
   const L = [];
   const c = r.counts;
   L.push("# FM1 Editor reconciliation report", "");
-  L.push(`Editor commit ${String(r.inputs.editor || "?").slice(0, 7)}, catalogue ${r.inputs.catalogue || "?"}. Report only: nothing here is in the catalogue yet.`, "");
+  L.push(`Editor commit ${String(r.inputs.editor || "?").slice(0, 7)}, catalogue ${r.inputs.catalogue || "?"}. New entries are listing-only (under More Firmware, never downloadable); existing entries are unchanged.`, "");
   L.push("| | Count |", "| --- | --- |");
   L.push(`| Editor entries | ${c.editor} |`, `| Pocket firmwares | ${c.pocket} |`, `| Editor entries Pocket already has | ${c.editorMatched} (covering ${c.pocketMatched} Pocket firmwares) |`);
   L.push(`| Built into the players | ${c.builtIn || 0} |`, `| Ambiguous (need an alias pair) | ${c.ambiguous} |`, `| New, listing-only candidates | ${c.new} (${c.newWithRepository} with a GitHub repository) |`);
