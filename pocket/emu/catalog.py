@@ -128,6 +128,9 @@ def confidence(e, em, ids, player, iss):
         if good:
             t = sorted(good, key=lambda t: t.get("date", ""))[-1]
             out[eng] = {"level": "listened", "note": f"A person listened to this file in the app ({t.get('who')}, {t.get('machine')}, {t.get('date')}, {t.get('app')}); not every feature was tried."}
+        elif st == "experimental":
+            # it started, but did not pass every automated check: say so, never "passed"
+            out[eng] = {"level": "automated", "note": "Started in the automated checks but did not pass them all; nobody has listened to it in the app yet."}
         else:
             out[eng] = {"level": "automated", "note": "Passed the automated checks only; nobody has listened to it in the app yet."}
     return out
