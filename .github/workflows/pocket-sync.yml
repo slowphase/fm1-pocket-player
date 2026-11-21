@@ -98,6 +98,13 @@ jobs:
           gh release download pocket-current -p hub-catalog.json -O pocket-store/hub-catalog.json --clobber 2>/dev/null || true
           node pocket/hub.mjs --cache pocket-store/hub-catalog.json
 
+      - name: FM1 Editor's directory (read from its GitHub repository; the last good snapshot is kept if it fails checks)
+        # one API call for the latest commit, and two raw reads only when that commit is new. Not used by the
+        # catalogue yet (Phase 1): kept in pocket-current as editor-directory.json for review.
+        run: |
+          gh release download pocket-current -p editor-directory.json -O pocket-store/editor-directory.json --clobber 2>/dev/null || true
+          node pocket/editor.mjs --out pocket-store/editor-directory.json
+
       - name: Which native engine to test
         id: native
         run: |
@@ -180,6 +187,7 @@ jobs:
           # the Hub copy too whenever there is one (fetched today or reused): the radar and pull-request checks
           # read it from the release, and uploading a copy is not a read of the Hub
           [ -s pocket-store/hub-catalog.json ] && files="$files pocket-store/hub-catalog.json"
+          [ -s pocket-store/editor-directory.json ] && files="$files pocket-store/editor-directory.json"
           gh release view pocket-current >/dev/null 2>&1 && gh release upload pocket-current $files --clobber || echo "no pocket-current release yet"
 
       - name: Keep catalog-v2.json for review
