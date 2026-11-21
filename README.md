@@ -1,6 +1,4 @@
-<!-- HERO IMAGE: docs/img/hero.png (wide, about 2000 x 670) will replace the current banner when the new branding
-     is ready. Until then the existing banner stays. -->
-<p align="center"><img src="docs/img/hero.jpg" alt="FM-1 Pocket Player"></p>
+<p align="center"><img src="docs/img/hero.png" alt="FM-1 Pocket Player: a universe of firmware, one little player"></p>
 
 <h1 align="center">FM-1 Pocket Player</h1>
 
