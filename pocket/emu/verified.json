@@ -1,0 +1,11 @@
+{
+ "about": "fm1-emu commits that passed the upgrade check (.github/workflows/pocket-emu.yml) against the previous pin, and the listening test that followed. Pocket pins its engine in pocket/emu/upstream.json and the Mac app in fm1-pocket-mac's Emu/Cargo.toml, independently; each should only move to a commit listed here. The Mac app's build checks its pin against this list and warns if it is missing.",
+ "commits": [
+  {
+   "commit": "09aeae3e9d78db52c3b9f5ceed93bd1120ccf444",
+   "checked": "2026-11-20",
+   "run": "https://github.com/slowphase/fm1-pocket-player/actions/runs/44708980456",
+   "note": "The evaluation baseline (no earlier pin to compare with): every Hub package measured on Linux, macOS Apple Silicon, macOS Intel and the browser engine. Listening test: pending (Dean, MacBook)."
+  }
+ ]
+}

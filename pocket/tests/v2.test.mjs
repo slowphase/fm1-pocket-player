@@ -284,3 +284,25 @@ test("catalog.json keeps schema 1 and its fields", () => {
   assert.match(src, /schema: 1,/, "catalog.mjs still writes schema 1");
   assert.ok(!/status|restriction|provenance/.test(src), "no v2 fields in catalog.mjs");
 });
+
+test("discovery dates: real release dates (the Hub's, or the maker's GitHub release), and when each was first listed", () => {
+  const h = structuredClone(hub);
+  for (const f of h.catalog.firmwares) {
+    if (f.id === "felucca") Object.assign(f, { published: "2026-11-13T04:17:47Z", added: "2026-10-08" });
+    if (f.id === "zp12") Object.assign(f, { published: "2026-10-24T08:58:41Z", added: "2026-11-10" });
+  }
+  const now = new Date("2026-11-21T00:00:00Z");
+  const previous = { firmwares: [{ id: "berlinan", listed: "2026-11-19" }] };
+  const releases = { grimm: { version: "2.0.2", date: "2026-11-01T10:00:00Z", url: "https://github.com/s/grimm/releases/tag/v2.0.2" } };
+  const c = build({ v1, upstream, report, policy, ledger, hub: h, now, previous, releases });
+  const by = Object.fromEntries(c.firmwares.map((e) => [e.id, e]));
+  assert.deepEqual(by.felucca.release, { version: "1.8.2", date: "2026-11-13T04:17:47Z", source: "The Firmware Hub" });
+  assert.equal(by.felucca.listed, "2026-10-08", "the day the Hub added it");
+  assert.equal(by.zp12.release.date, "2026-10-24T08:58:41Z");
+  assert.equal(by.zp12.listed, "2026-11-10");
+  assert.equal(by.grimm.release.source, "GitHub release");
+  assert.equal(by.berlinan.release, null, "no Hub entry and no GitHub release: unknown, never a commit or catalogue date");
+  assert.equal(by.berlinan.listed, "2026-11-19", "kept from the previous catalogue");
+  assert.equal(by.newone.listed, "2026-11-21", "first seen today");
+  for (const f of v1.firmwares) assert.equal(by[f.id].added, f.added, "catalog.json's own dates are untouched");
+});

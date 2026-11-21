@@ -1,0 +1,53 @@
+name: Firmware report (how a firmware plays)
+description: Tell us how a firmware sounded or behaved in FM-1 Pocket Player or FM-1 Pocket for macOS. Good reports become listening tests (pocket/emu/listening.json) and known issues.
+title: "[Firmware report] "
+labels: ["firmware report"]
+body:
+  - type: input
+    id: firmware
+    attributes:
+      label: Firmware
+      description: Its name as the app shows it
+    validations:
+      required: true
+  - type: dropdown
+    id: player
+    attributes:
+      label: Where
+      options: ["FM-1 Pocket for macOS", "FM-1 Pocket Player (web)"]
+    validations:
+      required: true
+  - type: dropdown
+    id: engine
+    attributes:
+      label: Engine (shown in the firmware's details or preview)
+      options: ["Original package (emulator)", ".rfm1 build", "Not sure"]
+    validations:
+      required: true
+  - type: dropdown
+    id: verdict
+    attributes:
+      label: How did it go?
+      options: ["Good: it sounded and worked as expected", "Problems", "Unusable"]
+    validations:
+      required: true
+  - type: checkboxes
+    id: area
+    attributes:
+      label: What did you try?
+      options:
+        - label: Playing keys
+        - label: PLAY (patterns, songs)
+        - label: Knobs and buttons
+        - label: Saving settings and getting them back after quitting
+        - label: MIDI
+  - type: textarea
+    id: notes
+    attributes:
+      label: What happened
+      description: What you did, what you heard, what you expected.
+  - type: input
+    id: build
+    attributes:
+      label: App build and Mac (or browser)
+      description: e.g. "0.1.0 build 37, MacBook Air M5" or "Safari 26 on a MacBook"

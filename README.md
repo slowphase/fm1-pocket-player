@@ -1,39 +1,83 @@
-![FM-1 Pocket Player: play, explore, discover](docs/img/hero.jpg)
+<p align="center"><img src="docs/img/hero.png" alt="FM-1 Pocket Player: a universe of firmware, one little player"></p>
 
-# FM-1 Pocket Player
+<h1 align="center">FM-1 Pocket Player</h1>
 
-Explore and play M-VAVE FM-1 community firmware right in your browser. There's nothing to install and no hardware needed: choose a firmware, and its screen, sound, keys and knobs come to life on the page.
+<p align="center"><strong>A universe of firmware. One little player.</strong></p>
 
-**[▶ Play FM-1 Pocket Player](https://slowphase.github.io/fm1-pocket-player/)**
+<p align="center">
+  <a href="https://slowphase.github.io/fm1-pocket-player/"><strong>▶ Play in your browser</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/slowphase/fm1-pocket-mac"><strong>Get the Mac app</strong></a>
+</p>
 
-![FM-1 Pocket Player running h1, with the firmware library open over the FM-1 panel](docs/img/pocket-player.png)
+Explore M-VAVE FM-1 community firmware instantly, in your browser, without installing anything. Pick a firmware
+and its screen, sound, knobs and keys come to life on the page. No FM-1 needed.
 
-## Features
+<p align="center"><img src="docs/img/pocket-player.png" alt="FM-1 Pocket Player running h1, with the firmware library open over the FM-1 panel"></p>
 
-- A searchable firmware library with categories, screenshots and short descriptions
-- Favourites, plus a badge for newly added firmware
-- A library that keeps itself up to date, checking each day for new versions
-- The whole FM-1 panel: screen, keys, knobs or sliders, buttons and lights, played by mouse, touch or computer keyboard
-- Sound, and MIDI input from a keyboard or DAW in browsers that support Web MIDI
-- Your own `.rfm1` files, opened from your computer or dropped onto the page
-- Your favourites, files and each firmware's settings saved in your browser between visits
+## What you can do
 
-## How it works
+- **Discover firmware.** A library that keeps itself up to date, with a picture and a short description for each
+  firmware. Search, filter by category, and sort by latest release or A to Z. New to library shows what joined in
+  the last two weeks.
+- **Hear it.** The whole FM-1 panel: screen, keys, knobs or sliders, buttons and lights.
+- **Play it your way.** Mouse, touch, your computer keyboard, or a MIDI keyboard in browsers with Web MIDI (such as
+  Chrome and Edge).
+- **Keep favourites.** Your favourites stay in your browser between visits, and so do a firmware's settings where
+  the firmware itself supports saving.
+- **Try your own files.** Open an original `.fwsc` package or an `.rfm1` build from your computer, or drop it onto
+  the page.
 
-Each firmware is an `.rfm1` file: the firmware's own code, rebuilt to run in a web browser using WebAssembly. Pocket Player steps it along the way an FM-1 would, drawing its screen and playing its sound as it goes. Every file in the library is checked before it's added.
+Nothing you open is uploaded anywhere: files and settings stay in your browser.
 
-Pocket Player can't play `.fwsc` files, the packages used to install firmware onto a real FM-1.
+## How firmware plays
+
+Pocket Player runs firmware two ways:
+
+- **Original packages** (`.fwsc`), exactly as their makers released them, on [fm1-emu](https://github.com/joakimeriksson/fm1-emu),
+  an emulation of the FM-1's chip.
+- **`.rfm1` builds**, the firmware's own code rebuilt for the browser, on the simulator Pocket Player is built on.
+
+It recommends an engine for each firmware based on compatibility and performance checks. Where both work, you can
+switch between them.
+
+<!-- ROLLOUT NOTICE: delete this note once the emulator catalogue is published (see docs/EMULATOR-INTEGRATION.md,
+     "Going live"). -->
+> **Rolling out.** Original-package playback, including opening your own `.fwsc` files, is switched on with the next
+> library update. Until then the player uses `.rfm1` builds only.
+
+## Compatibility
+
+Each firmware's details say how it was checked. Automated checks start the firmware, play it in a scripted test and
+check that it makes sound and keeps time. That catches firmware that will not run, but it is not the same as someone
+playing every feature, and most firmware has only passed automated checks so far. Known problems are shown as known
+issues. Whether a firmware saves its settings, and how, is up to the firmware.
+
+Sound wrong? [Report a firmware problem](https://github.com/slowphase/fm1-pocket-player/issues/new?template=firmware-report.yml).
+
+## Prefer an app?
+
+[FM-1 Pocket for macOS](https://github.com/slowphase/fm1-pocket-mac) is the same library as a native Mac app, with
+offline play and a Finder-style library.
 
 ## Credits
 
-FM-1 Pocket Player is built on [Jake Handy's FM-1 Browser Simulator](https://github.com/jakehandy/fm1-browser-simulator).
+FM-1 Pocket Player is an independent community project. It is not affiliated with or endorsed by M-VAVE.
 
-The firmware library is sourced from [RemoteFM1FW](https://github.com/Quixotic7/RemoteFM1FW), maintained by Michael P Jones (Quixotic7).
+- Built on [Jake Handy's FM-1 Browser Simulator](https://github.com/jakehandy/fm1-browser-simulator) (MIT), with
+  his [h1](https://github.com/jakehandy/h1) firmware built in.
+- Every firmware is the work of its makers and keeps its own licence. Each firmware's *About this firmware* links
+  to its maker and source.
+- Firmware list: [The Firmware Hub](https://thefirmwarehub.com/) – thefirmwarehub.com, licensed
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- `.rfm1` builds come from [RemoteFM1FW](https://github.com/Quixotic7/RemoteFM1FW) by Michael P Jones (Quixotic7).
+- Original packages run on [fm1-emu](https://github.com/joakimeriksson/fm1-emu) by Joakim Eriksson (MIT).
 
-Each firmware remains the work of its respective authors. Individual credits, licences and source links are available under *About this firmware* in the player.
+The player's code is MIT licensed: see [LICENSE](LICENSE).
 
-## Licence
+## More
 
-The simulator is MIT-licensed. See [LICENSE](LICENSE). Individual firmware retains its own licence and redistribution terms.
-
-FM-1 Pocket Player is an independent community project and is not affiliated with M-VAVE.
+- [Report a firmware problem](https://github.com/slowphase/fm1-pocket-player/issues/new?template=firmware-report.yml)
+  or [a player problem](https://github.com/slowphase/fm1-pocket-player/issues)
+- For developers: [the firmware interface](docs/FIRMWARE-INTERFACE.md), [the catalogue](docs/CATALOGUE-V2.md),
+  [discovery](docs/DISCOVERY.md) and [the emulator](docs/EMULATOR-INTEGRATION.md)

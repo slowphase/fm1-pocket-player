@@ -19,7 +19,7 @@ header, .drawer, .strip, .wrap > details, .pk-credits, .drop { --ink: var(--site
 #pk-q::placeholder { color: var(--dim); }
 .pk-filters { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .pk-filters .chip[aria-pressed="true"] { border-color: var(--ink); color: var(--ink); }
-#pk-cat {
+#pk-cat, #pk-sort {
   -webkit-appearance: none;
   appearance: none;                       /* Safari draws its own grey box otherwise */
   font: 12px var(--mono);
@@ -127,6 +127,10 @@ header, .drawer, .strip, .wrap > details, .pk-credits, .drop { --ink: var(--site
   padding: 2px 12px 12px 62px;
 }
 .pk-shot { flex: none; width: 120px; height: 120px; border-radius: 8px; image-rendering: pixelated; background: #000; }
+.pk-logo { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; padding: 10px; box-sizing: border-box;
+           image-rendering: auto; text-align: center; color: #f2f2f4; overflow: hidden; }
+.pk-logo b { font: 700 15px/1.15 var(--mono); letter-spacing: 0.04em; word-break: break-word; }
+.pk-logo small { font: 10px/1.2 var(--mono); color: rgba(242, 242, 244, 0.7); }
 .pk-pbody { min-width: 0; }
 .pk-pbody p { margin: 0 0 8px; color: var(--text); font-size: 14px; line-height: 1.45; }
 .pk-pbody .pk-tag { color: var(--ink); font: 12px var(--mono); margin-bottom: 4px; }
@@ -153,6 +157,7 @@ header, .drawer, .strip, .wrap > details, .pk-credits, .drop { --ink: var(--site
 @media (max-width: 560px) {
   .pk-preview { flex-direction: column; padding-left: 12px; }
   .pk-shot { width: 100%; height: auto; max-width: 240px; }
+  .pk-logo { aspect-ratio: 1; }
 }
 
 /* ---- the firmware drawer as a dropdown: it opens over the page from the firmware button, so the
@@ -195,3 +200,7 @@ header, .drawer, .strip, .wrap > details, .pk-credits, .drop { --ink: var(--site
 }
 .pk-close:hover { border-color: var(--dim); }
 .drawer.pk-pop .pk-bar { margin-right: 44px; }
+/* the engine line in a preview: as quiet as the other facts */
+.pk-pbody .pk-engine .pk-link { background: none; border: 0; padding: 0; font: inherit; color: var(--dim); text-decoration: underline; cursor: pointer; }
+.pk-pbody .pk-engine .pk-link:hover { color: var(--ink, inherit); }
+.pk-pbody .pk-engine .pk-link:disabled { opacity: .5; cursor: default; }

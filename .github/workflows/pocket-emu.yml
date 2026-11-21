@@ -1,0 +1,144 @@
+# The emulator upgrade check. Pocket's emulator engine is upstream fm1-emu (joakimeriksson/fm1-emu), pinned in
+# pocket/emu/upstream.json. Before that pin moves, this runs every original package in the pinned commit and in the
+# candidate, side by side on the same runners (Linux x86-64 and macOS Apple Silicon natively, plus the browser
+# engine in Node's V8), and fails if the candidate is worse anywhere (pocket/emu/compare.py).
+#
+# - On a pull request that changes pocket/emu/upstream.json: baseline = the base branch's pin, candidate = the PR's.
+# - By hand ("Run workflow"): give a candidate commit; the baseline is the current pin.
+# Packages come from Pocket's saved copies (the pocket-packages release), each checked against its SHA-256, or from
+# the makers' releases; never from the Hub. Automated checks only: a listening test follows before the apps move.
+name: Pocket emulator upgrade check
+
+on:
+  pull_request:
+    paths:
+      - pocket/emu/upstream.json
+      - pocket/emu/bench.py
+      - pocket/emu/compare.py
+      - .github/workflows/pocket-emu.yml
+  workflow_dispatch:
+    inputs:
+      candidate:
+        description: "fm1-emu commit to check against the current pin"
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pocket-emu-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  commits:
+    runs-on: ubuntu-latest
+    outputs:
+      repository: ${{ steps.c.outputs.repository }}
+      baseline: ${{ steps.c.outputs.baseline }}
+      candidate: ${{ steps.c.outputs.candidate }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: c
+        run: |
+          repo=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['repository'])")
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            cand=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['commit'])")
+            # no pin on the base branch yet (the first integration): the pin against itself, a check of the check
+            base=$(git show "origin/${{ github.base_ref }}:pocket/emu/upstream.json" 2>/dev/null | python3 -c "import json,sys;print(json.load(sys.stdin)['commit'])" 2>/dev/null || echo "$cand")
+          else
+            base=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['commit'])")
+            cand="${{ inputs.candidate }}"
+          fi
+          echo "repository=$repo" >> "$GITHUB_OUTPUT"; echo "baseline=$base" >> "$GITHUB_OUTPUT"; echo "candidate=$cand" >> "$GITHUB_OUTPUT"
+          echo "Baseline $base, candidate $cand" | tee -a "$GITHUB_STEP_SUMMARY"
+
+  packages:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Every original package Pocket knows, checked against its SHA-256
+        run: |
+          mkdir -p state pkgs saved
+          if gh release download pocket-packages -p packages.json -D state --clobber 2>/dev/null; then
+            gh release download pocket-packages -p '*.fwsc' -D pkgs --clobber || true
+            python3 pocket/emu/fetch.py --packages state/packages.json --dir pkgs
+          else                                     # no pocket-packages release yet: straight from the makers
+            gh release download pocket-current -p hub-catalog.json -D saved --clobber
+            node pocket/emu/packages.mjs --hub saved/hub-catalog.json --out pkgs
+          fi
+      - uses: actions/upload-artifact@v7
+        with:
+          name: upgrade-packages
+          path: pkgs
+          retention-days: 3
+
+  native:
+    needs: [commits, packages]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-15]
+        shard: [1, 2, 3, 4]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7
+      - name: Linux libraries for fm1-live
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -y -qq libasound2-dev libx11-dev libxkbcommon-dev libxcursor-dev libxrandr-dev libxi-dev
+      - name: Both commits' native players
+        run: |
+          for which in baseline:${{ needs.commits.outputs.baseline }} candidate:${{ needs.commits.outputs.candidate }}; do
+            name=${which%%:*}; commit=${which#*:}
+            git init -q "$name" && git -C "$name" remote add origin "https://github.com/${{ needs.commits.outputs.repository }}"
+            git -C "$name" fetch -q --depth 1 origin "$commit" && git -C "$name" checkout -q FETCH_HEAD
+            (cd "$name" && cargo build --release -q -p fm1-live)
+          done
+      - uses: actions/download-artifact@v8
+        with:
+          name: upgrade-packages
+          path: pkgs
+      - name: Every package in both
+        run: |
+          for name in baseline candidate; do
+            python3 pocket/emu/bench.py --live $name/target/release/fm1-live --pkgs pkgs --shard ${{ matrix.shard }}/4 --out $name.json
+          done
+          python3 pocket/emu/compare.py --baseline baseline.json --candidate candidate.json --candidate-commit ${{ needs.commits.outputs.candidate }}
+
+  wasm:
+    needs: [commits, packages]
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Both commits' browser engines
+        run: |
+          rustup target add wasm32-unknown-unknown
+          for which in baseline:${{ needs.commits.outputs.baseline }} candidate:${{ needs.commits.outputs.candidate }}; do
+            name=${which%%:*}; commit=${which#*:}
+            git init -q "$name" && git -C "$name" remote add origin "https://github.com/${{ needs.commits.outputs.repository }}"
+            git -C "$name" fetch -q --depth 1 origin "$commit" && git -C "$name" checkout -q FETCH_HEAD
+            bash "$name/web/build.sh" "$PWD/$name-web" > /dev/null
+          done
+      - uses: actions/download-artifact@v8
+        with:
+          name: upgrade-packages
+          path: pkgs
+      - name: Every package in both
+        run: |
+          for name in baseline candidate; do pocket/emu/wasm_bench.sh $name pkgs wasm-$name.json ${{ matrix.shard }}/4 8; done
+          python3 pocket/emu/compare.py --wasm-baseline wasm-baseline.json --wasm-candidate wasm-candidate.json --candidate-commit ${{ needs.commits.outputs.candidate }}

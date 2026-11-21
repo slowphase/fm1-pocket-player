@@ -238,6 +238,10 @@ header .tools { display: flex; gap: 8px; flex-wrap: wrap; }
   border: 1px solid #000;
   background: linear-gradient(90deg, #0a0a0b var(--q), var(--ink) var(--q), var(--ink) var(--p), #0a0a0b var(--p));
 }
+.ctl input[type=range].endless::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, transparent calc(50% - 1px), var(--dim) calc(50% - 1px), var(--dim) calc(50% + 1px), transparent calc(50% + 1px)),
+    linear-gradient(90deg, #0a0a0b var(--q), var(--ink) var(--q), var(--ink) var(--p), #0a0a0b var(--p));
+}
 .ctl input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 26px;
@@ -249,6 +253,9 @@ header .tools { display: flex; gap: 8px; flex-wrap: wrap; }
   box-shadow: 0 4px 8px -3px #000, inset 0 1px 0 #77777f;
 }
 .ctl input[type=range]::-moz-range-track { height: 8px; border-radius: 5px; border: 1px solid #000; background: #0a0a0b; }
+.ctl input[type=range].endless::-moz-range-track {
+  background: linear-gradient(90deg, transparent calc(50% - 1px), var(--dim) calc(50% - 1px), var(--dim) calc(50% + 1px), transparent calc(50% + 1px)), #0a0a0b;
+}
 .ctl input[type=range]::-moz-range-progress { height: 8px; border-radius: 5px; background: var(--ink); }
 .ctl.jog input[type=range]::-moz-range-progress { background: transparent; }
 .ctl input[type=range]::-moz-range-thumb {

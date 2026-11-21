@@ -4,19 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>FM-1 Pocket Player</title>
-<meta name="description" content="Play M-VAVE FM-1 community firmware in the browser: pick one from the library, or drop in your own .rfm1 file. Built on Jake Handy's FM-1 Browser Simulator.">
+<link rel="icon" type="image/png" sizes="32x32" href="src/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="src/icons/favicon-64.png">
+<link rel="apple-touch-icon" href="src/icons/apple-touch-icon.png">
+<meta name="description" content="Explore M-VAVE FM-1 community firmware in your browser: pick one from the library, or open an original .fwsc package or an .rfm1 build of your own. Nothing to install.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="FM-1 Pocket Player">
 <meta property="og:title" content="FM-1 Pocket Player">
-<meta property="og:description" content="Play FM-1 community firmware in a browser. Nothing to install.">
+<meta property="og:description" content="A universe of firmware. One little player. Explore FM-1 community firmware in your browser, from original packages or .rfm1 builds. Nothing to install.">
 <meta property="og:url" content="https://slowphase.github.io/fm1-pocket-player/">
 <meta property="og:image" content="https://slowphase.github.io/fm1-pocket-player/docs/img/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The FM-1 Browser Simulator running h1: screen, sliders and keyboard">
+<meta property="og:image:alt" content="FM-1 Pocket Player: a cream knob with a purple light ring, and the tagline A universe of firmware. One little player.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="FM-1 Pocket Player">
-<meta name="twitter:description" content="Play FM-1 community firmware in a browser. Nothing to install.">
+<meta name="twitter:description" content="A universe of firmware. One little player. Explore FM-1 community firmware in your browser, from original packages or .rfm1 builds. Nothing to install.">
 <meta name="twitter:image" content="https://slowphase.github.io/fm1-pocket-player/docs/img/og.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,8 +43,8 @@
     <div class="tools">
       <button class="chip" id="fwbtn" type="button" aria-expanded="false" aria-controls="drawer">firmware: <b id="fwname">…</b></button>
       <div class="seg" role="group" aria-label="Controls as">
-        <button type="button" id="m-slider" aria-pressed="true">sliders</button>
-        <button type="button" id="m-knob" aria-pressed="false">knobs</button>
+        <button type="button" id="m-slider" aria-pressed="false">sliders</button>
+        <button type="button" id="m-knob" aria-pressed="true">knobs</button>
       </div>
       <button class="chip" id="sound" type="button">sound: <b>tap anything</b></button>
     </div>
@@ -51,12 +54,12 @@
     <h2>Firmware</h2>
     <div class="fwlist" id="fwlist"></div>
     <div class="loadrow">
-      <button class="chip" id="pick" type="button">open an .rfm1 file…</button>
-      <input type="file" id="file" accept=".rfm1,.wasm,application/wasm" hidden>
-      <input type="url" id="url" placeholder="or paste a link to an .rfm1 file" aria-label="Link to an .rfm1 file">
+      <button class="chip" id="pick" type="button">open a firmware file…</button>
+      <input type="file" id="file" accept=".rfm1,.wasm,application/wasm,.fwsc" hidden>
+      <input type="url" id="url" placeholder="or paste a link to a .fwsc or .rfm1 file" aria-label="Link to a .fwsc or .rfm1 file">
       <button class="chip" id="go" type="button">load</button>
     </div>
-    <p class="note">Drop an <code>.rfm1</code> file anywhere on this page to run it. More than fifty community firmwares are built as <code>.rfm1</code> files in the <a href="https://github.com/Quixotic7/RemoteFM1FW/releases/latest" target="_blank" rel="noopener">RemoteFM1FW release</a>, and any fm1-base firmware builds one with <code>tools/build.py APP_DIR --rfm1</code>. Files you load stay in this browser until you remove them; nothing is uploaded anywhere.</p>
+    <p class="note">Drop a firmware file, an original <code>.fwsc</code> package or an <code>.rfm1</code> build, anywhere on this page to run it. Makers publish their <code>.fwsc</code> packages in their own releases. Many community firmwares are also built as <code>.rfm1</code> files in the <a href="https://github.com/Quixotic7/RemoteFM1FW/releases/latest" target="_blank" rel="noopener">RemoteFM1FW release</a>, and any fm1-base firmware builds one with <code>tools/build.py APP_DIR --rfm1</code>. Files you load stay in this browser until you remove them; nothing is uploaded anywhere.</p>
     <div class="err" id="err" role="alert"></div>
   </section>
 
@@ -140,14 +143,15 @@
     <summary>What a simulator can and can't tell you</summary>
     <div>
       <p>The sound and the picture come from the firmware's own code, compiled for the browser, driven one device millisecond at a time with the same 44.1 kHz audio blocks and 15 ms frames the FM-1 runs. Saves go to a flash image kept in this browser, so a firmware remembers its settings between visits.</p>
-      <p class="note">What it can't show: how hard the FM-1's own processor is working, how the speaker sounds, and how the keys and encoders feel. An .rfm1 is a firmware's host build, so code that only runs on the chip (its drivers, Bluetooth, USB) is not in it. Try a firmware here, then flash the device build with its own installer. This simulator is open source: <a href="https://github.com/jakehandy/fm1-browser-simulator" target="_blank" rel="noopener">fm1-browser-simulator</a> on GitHub.</p>
+      <p class="note">What it can't show: how hard the FM-1's own processor is working, how the speaker sounds, and how the keys and encoders feel. An .rfm1 is a firmware's host build, so code that only runs on the chip (its drivers, Bluetooth, USB) is not in it; an original .fwsc package runs on an emulation of the chip instead. Try a firmware here, then flash the device build with its own installer. This simulator is open source: <a href="https://github.com/jakehandy/fm1-browser-simulator" target="_blank" rel="noopener">fm1-browser-simulator</a> on GitHub.</p>
     </div>
   </details>
 </div>
-<div class="drop" id="drop">drop the .rfm1 file to run it</div>
+<div class="drop" id="drop">drop the firmware file to run it</div>
 <script>window.FM1_BUILTIN = [{ key: "builtin:h1", url: "firmware/h1.rfm1" }];</script>
 <script>window.FM1_SITE_NAME = "FM-1 Pocket Player";</script>
 <script src="src/rfm1.js"></script>
+<script src="src/emu-core.js"></script>
 <script src="src/pocket-picker.js"></script>
 <script src="src/app.js"></script>
 </body>

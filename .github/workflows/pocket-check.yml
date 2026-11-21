@@ -32,6 +32,9 @@ jobs:
       - name: Unit tests
         run: node --test pocket/tests/*.test.mjs
 
+      - name: The emulator engine's catalogue rules (preference, confidence, hosting)
+        run: python3 pocket/emu/test_catalog.py
+
       - name: The simulator's own test (h1)
         run: node tests/run.js
 

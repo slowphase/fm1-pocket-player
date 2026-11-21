@@ -16,7 +16,7 @@
 // Sources: RemoteFM1FW's table and cards (as sync.mjs read them), pocket/policy.json, sync's report, the published
 // catalog.json, compat.json, and The Firmware Hub's catalogue (hub.mjs; at most once a day; optional).
 //
-//   node pocket/discover.mjs --data DIR --upstream FILE --report FILE --ledger FILE [--hub FILE] [--previous FILE]
+//   node pocket/discover.mjs --data DIR --upstream FILE --report FILE --ledger FILE [--hub FILE] [--previous FILE] [--releases FILE]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -111,7 +111,7 @@ export function macLine(k) {
   return `${part("playable")}, ${part("experimental")}`;
 }
 
-export function build({ v1, upstream, report = {}, policy, ledger = { builds: {} }, hub = null, now = new Date() }) {
+export function build({ v1, upstream, report = {}, policy, ledger = { builds: {} }, hub = null, now = new Date(), previous = null, releases = {} }) {
   const items = upstream.items || [], cards = upstream.cards || {};
   const pub = new Map((v1.firmwares || []).map((f) => [f.id, f]));
   const pending = new Map((report.pending || []).map((p) => [p.id, p]));
@@ -204,6 +204,25 @@ export function build({ v1, upstream, report = {}, policy, ledger = { builds: {}
   const firmwares = [...byId.values()].sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "base" }));
   for (const e of firmwares) e.makers = e.authors.map((name) => ({ name, url: e.source || null }));
 
+  // 4. discovery dates (both additive; catalog.json's own fields are untouched):
+  //    release  the firmware's latest release: its version and the date its maker published it. From the Hub's list
+  //             (`published`), or for firmware the Hub does not list, from the maker's GitHub release of that version
+  //             (pocket/releases.mjs). Never a catalogue, rebuild or commit date: unknown stays unknown (null).
+  //    listed   the day it first appeared in the library: the day the Hub added it, else the day Pocket first saw it
+  //             (kept from the previous catalogue). "New to Library" means listed in the last 14 days.
+  const rawHub = new Map(((hub && hub.catalog && hub.catalog.firmwares) || []).map((h) => [h.id, h]));
+  const prevById = new Map(((previous && previous.firmwares) || []).map((f) => [f.id, f]));
+  const today = now.toISOString().slice(0, 10);
+  for (const e of firmwares) {
+    const hid = e.provenance.hub && e.provenance.hub.id, h = hid ? rawHub.get(hid) : null;
+    const gh = releases[e.id];
+    if (h && h.published) e.release = { version: h.version || null, date: h.published, source: "The Firmware Hub" };
+    else if (gh && gh.date) e.release = { version: gh.version || null, date: gh.date, source: "GitHub release", url: gh.url || null };
+    else e.release = null;
+    const seen = prevById.get(e.id)?.listed;
+    e.listed = (h && h.added) || seen || pub.get(e.id)?.added || today;
+  }
+
   const count = (player) => Object.fromEntries(STATES.map((s) => [s, firmwares.filter((e) => e.status[player].state === s).length]));
   const counts = {
     discovered: firmwares.length + builtIn.length,
@@ -249,7 +268,8 @@ export function build({ v1, upstream, report = {}, policy, ledger = { builds: {}
 
 // the parts of a v2 catalogue that matter for deciding whether it changed (not its timestamps)
 export function fingerprint(c) {
-  return JSON.stringify({ c: c.counts, f: c.firmwares, r: { ...c.runtimes, web: { id: c.runtimes.web.id }, mac: { id: c.runtimes.mac.id, macos: c.runtimes.mac.macos && c.runtimes.mac.macos.verified } }, a: !!c.attribution });
+  // `listed` falls back to "today" for a firmware first seen now, so it is a timestamp too: left out
+  return JSON.stringify({ c: c.counts, f: c.firmwares.map(({ listed, ...e }) => e), r: { ...c.runtimes, web: { id: c.runtimes.web.id }, mac: { id: c.runtimes.mac.id, macos: c.runtimes.mac.macos && c.runtimes.mac.macos.verified } }, a: !!c.attribution });
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -259,7 +279,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const v1 = read(join(dataDir, "catalog.json"));
   const policy = read(join(here, "policy.json"));
   const hubCache = read(arg("--hub"), null);
-  const c = build({ v1, upstream: read(arg("--upstream"), { items: [] }), report: read(arg("--report"), {}), policy, ledger: read(arg("--ledger"), { builds: {} }), hub: hubCache && hubCache.catalog ? hubCache : null });
+  const c = build({ v1, upstream: read(arg("--upstream"), { items: [] }), report: read(arg("--report"), {}), policy, ledger: read(arg("--ledger"), { builds: {} }), hub: hubCache && hubCache.catalog ? hubCache : null,
+                    previous: read(arg("--previous"), null), releases: read(arg("--releases"), {}) });
   // the downloadable entries must be exactly catalog.json's
   const fields = Object.keys((v1.firmwares || [])[0] || {});
   const v1ids = new Set(v1.firmwares.map((f) => f.id));

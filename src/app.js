@@ -8,7 +8,7 @@
   var canvas = $("lcd"), ctx2d = canvas.getContext("2d"), image = ctx2d.createImageData(240, 240);
   var prevLcd = new Uint8Array(240 * 240 * 2);
   var DEFAULT_INK = "#c8ff4a";
-  var mode = pref("fm1sim.mode", "slider");
+  var mode = pref("fm1sim.mode", "knob");   /* knobs by default: the FM-1's encoders are endless, and a knob shows that */
 
   function pref(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
   function setPref(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* fine */ } }
@@ -271,6 +271,9 @@
     var r = c.range, lo = +r.min, hi = +r.max, t = hi > lo ? (+r.value - lo) / (hi - lo) * 100 : 0;
     if (v && v.absolute) { r.style.setProperty("--q", "0%"); r.style.setProperty("--p", t + "%"); }
     else { r.style.setProperty("--q", Math.min(50, t) + "%"); r.style.setProperty("--p", Math.max(50, t) + "%"); }
+    var endless = !(v && v.absolute);           /* an endless encoder: a mark at the middle, where it rests between turns */
+    r.classList.toggle("endless", endless);
+    r.title = endless ? "Endless knob: drag left or right to turn it; it springs back to the middle. The firmware keeps the setting." : "";
   }
   function bindSlider(c) {
     var r = c.range, last = 0;
@@ -506,8 +509,9 @@
     var d = core.flashDirty();
     if (d === flashSeen && !sync) return;
     var img = core.flashImage(sync);
+    if (!img) return;                          /* still writing (the emulator): try again next second, unmarked */
     flashSeen = core.flashDirty();
-    if (img) dbPut("flash", core.info.id || cur.key, img);
+    dbPut("flash", core.info.id || cur.key, img);
   }
 
   /* ---- loading a firmware ---- */
@@ -535,8 +539,10 @@
   function run(entry) {
     showError("");
     return bytesOf(entry).then(function (bytes) {
-      var fw = R.parse(bytes);
-      return R.Core.create(fw).then(function (c) { return { fw: fw, c: c }; });
+      /* an original .fwsc package runs on upstream fm1-emu (src/emu-core.js), an .rfm1 on src/rfm1.js */
+      var E = window.Fm1Emu && window.Fm1Emu.isPackage(bytes) ? window.Fm1Emu : R;
+      var fw = E === R ? R.parse(bytes) : E.parse(bytes, entry.emuMeta || entry.meta || { id: entry.key, name: entry.name, version: entry.version, license: entry.license });
+      return E.Core.create(fw).then(function (c) { return { fw: fw, c: c }; });
     }).then(function (r) {
       if (core) { saveFlash(true); core.shutdown(); }
       return dbGet("flash", r.c.info.id || entry.key).then(function (flash) {
@@ -580,10 +586,11 @@
     $("title").textContent = m.name || i.name;
     $("fwname").textContent = (m.name || i.name) + " " + (m.version || "");
     document.title = (m.name || i.name) + " · " + (window.FM1_SITE_NAME || "FM-1 Browser Simulator");   /* pocket: its own name */
-    var h1 = cur.builtin && m.id === "h1", hub = "https://thefirmwarehub.com/firmware/h1/";
+    var h1 = cur.builtin && m.id === "h1", hub = "https://thefirmwarehub.com/firmware/h1/", emu = !!fw.emu;
     $("sub").innerHTML = h1
       ? "h1, a firmware for the M-VAVE FM-1, running from its own code: the same 240 × 240 pixels and 44.1 kHz sound. Put it on your FM-1 from <a href=\"" + hub + "\" target=\"_blank\" rel=\"noopener\">The Firmware Hub</a>. Load any other FM-1 firmware from the firmware button."
-      : esc("Running " + (m.name || i.name) + " " + (m.version || "") + (m.authors ? " by " + m.authors.join(", ") : "") + " from its .rfm1 file.");
+      : esc("Running " + (m.name || i.name) + " " + (m.version || "") + (m.authors && m.authors.length ? " by " + m.authors.join(", ") : "") +
+        (emu ? " from its original update package, on the emulator." : " from its .rfm1 file."));
     rows.push(["Name", m.name + " " + m.version]);
     if (m.authors && m.authors.length) rows.push(["By", m.authors.join(", ")]);
     rows.push(["Licence", lic(m.license) + (lic(m.license) !== m.license ? " (" + m.license + ")" : "")]);
@@ -591,7 +598,8 @@
     if (h1) rows.push(["Install", '<a href="' + hub + '" target="_blank" rel="noopener">h1 on The Firmware Hub</a>']);
     if (m.glue_url) rows.push(["Build glue", link(m.glue_url)]);
     if (m.built_by) rows.push(["Built by", m.built_by]);
-    rows.push(["Core", "fm1core ABI " + core.abi + (i.family ? ", " + i.family + " family" : "") + (core.sim1 ? ", with the sim1 extension" : "")]);
+    rows.push(["Core", emu ? "the original package on " + i.family + " (Joakim Eriksson; MIT is the emulator's licence, not the firmware's)"
+      : "fm1core ABI " + core.abi + (i.family ? ", " + i.family + " family" : "") + (core.sim1 ? ", with the sim1 extension" : "")]);
     $("aboutmap").innerHTML = rows.map(function (r) { return "<dt>" + r[0] + "</dt><dd>" + (r[0] === "Source" || r[0] === "Build glue" || r[0] === "Install" ? r[1] : esc(r[1])) + "</dd>"; }).join("");
     var credits = fw.credits || i.credits;
     $("credits").hidden = !credits;
@@ -649,15 +657,18 @@
     current: function () { return cur; },
     run: function (e) { startAudio(); return run(e); },
     remove: removeEntry,
+    core: function () { return core; },          /* the running engine (the browser tests) */
     lic: lic,
     esc: esc
   };
   window.FM1Sim = api;
   function addBytes(bytes, from) {
-    var fw;
-    try { fw = R.parse(bytes); } catch (e) { showError((from ? from + ": " : "") + e.message); return Promise.resolve(); }
+    var fw, pkg = window.Fm1Emu && window.Fm1Emu.isPackage(bytes);
+    var stem = String(from || "package").replace(/\.[^.]*$/, "");
+    try { fw = pkg ? window.Fm1Emu.parse(bytes, { id: stem.toLowerCase().replace(/[^a-z0-9_]+/g, "_"), name: stem }) : R.parse(bytes); }
+    catch (e) { showError((from ? from + ": " : "") + e.message); return Promise.resolve(); }
     return R.sha256(bytes).then(function (h) {
-      var m = fw.manifest, key = "fw:" + m.id + ":" + (h ? h.slice(0, 16) : m.version);
+      var m = fw.manifest, key = (pkg ? "pkg:" : "fw:") + m.id + ":" + (h ? h.slice(0, 16) : m.version);
       var same = function (x) {                  /* the same file as one already here, a built-in too */
         if (x.key === key) return true;
         if (!x.bytes || x.bytes.length !== bytes.length) return false;
@@ -774,7 +785,7 @@
     requestAnimationFrame(frame);
     if (q && /^https?:\/\//.test(q)) return fromUrl(q);
     if (q) pick = library.filter(function (e) { return e.key === "builtin:" + q || e.key === "cat:" + q || e.name.toLowerCase() === q.toLowerCase(); })[0] || pick;   /* pocket: cat: */
-    if (!pick) { showError("No firmware to run yet: open an .rfm1 file."); return; }
+    if (!pick) { showError("No firmware to run yet: open a .fwsc or .rfm1 file."); return; }
     return run(pick);
   });
 })();

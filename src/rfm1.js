@@ -42,7 +42,7 @@
   }
   function sections(b) {
     if (b.length < 8 || b[0] !== 0 || b[1] !== 0x61 || b[2] !== 0x73 || b[3] !== 0x6d || b[4] !== 1)
-      throw new Error("This is not a WebAssembly module, so it is not an .rfm1 file.");
+      throw new Error("This file is neither an original .fwsc package nor an .rfm1 build.");
     var i = 8, out = { custom: {}, memory: null }, r, id, size, end, n, k, f;
     while (i < b.length) {
       id = b[i++];

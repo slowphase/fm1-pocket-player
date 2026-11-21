@@ -1,0 +1,130 @@
+# A test build of the web player with both engines, for hands-on testing before anything is published.
+# The site exactly as the nightly would build it with POCKET_PUBLISH_EMU on: the published library (from
+# pocket-current), the makers' original packages (from their releases, SHA-256 checked against the Hub's list; only
+# those Pocket may host), the emulator engine at the pinned commit, and catalog-v2.json with each firmware's emu block.
+# Then the page is tested in Chromium (pocket/emu/web-integration.mjs). Publishes nothing: the build is an artifact
+# (pocket-preview), to download and run locally with its "Start Pocket preview.command".
+name: Pocket emulator test build
+
+on:
+  pull_request:
+    paths:
+      - src/**
+      - index.html
+      - pocket/emu/**
+      - .github/workflows/pocket-emu-preview.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pocket-emu-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: The published library (read-only copies from pocket-current)
+        run: |
+          mkdir -p saved _site/data/fw _site/data/shots
+          for a in catalog.json catalog-v2.json compat.json hub-catalog.json; do gh release download pocket-current -p "$a" -D saved --clobber; done
+          cp saved/catalog.json saved/catalog-v2.json _site/data/
+          node -e 'const c=require("./saved/catalog.json");for(const f of c.firmwares){console.log(f.file);if(f.image)console.log(f.image)}' |
+            while read -r p; do gh release download pocket-current -p "$(basename "$p")" -D "_site/data/$(dirname "$p")" --clobber; done
+          cp -r index.html src firmware LICENSE _site/
+      - name: The makers' original packages
+        run: |
+          node pocket/emu/packages.mjs --hub saved/hub-catalog.json --out pkgs
+          python3 pocket/emu/ledger.py seed --ledger emu-compat.json --from docs/emu-evaluation-results.json
+      - name: The emulator engine (pinned commit)
+        run: |
+          repo=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['repository'])")
+          commit=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['commit'])")
+          git init -q upstream && git -C upstream remote add origin "https://github.com/$repo"
+          git -C upstream fetch -q --depth 1 origin "$commit" && git -C upstream checkout -q FETCH_HEAD
+          rustup target add wasm32-unknown-unknown
+          pocket/emu/build-web.sh upstream _site
+      - name: Screens for firmware without a picture (as the nightly's emu job takes them)
+        run: |
+          sudo apt-get install -y -qq libasound2-dev libx11-dev libxkbcommon-dev libxcursor-dev libxrandr-dev libxi-dev
+          (cd upstream && cargo build --release -q -p fm1-live)
+          ids=$(python3 -c "
+          import json
+          v = {e['id']: e for e in json.load(open('saved/catalog-v2.json'))['firmwares']}
+          pk = [r for r in json.load(open('pkgs/packages.json'))['firmwares'] if r.get('status') == 'found']
+          print(' '.join(r['hub'] for r in pk if not (v.get(r['hub']) or {}).get('image')))")
+          python3 pocket/emu/bench.py --live upstream/target/release/fm1-live --pkgs pkgs --out shots.json --ms 9500 --shots shots $ids > /dev/null
+          python3 -c "
+          import json, os, shutil
+          for r in json.load(open('pkgs/packages.json'))['firmwares']:
+              f = 'shots/' + r['hub'] + '.png'
+              if r.get('status') == 'found' and os.path.exists(f): shutil.copyfile(f, 'pkgs/shot-' + r['hub'] + '-' + r['sha256'][:8] + '.png')"
+          ls shots | wc -l
+
+      - name: catalog-v2.json with the emulator engine
+        run: |
+          python3 pocket/emu/catalog.py --v2 _site/data/catalog-v2.json --packages pkgs/packages.json --emu-ledger emu-compat.json \
+            --rfm1-ledger saved/compat.json --store pkgs --site _site/data
+          du -sh _site _site/data/pkg
+      - name: Discovery dates (release, listed), as the nightly's discover.mjs adds them
+        # the published catalogue predates them; this test build takes them from the same saved Hub copy discover.mjs
+        # reads (its published and added dates), so the page can be tested as it will be
+        run: |
+          python3 - <<'PY'
+          import json
+          p = "_site/data/catalog-v2.json"; v = json.load(open(p))
+          hub = {h["id"]: h for h in json.load(open("saved/hub-catalog.json"))["catalog"]["firmwares"]}
+          for e in v["firmwares"]:
+              h = hub.get(((e.get("provenance") or {}).get("hub") or {}).get("id"))
+              if "release" not in e:
+                  e["release"] = {"version": h.get("version"), "date": h["published"], "source": "The Firmware Hub"} if h and h.get("published") else None
+              if "listed" not in e:
+                  e["listed"] = (h or {}).get("added") or e.get("added") or v["updated"][:10]
+          json.dump(v, open(p, "w"), indent=1)
+          print(sum(1 for e in v["firmwares"] if e["release"]), "of", len(v["firmwares"]), "with a release date")
+          PY
+
+      - name: Playwright (Chromium)
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1 > /dev/null
+          npx playwright install --with-deps chromium > /dev/null
+      - name: The page with both engines
+        run: |
+          (cd _site && python3 -m http.server 8000 > /dev/null 2>&1 &)
+          sleep 1
+          node pocket/emu/web-integration.mjs http://localhost:8000/ web-integration.json web-shots
+          echo "=====RESULTS-BEGIN====="; cat web-integration.json; echo "=====RESULTS-END====="
+      - name: Package the test build
+        if: always()
+        run: |
+          mkdir -p preview/"FM-1 Pocket test build"
+          cp -r _site preview/"FM-1 Pocket test build"/site
+          cp pocket/emu/preview/README.txt "pocket/emu/preview/Start Pocket preview.command" preview/"FM-1 Pocket test build"/
+          chmod +x preview/"FM-1 Pocket test build"/*.command
+          (cd preview && zip -qr ../pocket-preview.zip "FM-1 Pocket test build")
+          ls -la pocket-preview.zip
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: pocket-preview
+          path: pocket-preview.zip
+          retention-days: 30
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: web-integration
+          path: |
+            web-integration.json
+            web-shots
+            _site/data/catalog-v2.json
+          retention-days: 14
