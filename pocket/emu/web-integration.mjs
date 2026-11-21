@@ -166,6 +166,17 @@ try {
   const expected = await page.evaluate(() => window.FM1Sim.library().filter((e) => e.catalog && e.meta.listed && (Date.now() - Date.parse(e.meta.listed.slice(0, 10) + "T00:00:00Z")) / 864e5 <= 14).length);
   check("new to library lists what was first listed in the last 14 days", fresh === expected && expected > 0, `${fresh} shown, ${expected} expected`);
   await page.click('.pk-filters [data-f="all"]');
+  // every firmware has a picture (its screen, else its name tile), and the emulator screens load
+  const pics = await page.evaluate(async () => {
+    const items = [...document.querySelectorAll(".pk-item")];
+    const without = items.filter((el) => !el.querySelector(".pk-thumb")).length;
+    const emuShots = window.FM1Sim.library().filter((e) => e.catalog && e.meta.imageKind === "emulator screen").slice(0, 12);
+    const loads = await Promise.all(emuShots.map((e) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i.naturalWidth === 240); i.onerror = () => ok(false); i.src = "data/" + e.meta.image; })));
+    const lib = window.FM1Sim.library().filter((e) => e.catalog);
+    return { rows: items.length, without, screens: lib.filter((e) => e.meta.image).length, tiles: lib.filter((e) => !e.meta.image).length,
+             emulatorScreens: window.FM1Sim.library().filter((e) => e.catalog && e.meta.imageKind === "emulator screen").length, loaded: loads.filter(Boolean).length, tried: loads.length };
+  });
+  check("every firmware has a picture (a screen or its name tile)", pics.rows > 0 && pics.without === 0 && pics.emulatorScreens > 0 && pics.loaded === pics.tried, JSON.stringify(pics));
   // 6
   const credits = await page.locator("#pk-credits").textContent();
   check("the credits name fm1-emu and keep its licence apart", /fm1-emu/.test(credits) && /not the firmware/.test(credits), "");

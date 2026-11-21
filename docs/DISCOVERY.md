@@ -38,3 +38,27 @@ or inactive.
 
 Compatibility confidence (listened to, automated checks only, known issue) stays off the cards: it is in each
 firmware's details (Mac) and preview (web), and the Mac footer tallies it. Cards carry only the existing short tags.
+
+## Pictures
+
+Every firmware has a picture in both players:
+
+- an **.rfm1 build's screen**, from Pocket's own boot test (as before);
+- else, for a firmware whose original package Pocket may host, **its screen as the emulator showed it**: the busiest
+  frame before its keys are played in the nightly's scripted session (`pocket/emu/bench.py --shots`), kept in the
+  `pocket-packages` release as `shot-<hub>-<sha8>.png` and published as `data/shots/<hub>-emu-<sha8>.png`
+  (`imageKind: "emulator screen"` in `catalog-v2.json`);
+- else a **name tile**: the firmware's name and maker on a steady colour of its own, drawn by the app (no file).
+  Firmware Pocket may not host (closed licences, excluded by policy, or released off GitHub) gets the tile.
+
+No picture is ever copied from The Firmware Hub (its rule: copy no card texts or pictures).
+
+## The Mac details pane
+
+The main pane is for choosing and playing firmware: description, Maker, Version, Released, one Compatibility line
+("Plays · automated checks only", "Plays · listened to in FM-1 Pocket", "May not work fully · …" or "Known issue: …"),
+the Engine selector where both engines run it, and Source; with Play, Stop and Favourite. Everything else (category,
+licence, size, download, engine details, the automated checks and where they ran, the listening tests) is under a
+collapsed "Technical details". The Hub credit stays visible. Nothing says a firmware was tested on the user's own Mac:
+automated checks run on GitHub's test machines, and listening tests name a role and a machine class (`Pocket
+maintainer`, `Apple Silicon Mac`).

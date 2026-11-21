@@ -327,7 +327,7 @@
     var m = e.meta || {}, st = m.status && m.status.web || {}, p = document.createElement("div"), hub = m.provenance && m.provenance.hub;
     p.className = "pk-preview";
     var links = [m.source ? link(m.source, "source") : "", hub ? link(hub.url, "on The Firmware Hub") : ""].filter(Boolean).join(" · ");
-    p.innerHTML = '<div class="pk-pbody">' +
+    p.innerHTML = picture(e) + '<div class="pk-pbody">' +
       (m.tag ? '<p class="pk-tag">' + esc(m.tag) + "</p>" : "") +
       (m.about ? "<p>" + esc(m.about) + "</p>" : "") +
       '<p class="pk-why">' + esc(st.reason || (m.restriction && m.restriction.reason) || "") + "</p>" +
@@ -338,13 +338,19 @@
     return p;
   }
 
+  /* every firmware has a picture: its screen, else a tile with its name (and maker) in its steady colour */
+  function picture(e) {
+    var m = e.meta || {};
+    if (m.image) return '<img class="pk-shot" src="' + esc(DATA + m.image) + '" alt="' + esc(e.name) + ' on the FM-1 screen" loading="lazy" decoding="async">';
+    return '<div class="pk-shot pk-logo" style="background:' + shade(m.id || e.key) + '" aria-hidden="true"><b>' + esc(e.name || "?") + "</b>" +
+      (by(e) ? "<small>" + esc(by(e)) + "</small>" : "") + "</div>";
+  }
   function preview(e, running) {
     var m = e.meta || {}, p = document.createElement("div");
     p.className = "pk-preview";
     var srcUrl = e.engine === "fm1-emu" ? (m.emu.package.source || m.source) : m.source && m.source + (m.commit ? "/tree/" + m.commit : "");
     var src = srcUrl ? '<a href="' + esc(srcUrl) + '" target="_blank" rel="noopener">source</a>' : "";
-    p.innerHTML =
-      (m.image ? '<img class="pk-shot" src="' + esc(DATA + m.image) + '" alt="' + esc(e.name) + ' on the FM-1 screen" loading="lazy" decoding="async">' : "") +
+    p.innerHTML = picture(e) +
       '<div class="pk-pbody">' +
         (m.tag ? '<p class="pk-tag">' + esc(m.tag) + "</p>" : "") +
         (m.about ? "<p>" + esc(m.about) + "</p>" : (e.builtin ? "<p>Built into this player.</p>" : (e.catalog ? "" : "<p>A file you added. It stays in this browser until you remove it.</p>"))) +

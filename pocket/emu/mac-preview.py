@@ -32,6 +32,7 @@ for e in v2["firmwares"]:
     if rel: item["release"] = rel
     listed = e.get("listed") or (h or {}).get("added") or e.get("added")
     if listed: item["listed"] = listed
+    if e.get("imageKind") == "emulator screen": item["image"] = e["image"]
     if len(item) > 1: out["firmwares"][e["id"]] = item
 json.dump(out, open(sys.argv[2], "w"), indent=1, sort_keys=True); open(sys.argv[2], "a").write("\n")
 print(f"{len(out['firmwares'])} emu blocks")

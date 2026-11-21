@@ -153,7 +153,7 @@ jobs:
           else
             flags="--no-web-engine"; echo "No browser engine built for fm1-emu@$commit yet." >> "$GITHUB_STEP_SUMMARY"
           fi
-          gh release download pocket-packages -p '*.fwsc' -D emu-store --skip-existing 2>/dev/null || true
+          gh release download pocket-packages -p '*.fwsc' -p 'shot-*.png' -D emu-store --skip-existing 2>/dev/null || true
           publish=false
           [ "${{ vars.POCKET_PUBLISH_V2 }}" = "true" ] && [ "${{ vars.POCKET_PUBLISH_EMU }}" = "true" ] && [ -f _site/data/catalog-v2.json ] && publish=true
           if [ "$publish" = "true" ]; then
@@ -351,10 +351,24 @@ jobs:
         run: |
           node pocket/emu/packages.mjs --hub saved/hub-catalog.json --out pkgs --previous state/packages.json
           cp pkgs/packages.json state/packages.json
+      - name: What Pocket may host
+        # only the packages Pocket may host (an open licence, not excluded by policy.json), as hosted/pkg/<hub>-<sha8>.fwsc
+        run: |
+          cp saved/catalog-v2.json hostable.json
+          python3 pocket/emu/catalog.py --v2 hostable.json --packages state/packages.json --emu-ledger state/emu-compat.json \
+            --rfm1-ledger saved/compat.json --store pkgs --site hosted > /dev/null
       - name: What needs measuring with the pinned engine
         id: todo
         run: |
-          echo "linux=$(python3 pocket/emu/ledger.py todo --ledger state/emu-compat.json --packages state/packages.json --machine linux)" >> "$GITHUB_OUTPUT"
+          linux=$(python3 pocket/emu/ledger.py todo --ledger state/emu-compat.json --packages state/packages.json --machine linux)
+          # a hosted package without its screen picture yet is run again for it (bench.py --shots)
+          have=$(gh release view pocket-packages --json assets -q '.assets[].name' 2>/dev/null || true)
+          shots=""
+          for f in hosted/pkg/*.fwsc; do
+            [ -e "$f" ] || continue; n=$(basename "$f" .fwsc)
+            echo "$have" | grep -qx "shot-$n.png" || shots="$shots ${n%-*}"
+          done
+          echo "linux=$(echo $linux $shots | tr ' ' '\n' | sort -u | xargs)" >> "$GITHUB_OUTPUT"
           echo "wasm=$(python3 pocket/emu/ledger.py todo --ledger state/emu-compat.json --packages state/packages.json --machine wasm)" >> "$GITHUB_OUTPUT"
           commit=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['commit'][:12])")
           echo "commit=$commit" >> "$GITHUB_OUTPUT"
@@ -371,7 +385,7 @@ jobs:
         run: |
           sudo apt-get install -y -qq libasound2-dev libx11-dev libxkbcommon-dev libxcursor-dev libxrandr-dev libxi-dev
           (cd upstream && cargo build --release -q -p fm1-live)
-          python3 pocket/emu/bench.py --live upstream/target/release/fm1-live --pkgs pkgs --out linux.json ${{ steps.todo.outputs.linux }}
+          python3 pocket/emu/bench.py --live upstream/target/release/fm1-live --pkgs pkgs --out linux.json --shots shots ${{ steps.todo.outputs.linux }}
           python3 pocket/emu/ledger.py merge --ledger state/emu-compat.json --packages state/packages.json --machine linux --native linux.json
       - name: The browser engine
         if: steps.todo.outputs.wasm != '' || steps.todo.outputs.web == 'build'
@@ -391,22 +405,25 @@ jobs:
         with:
           path: pkgs
           key: emu-pkgs-${{ github.run_id }}
-      - name: Keep packages, ledger and engine in pocket-packages
-        # only the packages Pocket may host (an open licence, not excluded by policy.json), as <hub>-<sha8>.fwsc
+      - name: Keep packages, screens, ledger and engine in pocket-packages
         run: |
-          cp saved/catalog-v2.json hostable.json
-          python3 pocket/emu/catalog.py --v2 hostable.json --packages state/packages.json --emu-ledger state/emu-compat.json \
-            --rfm1-ledger saved/compat.json --store pkgs --site hosted > /dev/null
           gh release view pocket-packages >/dev/null 2>&1 || gh release create pocket-packages --title "Original firmware packages (rolling)" --latest=false \
             --notes "The makers' original .fwsc packages that Pocket may host (open licences, not excluded), each identical to the maker's release asset and checked against The Firmware Hub's SHA-256, plus the emulator engine's measurements. Kept for the web player, which cannot fetch the makers' files itself. Updated automatically; not a release of this project. Each firmware is its makers' work under its own licence: see the source link for each in catalog-v2.json. The emulator is joakimeriksson/fm1-emu (MIT)."
           have=$(gh release view pocket-packages --json assets -q '.assets[].name')
           files="state/packages.json state/emu-compat.json"
           [ -f "fm1-emu-web-${{ steps.todo.outputs.commit }}.tar.gz" ] && files="$files fm1-emu-web-${{ steps.todo.outputs.commit }}.tar.gz"
           for f in hosted/pkg/*.fwsc; do [ -e "$f" ] || continue; echo "$have" | grep -qx "$(basename "$f")" || files="$files $f"; done
+          # each hosted package's screen, as shot-<hub>-<sha8>.png
+          mkdir -p shotfiles
+          for f in hosted/pkg/*.fwsc; do
+            [ -e "$f" ] || continue; n=$(basename "$f" .fwsc)
+            [ -f "shots/${n%-*}.png" ] && cp "shots/${n%-*}.png" "shotfiles/shot-$n.png" && files="$files shotfiles/shot-$n.png"
+          done
           gh release upload pocket-packages $files --clobber
-          # packages no longer hostable or superseded come down
+          # packages (and their screens) no longer hostable or superseded come down
           ls hosted/pkg 2>/dev/null > keep.txt || true
-          echo "$have" | grep '\.fwsc$' | while read -r name; do grep -qx "$name" keep.txt || gh release delete-asset pocket-packages "$name" -y; done
+          sed 's/^\(.*\)\.fwsc$/shot-\1.png/' keep.txt > keepshots.txt && cat keepshots.txt >> keep.txt
+          echo "$have" | grep -E '\.fwsc$|^shot-.*\.png$' | while read -r name; do grep -qx "$name" keep.txt || gh release delete-asset pocket-packages "$name" -y; done
 
   # The emulator engine on macOS (Apple Silicon): packages not yet measured there with the pinned engine.
   emu-macos:

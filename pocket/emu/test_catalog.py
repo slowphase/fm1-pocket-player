@@ -15,7 +15,9 @@ class Catalog(unittest.TestCase):
         d = tempfile.mkdtemp()
         pk = {"a": b"A" * 5000, "b": b"B" * 5000, "c": b"C" * 5000}
         store = os.path.join(d, "store"); os.makedirs(store)
-        for k, v in pk.items(): open(os.path.join(store, k + ".fwsc"), "wb").write(v)
+        for k, v in pk.items():
+            open(os.path.join(store, k + ".fwsc"), "wb").write(v)
+            open(os.path.join(store, f"shot-{k}-{sha(v)[:8]}.png"), "wb").write(b"PNG" + k.encode())
         st = lambda s: {"state": s, "reason": "r"}
         v2 = {"schema": 2, "firmwares": [
             {"id": "a", "name": "A", "license": "GPL-3.0", "file": "fw/a.rfm1", "sha256": "1" * 64, "version": "1",
@@ -58,6 +60,13 @@ class Catalog(unittest.TestCase):
         self.assertEqual(f["c"]["emu"]["web"]["state"], "unavailable")
         self.assertEqual(f["c"]["emu"]["preferred"]["mac"]["engine"], "fm1-emu", "the Mac downloads it from the maker")
         self.assertTrue(os.path.exists(os.path.join(d, "site", "pkg", f"a-{sha(pk['a'])[:8]}.fwsc")))
+
+    def test_screens_for_firmware_without_a_picture(self):
+        f, d, pk = self.build()
+        self.assertEqual(f["a"]["image"], f"shots/a-emu-{sha(pk['a'])[:8]}.png")
+        self.assertEqual(f["a"]["imageKind"], "emulator screen")
+        self.assertTrue(os.path.exists(os.path.join(d, "site", f["a"]["image"])))
+        self.assertNotIn("image", f["c"], "a firmware Pocket may not host gets no screen: the apps draw its name")
 
     def test_policy_override_and_known_issue(self):
         f, _, _ = self.build(policy_extra={"emuPrefer": {"a": {"engine": "rfm1", "reason": "until listened"}},

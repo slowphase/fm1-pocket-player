@@ -54,6 +54,23 @@ jobs:
           git -C upstream fetch -q --depth 1 origin "$commit" && git -C upstream checkout -q FETCH_HEAD
           rustup target add wasm32-unknown-unknown
           pocket/emu/build-web.sh upstream _site
+      - name: Screens for firmware without a picture (as the nightly's emu job takes them)
+        run: |
+          sudo apt-get install -y -qq libasound2-dev libx11-dev libxkbcommon-dev libxcursor-dev libxrandr-dev libxi-dev
+          (cd upstream && cargo build --release -q -p fm1-live)
+          ids=$(python3 -c "
+          import json
+          v = {e['id']: e for e in json.load(open('saved/catalog-v2.json'))['firmwares']}
+          pk = [r for r in json.load(open('pkgs/packages.json'))['firmwares'] if r.get('status') == 'found']
+          print(' '.join(r['hub'] for r in pk if not (v.get(r['hub']) or {}).get('image')))")
+          python3 pocket/emu/bench.py --live upstream/target/release/fm1-live --pkgs pkgs --out shots.json --ms 9500 --shots shots $ids > /dev/null
+          python3 -c "
+          import json, os, shutil
+          for r in json.load(open('pkgs/packages.json'))['firmwares']:
+              f = 'shots/' + r['hub'] + '.png'
+              if r.get('status') == 'found' and os.path.exists(f): shutil.copyfile(f, 'pkgs/shot-' + r['hub'] + '-' + r['sha256'][:8] + '.png')"
+          ls shots | wc -l
+
       - name: catalog-v2.json with the emulator engine
         run: |
           python3 pocket/emu/catalog.py --v2 _site/data/catalog-v2.json --packages pkgs/packages.json --emu-ledger emu-compat.json \

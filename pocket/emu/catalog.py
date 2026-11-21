@@ -7,7 +7,8 @@ or altered, so catalog.json's downloads and Phase A clients are untouched).
         --rfm1-ledger compat.json --store DIR_OF_PACKAGES --site DATA [--policy pocket/policy.json] [--no-web-engine]
 
 --store holds the packages as <hub>-<sha8>.fwsc (or <hub>.fwsc); each is checked against its SHA-256 before it is copied to
-DATA/pkg/. Only packages Pocket may host are copied.
+DATA/pkg/. Only packages Pocket may host are copied. It may also hold shot-<hub>-<sha8>.png, the package's screen as
+the emulator showed it: an entry without a picture gets it (`image`, `imageKind: "emulator screen"`, under DATA/shots/).
 
 Per entry, `emu`:
   package     the original package from the maker's release: url (the maker's), sha256 (the Hub's, checked), size,
@@ -126,7 +127,7 @@ def confidence(e, em, ids, player, iss):
                 and sha[eng] and t.get("build") == sha[eng] and t.get("verdict") == "good"]
         if good:
             t = sorted(good, key=lambda t: t.get("date", ""))[-1]
-            out[eng] = {"level": "listened", "note": f"Listened to in the app by {t.get('who')} on {t.get('machine')}, {t.get('date')} ({t.get('app')})."}
+            out[eng] = {"level": "listened", "note": f"A person listened to this file in the app ({t.get('who')}, {t.get('machine')}, {t.get('date')}, {t.get('app')}); not every feature was tried."}
         else:
             out[eng] = {"level": "automated", "note": "Passed the automated checks only; nobody has listened to it in the app yet."}
     return out
@@ -187,6 +188,16 @@ for e in v2["firmwares"]:
                 os.makedirs(os.path.join(site, "pkg"), exist_ok=True)
                 shutil.copyfile(have, os.path.join(site, "pkg", name))
             hosted.append(name); counts["hosted"] += 1
+        # a picture for a firmware that has none: its own screen, as the emulator showed it (bench.py --shots), only
+        # for packages Pocket may host; anything else gets the apps' drawn name tile
+        shot = os.path.join(store, f"shot-{hub}-{p['sha256'][:8]}.png") if store else None
+        if not e.get("image") and may_host and shot and os.path.exists(shot):
+            img = f"shots/{hub}-emu-{p['sha256'][:8]}.png"
+            e["image"] = img; e["imageKind"] = "emulator screen"
+            counts["shots"] = counts.get("shots", 0) + 1
+            if site:
+                os.makedirs(os.path.join(site, "shots"), exist_ok=True)
+                shutil.copyfile(shot, os.path.join(site, img))
         em["web"] = judge(p["sha256"], "wasm", "the browser engine (V8)", ids)
         lin = run_of(p["sha256"], "linux")
         if em["web"]["state"] == "playable" and lin and lin.get("soundFrom") == [] and not any(i in exceptions for i in ids):
@@ -226,6 +237,8 @@ if site:
 playable = lambda pl: sum(1 for e in v2["firmwares"] if e["emu"]["preferred"].get(pl))
 text = (f"## The emulator engine (fm1-emu@{COMMIT[:12]})\n\n{counts['packages']} original packages found, {counts['hosted']} hosted by Pocket. "
         f"Web: {counts['web']}. Mac: {counts['mac']}. Firmwares either engine plays: web {playable('web')}, Mac {playable('mac')}. "
-        f"Preferred engine: web {counts['preferred']['web']}, Mac {counts['preferred']['mac']}. Automated boot checks only; listening tests: {len(listening)}.\n")
+        f"Preferred engine: web {counts['preferred']['web']}, Mac {counts['preferred']['mac']}. Automated boot checks only; listening tests: {len(listening)}. "
+        f"Pictures: {sum(1 for e in v2['firmwares'] if e.get('image'))} of {len(v2['firmwares'])} firmwares ({counts.get('shots', 0)} emulator screens added); "
+        f"the rest show the apps' name tile.\n")
 if os.environ.get("GITHUB_STEP_SUMMARY"): open(os.environ["GITHUB_STEP_SUMMARY"], "a").write(text)
 print(text)
