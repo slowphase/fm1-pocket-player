@@ -137,8 +137,12 @@ export function markdown(r) {
   L.push(`| Built into the players | ${c.builtIn || 0} |`, `| Ambiguous (need an alias pair) | ${c.ambiguous} |`, `| New, listing-only candidates | ${c.new} (${c.newWithRepository} with a GitHub repository) |`);
   L.push(`| Pocket firmwares the Editor doesn't list | ${c.pocketOnly} |`, `| New entries whose Editor key clashes with a Pocket id | ${c.idClashes} |`, "");
   if (r.problems.length) L.push("## Problems", "", ...r.problems.map((p) => `- ${p}`), "");
+  const idr = r.identity;
+  if (idr && idr.promoted.length) L.push("## Promoted: now also offered by another source, Pocket id kept", "", ...idr.promoted.map((x) => `- ${x.id}: joined to ${x.sources.join(" and ")} (their id ${x.was}); id, listed date and Editor credit kept`), "");
+  if (idr && idr.ambiguous.length) L.push("## Identity ambiguous (kept listed under its id; needs a hand-made mapping)", "", ...idr.ambiguous.map((x) => `- ${x.id} (${x.editor}): ${x.candidates.join(", ")}`), "");
+  if (idr && idr.guarded.length) L.push("## Kept off an Editor-first id", "", ...idr.guarded.map((x) => `- ${x.id}: ${x.reason}`), "");
   if (r.builtIn && r.builtIn.length) L.push("## Built into the players (not listed again)", "", ...r.builtIn.map((x) => `- ${x.name} (${x.key}): built-in ${x.builtIn}`), "");
-  if (r.promoted.length) L.push("## Promoted (listed by the Editor under their own id, now in Pocket's other sources)", "", ...r.promoted.map((x) => `- ${x.name}: was ${x.was}, now ${x.pocket.join(", ")}`), "");
+  if (r.promoted.length && !(idr && idr.promoted.length)) L.push("## Listed by the Editor under their own id, now matching Pocket's other sources", "", ...r.promoted.map((x) => `- ${x.name}: ${x.was}, matching ${x.pocket.join(", ")}`), "");
   if (r.ambiguous.length) L.push("## Ambiguous", "", ...r.ambiguous.map((x) => `- ${x.name} (${x.key}): ${x.repositories.join(", ")} -> Pocket ${x.pocket.join(", ")}`), "");
   if (r.idClashes.length) L.push("## Id clashes (new entries get the owner added)", "", ...r.idClashes.map((x) => `- ${x.name} (${x.key})${x.clashesWith ? `: Pocket already uses "${x.clashesWith}"` : ""}${x.reason ? `. ${x.reason}` : ""}`), "");
   if (r.sharedPocket.length) L.push("## One Pocket firmware, several Editor entries", "", ...r.sharedPocket.map((x) => `- ${x.pocket}: ${x.editor.join(", ")}`), "");

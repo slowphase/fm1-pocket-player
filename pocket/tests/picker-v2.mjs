@@ -100,6 +100,8 @@ await step("an FM1 Editor listing credits the Editor and never the Hub", async (
   const text = await prev.textContent();
   if (!/listed by FM1 Editor/.test(text)) throw new Error("no Editor credit on " + ed.id);
   if (/The Firmware Hub/.test(text)) throw new Error("the Hub's credit on Editor-only " + ed.id);
+  if (ed.about && !text.includes(ed.about.slice(0, 40))) throw new Error("the Editor's description is not shown for " + ed.id);
+  if (ed.about && !/Description from FM1 Editor/.test(text) ) throw new Error("no credit for the Editor's description on " + ed.id);
   if (await prev.locator(".pk-play").count()) throw new Error("a play button on a listing-only entry");
   await page.screenshot({ path: join(OUT, "editor-listing.png") });
   return ed.name;

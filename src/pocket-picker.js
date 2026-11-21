@@ -323,6 +323,11 @@
     return list.map(function (x) { return x.url ? link(x.url, x.name) : esc(x.name); }).join(", ");
   }
   /* a firmware this player can't run: why, who made it, where it lives */
+  /* a description written by another source carries its credit and licence (FM1 Editor's are MIT) */
+  function aboutNote(m) {
+    var c = m.aboutCredit;
+    return c ? '<p class="pk-facts">' + esc(c.text || "Description") + (c.url ? " · " + link(c.url, "view") : "") + (c.license ? " (" + esc(c.license) + ")" : "") + "</p>" : "";
+  }
   function morePreview(e) {
     var m = e.meta || {}, st = m.status && m.status.web || {}, p = document.createElement("div"), hub = m.provenance && m.provenance.hub,
       ed = m.provenance && m.provenance.editor;
@@ -332,7 +337,7 @@
       ed ? link(ed.url || (m.credit && m.credit.url), "listed by FM1 Editor") : ""].filter(Boolean).join(" · ");
     p.innerHTML = picture(e) + '<div class="pk-pbody">' +
       (m.tag ? '<p class="pk-tag">' + esc(m.tag) + "</p>" : "") +
-      (m.about ? "<p>" + esc(m.about) + "</p>" : "") +
+      (m.about ? "<p>" + esc(m.about) + "</p>" + aboutNote(m) : "") +
       '<p class="pk-why">' + esc(st.reason || (m.restriction && m.restriction.reason) || "") + "</p>" +
       (makers(m) ? '<p class="pk-facts">by ' + makers(m) + "</p>" : "") +
       '<p class="pk-facts">' + esc([m.version, m.category, m.license ? api.lic(m.license) : ""].filter(Boolean).join(" · ")) + (links ? " · " + links : "") + "</p>" +
@@ -356,7 +361,7 @@
     p.innerHTML = picture(e) +
       '<div class="pk-pbody">' +
         (m.tag ? '<p class="pk-tag">' + esc(m.tag) + "</p>" : "") +
-        (m.about ? "<p>" + esc(m.about) + "</p>" : (e.builtin ? "<p>Built into this player.</p>" : (e.catalog ? "" : "<p>A file you added. It stays in this browser until you remove it.</p>"))) +
+        (m.about ? "<p>" + esc(m.about) + "</p>" + aboutNote(m) : (e.builtin ? "<p>Built into this player.</p>" : (e.catalog ? "" : "<p>A file you added. It stays in this browser until you remove it.</p>"))) +
         (m.status && makers(m) ? '<p class="pk-facts">by ' + makers(m) + "</p>" : "") +
         (webStatus(e) && webStatus(e).state === "experimental" ? '<p class="pk-why">' + esc(webStatus(e).reason) + "</p>" : "") +
         '<p class="pk-facts">' + esc([e.version, m.category, e.license ? api.lic(e.license) : ""].filter(Boolean).join(" · ")) + (src ? " · " + src : "") + "</p>" +

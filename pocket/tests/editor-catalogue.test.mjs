@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import { goldenBuild, read, assertBaselineKept, canonical } from "./golden/golden.mjs";
 import { snapshot } from "../editor.mjs";
 import { RECONCILIATION, fingerprint } from "../discover.mjs";
-import { BACKFILL_LISTED, CREDIT, UTILITY_TAG, editorCategory, DESCRIPTIONS } from "../editor-catalogue.mjs";
+import { BACKFILL_LISTED, CREDIT, UTILITY_TAG, editorCategory, DESCRIPTIONS, normaliseDescription, MAX_ABOUT } from "../editor-catalogue.mjs";
 import { editorOnly } from "../reconcile.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -52,7 +52,11 @@ test("editor catalogue: every new entry is listing-only, never downloadable, pla
     assert.deepEqual(Object.keys(e.provenance), ["editor"]);
     assert.deepEqual(e.credit, CREDIT);
     assert.equal(e.license, "", "licences come from the Hub or the maker, never the Editor");
-    assert.equal(e.about, DESCRIPTIONS ? e.about : "", "facts and links only, by default");
+    assert.equal(DESCRIPTIONS, true);
+    const raw = EDITOR.entries.find((x) => x.key === e.provenance.editor.key).description;
+    assert.equal(e.about, normaliseDescription(raw), `${e.id}: the Editor's description, normalised`);
+    assert.ok(e.about.length > 50 && e.about.length <= MAX_ABOUT + 1, e.id);
+    assert.deepEqual(e.aboutCredit, { text: "Description from FM1 Editor", url: e.provenance.editor.url, license: "MIT", copyright: "Copyright (c) 2026 Ben Sparrow" });
     assert.equal(e.provenance.editor.commit, EDITOR.source.commit);
     assert.match(e.provenance.editor.url, /^https:\/\/fm1-editor\.com\/firmware\/#/);
     assert.deepEqual(e.makers, e.authors.map((name) => ({ name, url: e.source })));
@@ -159,4 +163,16 @@ test("editor catalogue: new entries decode in FM-1 Pocket 0.9.0 as source-only M
     assert.ok(!("file" in e) && !("sha256" in e) && !("emu" in e));
     assert.equal(e.provenance.hub?.url, undefined);
   }
+});
+
+test("editor catalogue: descriptions are normalised for display without changing their meaning", () => {
+  // today's descriptions are already clean, so normalising leaves every one exactly as the Editor wrote it
+  for (const e of EDITOR.entries) assert.equal(normaliseDescription(e.description), e.description.trim(), e.key);
+  assert.equal(normaliseDescription("  Two&nbsp;voices &amp; a <b>drone</b>\u200b.\n\tPlays itself. "), "Two voices & a drone. Plays itself.");
+  assert.equal(normaliseDescription("e\u0301t\u00e9 &#8212; &#x2014; ok"), "\u00e9t\u00e9 \u2014 \u2014 ok");
+  assert.equal(normaliseDescription("left\u202eright\u0007 \ufeffend"), "leftright end", "no direction tricks or control characters");
+  assert.equal(normaliseDescription(null), "");
+  const long = normaliseDescription("word ".repeat(400));
+  assert.ok(long.length <= MAX_ABOUT + 1 && long.endsWith("word…"), "an over-long text is shortened at a word");
+  assert.ok(!/<|>/.test(normaliseDescription("<script>alert(1)</script>Safe")), "no markup survives");
 });
