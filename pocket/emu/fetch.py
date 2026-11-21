@@ -14,7 +14,8 @@ def opt(k, d=None):
     return d
 rows = [r for r in json.load(open(opt("--packages")))["firmwares"] if r.get("status") == "found"]
 d = opt("--dir"); os.makedirs(d, exist_ok=True)
-only = set(opt("--only").split(",")) if opt("--only") else None
+o = opt("--only")   # opt() consumes the option, so read it once
+only = set(o.split(",")) if o else None
 sha = lambda p: hashlib.sha256(open(p, "rb").read()).hexdigest()
 got = fetched = bad = 0
 for r in rows:
