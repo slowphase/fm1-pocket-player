@@ -1,0 +1,11 @@
+{
+  "note": "Identity between FM1 Editor entries and FM-1 Pocket firmware. Matching is by GitHub repository only, never by name. This table settles the cases a repository alone can't: one repository with several firmwares, repositories that moved, and Editor keys that would clash with an existing Pocket id. Edit by hand and explain the change in the PR.",
+  "pairs": {
+    "hortator": ["hortator", "hortator-bt"]
+  },
+  "repositories": {},
+  "distinct": {
+    "glitch": "ttreu/fm1-glitch is not saulofilho/glitch (Pocket's 'glitch', listed as GR!MM). Same key, different projects."
+  },
+  "ids": {}
+}

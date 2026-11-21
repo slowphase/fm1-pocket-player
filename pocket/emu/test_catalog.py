@@ -129,6 +129,61 @@ class Golden(unittest.TestCase):
                 self.assertEqual(canon(g2[e["id"]].get(k)), canon(v), f"{e['id']}.{k} changed")
         self.assertEqual(canon(got["counts"]), canon(want["counts"]))
 
+    def test_editor_listings_leave_existing_entries_unchanged_and_get_no_package(self):
+        """Phase 2: the golden catalogue plus FM1 Editor's listing-only entries (built by discover.mjs from the recorded
+        page), through the emulator layer: the 285 existing entries are exactly as before, and no Editor entry gets an
+        original package, even one whose id equals a Hub package's id."""
+        import gzip
+        g = os.path.join(HERE, "..", "tests", "golden")
+        rd = lambda f: json.load(gzip.open(os.path.join(g, f)))
+        emu = rd("emu-inputs.json.gz")
+        script = ("import { goldenBuild } from './pocket/tests/golden/golden.mjs';"
+                  "import { snapshot } from './pocket/editor.mjs';"
+                  "import { readFileSync } from 'node:fs'; import { gunzipSync } from 'node:zlib';"
+                  "const f = 'pocket/tests/fixtures/';"
+                  "const editor = snapshot({ html: gunzipSync(readFileSync(f + 'fm1-editor-c017be1.html.gz')).toString(),"
+                  " licenceText: readFileSync(f + 'fm1-editor-LICENSE', 'utf8'), commit: 'c017be1', committed: null, checked: '2026-11-21T13:00:00Z' });"
+                  "const aliases = JSON.parse(readFileSync('pocket/editor-aliases.json', 'utf8'));"
+                  "process.stdout.write(JSON.stringify(goldenBuild({ editor, editorAliases: aliases })));")
+        root = os.path.join(HERE, "..", "..")
+        v2 = json.loads(subprocess.run(["node", "--input-type=module", "-e", script], cwd=root, check=True, capture_output=True, text=True).stdout)
+        listing = [e for e in v2["firmwares"] if set((e.get("provenance") or {})) == {"editor"}]
+        self.assertGreater(len(listing), 100)
+        # an Editor entry that happens to share a Hub package's id must still get no package
+        pkg_hub = next(p["hub"] for p in emu["packages"]["firmwares"] if p.get("status") == "found")
+        decoy = dict(listing[0], id=pkg_hub)
+        v2["firmwares"] = [e for e in v2["firmwares"] if e["id"] != pkg_hub] + [decoy] if pkg_hub not in {e["id"] for e in rd("discover-expected.json.gz")["firmwares"]} else v2["firmwares"] + [decoy]
+        with tempfile.TemporaryDirectory() as t:
+            for name, obj in (("v2.json", v2), ("packages.json", emu["packages"]), ("emu.json", emu["emuLedger"]),
+                              ("compat.json", rd("discover-inputs.json.gz")["ledger"])):
+                json.dump(obj, open(os.path.join(t, name), "w"))
+            subprocess.run([sys.executable, os.path.join(HERE, "catalog.py"), "--v2", os.path.join(t, "v2.json"), "--packages",
+                            os.path.join(t, "packages.json"), "--emu-ledger", os.path.join(t, "emu.json"), "--rfm1-ledger",
+                            os.path.join(t, "compat.json")], check=True, capture_output=True)
+            got = json.load(open(os.path.join(t, "v2.json")))
+        want = rd("emu-expected.json.gz")
+        def norm(o):
+            if isinstance(o, float) and o.is_integer(): return int(o)
+            if isinstance(o, dict): return {k: norm(v) for k, v in o.items()}
+            if isinstance(o, list): return [norm(v) for v in o]
+            return o
+        canon = lambda o: json.dumps(norm(o), sort_keys=True)
+        existing = {e["id"] for e in want["firmwares"]}
+        g2 = {}
+        for e in got["firmwares"]:
+            if e["id"] in existing and set((e.get("provenance") or {})) == {"editor"}: continue   # the decoy
+            g2.setdefault(e["id"], e)
+        for e in want["firmwares"]:
+            for k, v in e.items():
+                self.assertEqual(canon(g2[e["id"]].get(k)), canon(v), f"{e['id']}.{k} changed")
+        for e in got["firmwares"]:
+            if set((e.get("provenance") or {})) == {"editor"}:
+                self.assertIsNone(e["emu"]["package"], e["id"])
+                self.assertEqual(e["emu"]["mac"]["state"], "unavailable")
+                self.assertFalse(e.get("file"), e["id"])
+        self.assertEqual(got["counts"]["emu"]["packages"], want["counts"]["emu"]["packages"])
+        self.assertEqual(got["counts"]["emu"]["preferred"], want["counts"]["emu"]["preferred"])
+
 
 if __name__ == "__main__":
     unittest.main()

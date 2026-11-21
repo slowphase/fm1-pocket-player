@@ -80,20 +80,37 @@ jobs:
           echo '{"pending":[],"rejected":[]}' > pocket-report.json
           [ -f store/compat.json ] || echo '{"schema":1,"builds":{},"macos":{}}' > store/compat.json
           node pocket/hub.mjs --cache store/hub-catalog.json --no-fetch
+          # FM1 Editor's last good snapshot as the nightly kept it (no read of the Editor here); listing-only entries
+          gh release download pocket-current --repo slowphase/fm1-pocket-player -p editor-directory.json -O store/editor-directory.json --clobber 2>/dev/null || true
+          gh release download pocket-current --repo slowphase/fm1-pocket-player -p catalog-v2.json -O store/catalog-v2.previous.json --clobber 2>/dev/null || true
+          # release dates from the makers' GitHub releases, starting from the nightly's cache (read-only here: nothing is kept)
+          gh release download pocket-current --repo slowphase/fm1-pocket-player -p editor-releases.json -O store/editor-releases.json --clobber 2>/dev/null || true
+          node pocket/editor-releases.mjs --editor store/editor-directory.json --catalogue store/catalog-v2.previous.json \
+            --cache store/editor-releases.json --out editor-releases.dry.json | tee -a "$GITHUB_STEP_SUMMARY" || echo "{}" > editor-releases.dry.json
           node pocket/discover.mjs --data _site/data --upstream pocket-upstream.json --report pocket-report.json \
-            --ledger store/compat.json --hub store/hub-catalog.json | tee -a "$GITHUB_STEP_SUMMARY"
+            --ledger store/compat.json --hub store/hub-catalog.json --previous store/catalog-v2.previous.json \
+            --editor store/editor-directory.json --editor-releases editor-releases.dry.json \
+            --reconciliation editor-reconciliation.json --reconciliation-md editor-reconciliation.md | tee -a "$GITHUB_STEP_SUMMARY"
+          [ -s editor-reconciliation.md ] && sed -n '1,/^## Pocket firmwares/p' editor-reconciliation.md | sed '$d' >> "$GITHUB_STEP_SUMMARY" || true
+          # the full report in the log, for review
+          [ -s editor-reconciliation.md ] && cat editor-reconciliation.md || true
           cp _site/data/catalog-v2.json catalog-v2.dry.json
 
       - uses: actions/upload-artifact@v7
         with:
           name: catalog-v2-dry
-          path: catalog-v2.dry.json
+          path: |
+            catalog-v2.dry.json
+            editor-reconciliation.json
+            editor-reconciliation.md
+            editor-releases.dry.json
+          if-no-files-found: ignore
           retention-days: 14
 
       - name: Picker test catalogue (the dry v2 plus a made-up Hub sample)
         run: |
           node pocket/discover.mjs --data _site/data --upstream pocket-upstream.json --report pocket-report.json \
-            --ledger store/compat.json --hub pocket/tests/fixtures/hub-sample.json > /dev/null
+            --ledger store/compat.json --hub pocket/tests/fixtures/hub-sample.json --editor store/editor-directory.json > /dev/null
           cp -r index.html src firmware LICENSE _site/
 
       - name: Install Chromium for Playwright

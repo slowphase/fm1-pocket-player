@@ -324,9 +324,12 @@
   }
   /* a firmware this player can't run: why, who made it, where it lives */
   function morePreview(e) {
-    var m = e.meta || {}, st = m.status && m.status.web || {}, p = document.createElement("div"), hub = m.provenance && m.provenance.hub;
+    var m = e.meta || {}, st = m.status && m.status.web || {}, p = document.createElement("div"), hub = m.provenance && m.provenance.hub,
+      ed = m.provenance && m.provenance.editor;
     p.className = "pk-preview";
-    var links = [m.source ? link(m.source, "source") : "", hub ? link(hub.url, "on The Firmware Hub") : ""].filter(Boolean).join(" · ");
+    /* each entry credits only the sources that listed it: an FM1 Editor listing never shows the Hub's credit */
+    var links = [m.source ? link(m.source, "source") : "", hub ? link(hub.url, "on The Firmware Hub") : "",
+      ed ? link(ed.url || (m.credit && m.credit.url), "listed by FM1 Editor") : ""].filter(Boolean).join(" · ");
     p.innerHTML = picture(e) + '<div class="pk-pbody">' +
       (m.tag ? '<p class="pk-tag">' + esc(m.tag) + "</p>" : "") +
       (m.about ? "<p>" + esc(m.about) + "</p>" : "") +
@@ -428,16 +431,20 @@
       host.innerHTML = '<p class="note pk-none">' + (state.filter === "fav" ? "No favourites yet: tap the &#9734; beside a firmware." :
         state.filter === "new" ? "Nothing joined the library in the last " + NEW_DAYS + " days." : "Nothing matches that.") + "</p>";
     }
-    var n = lib.filter(function (e) { return e.catalog; }).length, a = catalog && catalog.attribution;
+    var n = lib.filter(function (e) { return e.catalog; }).length, a = catalog && catalog.attribution,
+      ed = catalog && (catalog.sources || []).filter(function (s) { return s.name === "FM1 Editor"; })[0],
+      edText = ed ? link(ed.url, "FM1 Editor") + " (MIT)" : "";
     $("pk-info").innerHTML = catalog
       ? esc(n + " firmwares in the library · catalogue last updated " + new Date(catalog.updated).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })) +
-        (a ? '<br>Firmware list: ' + link(a.url, "The Firmware Hub – thefirmwarehub.com") + " (" + link(a.licenseUrl, a.license) + "), combined with RemoteFM1FW's builds and this site's checks; makers' texts and pictures are not copied." : "")
+        (a ? '<br>Firmware list: ' + link(a.url, "The Firmware Hub – thefirmwarehub.com") + " (" + link(a.licenseUrl, a.license) + "), combined with RemoteFM1FW's builds and this site's checks; makers' texts and pictures are not copied." : "") +
+        (ed ? "<br>More listings, not reviewed here: " + edText + "." : "")
       : "The hosted library isn't available right now. Built-in and your own files still work.";
     var rt = catalog && catalog.runtimes && catalog.runtimes["fm1-emu"], ec = $("pk-emu-credit");
     if (ec) ec.innerHTML = rt && window.Fm1Emu ? "Original packages run on " + link("https://github.com/" + rt.repository, "fm1-emu") +
       " by Joakim Eriksson (MIT; the emulator's licence, not the firmware's), unchanged, as the makers released them. " : "";
     var hc = $("pk-hub-credit");
-    if (hc) hc.innerHTML = a ? "The list of firmware that can't be played here comes from " + link(a.url, "The Firmware Hub") + " (" + link(a.licenseUrl, a.license) + "), combined with this site's own checks. " : "";
+    if (hc) hc.innerHTML = a ? "The list of firmware that can't be played here comes from " + link(a.url, "The Firmware Hub") + " (" + link(a.licenseUrl, a.license) + ")" +
+      (ed ? " and " + edText : "") + ", combined with this site's own checks. " : ed ? "Some firmware that can't be played here is listed by " + edText + ". " : "";
   }
 
   function render(a) { api = a; build(); draw(); }
