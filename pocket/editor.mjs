@@ -28,8 +28,8 @@ export const SITE = "https://fm1-editor.com/firmware/";
 export const UA = "fm1-pocket-player (github.com/slowphase/fm1-pocket-player)";
 export const KINDS = ["synths", "grooveboxes", "generative", "games", "tools", "samplers", "chords"];
 // refuse a new snapshot that has lost more than this share of the last good one's entries
-export const MAX_DROP = 0.15;
-// and never accept fewer than this many entries at all
+export const MAX_DROP = 0.05;
+// and never accept fewer than this many entries at all (a bootstrap safeguard, also when there is no last good one)
 export const MIN_ENTRIES = 100;
 // at most this share of entries may lack a field that most have (maker, date, description, repository)
 const MAX_MISSING = { maker: 0.02, updated: 0.02, description: 0.05, repository: 0.15 };

@@ -8,7 +8,7 @@ import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { parse, snapshot, refusals, licence, statusLine, repository, linkRole, fallback, content, StructureError, MIN_ENTRIES } from "../editor.mjs";
+import { parse, snapshot, refusals, licence, statusLine, repository, linkRole, fallback, content, StructureError, MIN_ENTRIES, MAX_DROP } from "../editor.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const HTML = gunzipSync(readFileSync(join(here, "fixtures", "fm1-editor-c017be1.html.gz"))).toString();
@@ -105,7 +105,11 @@ test("editor: a much smaller, duplicated or tiny directory is refused", () => {
   const good = make();
   const fewer = { ...good, entries: good.entries.slice(0, 300) };
   assert.match(refusals(fewer.entries, good).join(), /down from 431/);
-  assert.deepEqual(refusals(good.entries.slice(0, 400), good), [], "a modest drop is fine");
+  // at most 5% fewer than the last good snapshot: of 431, 410 (21 fewer) passes and 409 (22 fewer) is refused
+  assert.equal(MAX_DROP, 0.05);
+  assert.deepEqual(refusals(good.entries.slice(0, 410), good), [], "a drop within 5% is fine");
+  assert.match(refusals(good.entries.slice(0, 409), good).join(), /409 entries, down from 431 \(more than 5% fewer\)/);
+  assert.match(refusals(good.entries.slice(0, 400), good).join(), /down from 431/, "the old 15% limit would have let this through");
   assert.match(refusals([...good.entries, good.entries[0]], good).join(), /share an id: 386dx|share an id/);
   assert.match(refusals(good.entries.slice(0, MIN_ENTRIES - 1)).join(), /only 99 entries/);
   const noRepo = good.entries.map((e, i) => (i % 4 ? e : { ...e, repository: null }));
