@@ -190,6 +190,16 @@ jobs:
           [ -s pocket-store/editor-directory.json ] && files="$files pocket-store/editor-directory.json"
           gh release view pocket-current >/dev/null 2>&1 && gh release upload pocket-current $files --clobber || echo "no pocket-current release yet"
 
+      - name: FM1 Editor reconciliation (report only, never changes the catalogue)
+        if: always()
+        continue-on-error: true
+        run: |
+          if [ -s pocket-store/editor-directory.json ] && [ -s pocket-store/catalog-v2.json ]; then
+            node pocket/reconcile.mjs --catalogue pocket-store/catalog-v2.json --editor pocket-store/editor-directory.json \
+              --out editor-reconciliation.json --md editor-reconciliation.md
+            sed -n '1,/^## Pocket firmwares/p' editor-reconciliation.md | sed '$d' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Keep catalog-v2.json for review
         uses: actions/upload-artifact@v7
         with:
@@ -198,6 +208,8 @@ jobs:
             _site/data/catalog-v2.json
             catalog-v2.unpublished.json
             catalog-v2.emu-preview.json
+            editor-reconciliation.json
+            editor-reconciliation.md
           if-no-files-found: ignore
           retention-days: 14
 
