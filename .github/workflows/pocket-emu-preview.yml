@@ -75,6 +75,18 @@ jobs:
         run: |
           python3 pocket/emu/catalog.py --v2 _site/data/catalog-v2.json --packages pkgs/packages.json --emu-ledger emu-compat.json \
             --rfm1-ledger saved/compat.json --store pkgs --site _site/data
+          # emulator screens the published catalogue already names (imageKind "emulator screen"): their files live in
+          # pocket-packages as shot-HUB-SHA8.png, and catalog.py only copies pictures it adds itself
+          gh release download pocket-packages -p 'shot-*.png' -D published-shots --skip-existing 2>/dev/null || true
+          python3 -c "
+          import json, os, re, shutil
+          for e in json.load(open('_site/data/catalog-v2.json'))['firmwares']:
+              m = re.fullmatch(r'shots/(.+)-emu-([0-9a-f]{8})\.png', e.get('image') or '')
+              dst = os.path.join('_site/data', e.get('image') or '')
+              src = m and os.path.join('published-shots', 'shot-' + m[1] + '-' + m[2] + '.png')
+              if m and not os.path.exists(dst) and os.path.exists(src):
+                  os.makedirs(os.path.dirname(dst), exist_ok=True); shutil.copyfile(src, dst)"
+          ls _site/data/shots | wc -l
           du -sh _site _site/data/pkg
       - name: Discovery dates (release, listed), as the nightly's discover.mjs adds them
         # the published catalogue predates them; this test build takes them from the same saved Hub copy discover.mjs
