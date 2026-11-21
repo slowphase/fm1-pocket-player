@@ -15,6 +15,15 @@ Status: integrated on branch `emu-eval` (Pocket PR #7) and `emu-prototype` (Mac 
 Feature freeze since 20 November 2026: stabilisation only (see the last section).
 Publishing is behind the repository variable `POCKET_PUBLISH_EMU` (unset).
 
+## Going live
+
+1. Merge PR #7 (squash).
+2. Set the repository variable `POCKET_PUBLISH_EMU` to `true` (Settings › Secrets and variables › Actions › Variables).
+3. Run **Pocket sync** (Actions › Run workflow), then once more, and check both finish green.
+4. Check the live site: emulator firmware plays, pictures show, opening a `.fwsc` file works.
+5. Delete the "Rolling out" note (and its ROLLOUT NOTICE comment) from `README.md`.
+6. Then the Mac app: merge PR #8 and build its v0.9.0 release (FM-1 Pocket for macOS, `docs/DEVELOPMENT.md`).
+
 ## How a firmware gets its emulator engine
 
 1. **Packages** (`pocket/emu/packages.mjs`, nightly `emu` job). For each firmware on The Firmware Hub's list (Pocket's

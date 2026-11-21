@@ -13,8 +13,6 @@
 Explore M-VAVE FM-1 community firmware instantly, in your browser, without installing anything. Pick a firmware
 and its screen, sound, knobs and keys come to life on the page. No FM-1 needed.
 
-It is a place to discover and audition firmware, not a music production app.
-
 <p align="center"><img src="docs/img/pocket-player.png" alt="FM-1 Pocket Player running h1, with the firmware library open over the FM-1 panel"></p>
 
 ## What you can do
@@ -25,27 +23,35 @@ It is a place to discover and audition firmware, not a music production app.
 - **Hear it.** The whole FM-1 panel: screen, keys, knobs or sliders, buttons and lights.
 - **Play it your way.** Mouse, touch, your computer keyboard, or a MIDI keyboard in browsers with Web MIDI (such as
   Chrome and Edge).
-- **Keep favourites**, and let each firmware remember its settings in your browser between visits.
-- **Try your own files.** Open an `.rfm1` file from your computer, or drop it onto the page.
+- **Keep favourites.** Your favourites stay in your browser between visits, and so do a firmware's settings where
+  the firmware itself supports saving.
+- **Try your own files.** Open an original `.fwsc` package or an `.rfm1` build from your computer, or drop it onto
+  the page.
 
 Nothing you open is uploaded anywhere: files and settings stay in your browser.
 
 ## How firmware plays
 
-Most firmware in the library plays as an `.rfm1` build: the firmware's own code rebuilt to run in a browser.
+Pocket Player runs firmware two ways:
 
-Many firmwares can also run from their maker's original FM-1 package (`.fwsc`) on an emulation of the FM-1's chip,
-and each firmware uses whichever runs it best. Where both work, you can switch between them.
+- **Original packages** (`.fwsc`), exactly as their makers released them, on [fm1-emu](https://github.com/joakimeriksson/fm1-emu),
+  an emulation of the FM-1's chip.
+- **`.rfm1` builds**, the firmware's own code rebuilt for the browser, on the simulator Pocket Player is built on.
 
-> **Rolling out.** Original-package playback is switched on together with the next library update. Until then the
-> player uses `.rfm1` builds only.
+It recommends an engine for each firmware based on compatibility and performance checks. Where both work, you can
+switch between them.
+
+<!-- ROLLOUT NOTICE: delete this note once the emulator catalogue is published (see docs/EMULATOR-INTEGRATION.md,
+     "Going live"). -->
+> **Rolling out.** Original-package playback, including opening your own `.fwsc` files, is switched on with the next
+> library update. Until then the player uses `.rfm1` builds only.
 
 ## Compatibility
 
 Each firmware's details say how it was checked. Automated checks start the firmware, play it in a scripted test and
 check that it makes sound and keeps time. That catches firmware that will not run, but it is not the same as someone
 playing every feature, and most firmware has only passed automated checks so far. Known problems are shown as known
-issues. What a firmware saves, and how, is up to the firmware.
+issues. Whether a firmware saves its settings, and how, is up to the firmware.
 
 Sound wrong? [Report a firmware problem](https://github.com/slowphase/fm1-pocket-player/issues/new?template=firmware-report.yml).
 
