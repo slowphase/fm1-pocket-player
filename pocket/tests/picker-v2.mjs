@@ -86,6 +86,24 @@ await step("the Hub's credit shows exactly when the catalogue used the Hub", asy
   if (!!v2.attribution !== credited) throw new Error(`attribution ${!!v2.attribution}, credit shown ${credited}`);
   return credited ? "shown" : "not needed (no Hub data)";
 });
+await step("an FM1 Editor listing credits the Editor and never the Hub", async () => {
+  const ed = v2.firmwares.find((f) => f.provenance && f.provenance.editor && Object.keys(f.provenance).length === 1);
+  const info = await page.locator("#pk-info").textContent();
+  const listed = (v2.sources || []).some((s) => s.name === "FM1 Editor");
+  if (listed !== /FM1 Editor/.test(info)) throw new Error(`Editor in sources ${listed}, credit shown ${/FM1 Editor/.test(info)}`);
+  if (!ed) return "no Editor entries in this catalogue";
+  await openDrawer();
+  await page.click('.pk-filters [data-f="more"]');
+  await page.fill("#pk-q", ed.name);
+  if (!(await page.locator("#fwlist .pk-item.open").count())) await page.locator("#fwlist .pk-row").first().click();
+  const prev = page.locator(".pk-preview").first();
+  const text = await prev.textContent();
+  if (!/listed by FM1 Editor/.test(text)) throw new Error("no Editor credit on " + ed.id);
+  if (/The Firmware Hub/.test(text)) throw new Error("the Hub's credit on Editor-only " + ed.id);
+  if (await prev.locator(".pk-play").count()) throw new Error("a play button on a listing-only entry");
+  await page.screenshot({ path: join(OUT, "editor-listing.png") });
+  return ed.name;
+});
 await step("no page errors", async () => { if (errors.length) throw new Error(errors.join(" | ")); });
 
 // the same page without catalog-v2.json: the picker falls back to catalog.json

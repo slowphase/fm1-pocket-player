@@ -13,8 +13,10 @@
 // Names are never used to match. A repository that points at several Pocket firmwares without a pair is reported as
 // ambiguous and kept out of the new entries, so nothing is added twice.
 //
-// New entries get a proposed id: the Editor key, unless an existing Pocket id (or an id already given) has it, in
-// which case the repository owner is added (glitch -> glitch-ttreu).
+// New entries keep the id they were published with (from the previous catalogue), else the table's frozen id, else a
+// proposed one: the Editor key, unless an existing Pocket id, a Hub id, a policy id or an id already given has it, in
+// which case the repository owner is added (glitch -> glitch-ttreu). An Editor entry that was listed under its own id
+// and now matches a Pocket firmware (the Hub or RemoteFM1FW picked it up) is reported as promoted.
 //
 //   node pocket/reconcile.mjs --catalogue catalog-v2.json --editor editor-directory.json [--aliases FILE] [--out FILE] [--md FILE]
 import { readFileSync, writeFileSync } from "node:fs";
@@ -34,10 +36,24 @@ export function pocketRepositories(fw, moved = {}) {
   return [...out].sort();
 }
 
-export function reconcile(catalogue, directory, aliases = EMPTY) {
+// a firmware that is in the catalogue only because the Editor listed it
+export const editorOnly = (fw) => !!(fw.provenance && fw.provenance.editor) && Object.keys(fw.provenance).length === 1;
+
+// the ids Editor entries were published with last time: Editor key -> id
+export function previousIds(previous) {
+  const out = {};
+  for (const f of (previous && previous.firmwares) || []) if (editorOnly(f) && f.provenance.editor.key) out[f.provenance.editor.key] = f.id;
+  return out;
+}
+
+// catalogue: the Pocket firmwares (Editor-only ones are left out, so they never match themselves)
+// reserved: more ids a new entry must not take (Hub ids, policy ids, built-in ids)
+// published: Editor key -> the id it was published with before (previousIds)
+// builtIn: firmware built into the players ({ id, repositories }), which the catalogue doesn't list but the Editor may
+export function reconcile(catalogue, directory, aliases = EMPTY, { reserved = [], published = {}, builtIn = [] } = {}) {
   const a = { ...EMPTY, ...aliases };
   const moved = a.repositories || {};
-  const firmwares = catalogue.firmwares || [];
+  const firmwares = (catalogue.firmwares || []).filter((f) => !editorOnly(f));
   const entries = directory.entries || [];
   const pocketIds = new Set(firmwares.map((f) => f.id));
 
@@ -47,7 +63,8 @@ export function reconcile(catalogue, directory, aliases = EMPTY) {
     byRepo.get(r).add(fw.id);
   }
 
-  const matched = [], ambiguous = [], fresh = [], problems = [];
+  const matched = [], ambiguous = [], fresh = [], problems = [], promoted = [], inPlayers = [];
+  const builtInRepo = new Map(builtIn.flatMap((b) => (b.repositories || []).map((r) => [moved[r] || r, b.id])));
   const covered = new Map();   // Pocket id -> Editor keys
   for (const e of entries) {
     const repos = [...new Set((e.repositories || (e.repository ? [e.repository] : [])).map((r) => moved[r] || r))];
@@ -59,9 +76,12 @@ export function reconcile(catalogue, directory, aliases = EMPTY) {
     } else {
       ids = [...new Set(repos.flatMap((r) => [...(byRepo.get(r) || [])]))].sort();
     }
+    const player = !ids.length && repos.map((r) => builtInRepo.get(r)).find(Boolean);
+    if (player) { inPlayers.push({ key: e.key, name: e.name, repositories: repos, builtIn: player }); continue; }
     if (ids.length > 1 && !a.pairs[e.key]) { ambiguous.push({ key: e.key, name: e.name, repositories: repos, pocket: ids }); continue; }
     if (ids.length) {
       matched.push({ key: e.key, name: e.name, repositories: repos, pocket: ids });
+      if (published[e.key]) promoted.push({ key: e.key, name: e.name, was: published[e.key], pocket: ids });
       for (const id of ids) covered.set(id, [...(covered.get(id) || []), e.key]);
       continue;
     }
@@ -69,13 +89,15 @@ export function reconcile(catalogue, directory, aliases = EMPTY) {
   }
 
   // proposed ids for new entries: frozen ones first, then the key, then key-owner, then key-owner-2 ...
-  const taken = new Set([...pocketIds, ...Object.values(a.ids)]);
+  const hubIds = firmwares.map((f) => f.provenance && f.provenance.hub && f.provenance.hub.id).filter(Boolean);
+  const taken = new Set([...pocketIds, ...hubIds, ...reserved, ...Object.values(a.ids), ...fresh.map((e) => published[e.key]).filter(Boolean)]);
   const clashes = [];
   const added = fresh.map((e) => {
-    let id = a.ids[e.key];
+    let id = published[e.key] || a.ids[e.key];
     if (!id) {
-      const base = slug(e.key);
-      const owner = e.repository ? slug(e.repository.split("/")[0]) : "editor";
+      // at most 40 + 1 + 20 (+ "-NN") characters: the apps accept ids up to 64
+      const base = slug(e.key).slice(0, 40).replace(/-+$/, "") || "firmware";
+      const owner = (e.repository ? slug(e.repository.split("/")[0]) : "editor").slice(0, 20).replace(/-+$/, "");
       id = base;
       if (taken.has(id) || a.distinct[e.key]) {
         clashes.push({ key: e.key, name: e.name, clashesWith: pocketIds.has(base) ? base : null, reason: a.distinct[e.key] || null });
@@ -85,7 +107,7 @@ export function reconcile(catalogue, directory, aliases = EMPTY) {
       taken.add(id);
     }
     return { id, key: e.key, name: e.name, maker: e.maker, repository: e.repository || null, kinds: e.kinds || [], channel: e.channel || null,
-             version: e.version || null, updated: e.updated || null, frozen: !!a.ids[e.key] };
+             version: e.version || null, updated: e.updated || null, frozen: !!(published[e.key] || a.ids[e.key]) };
   }).sort((x, y) => x.id.localeCompare(y.id));
 
   const pocketOnly = firmwares.filter((f) => !covered.has(f.id))
@@ -100,8 +122,8 @@ export function reconcile(catalogue, directory, aliases = EMPTY) {
     schema: 1,
     inputs: { catalogue: catalogue.updated || catalogue.snapshot || null, editor: directory.source?.commit || null, editorChecked: directory.status?.checked || null },
     counts: { editor: entries.length, pocket: firmwares.length, editorMatched: matched.length, pocketMatched: covered.size,
-              ambiguous: ambiguous.length, new: added.length, newWithRepository: added.filter((x) => x.repository).length, pocketOnly: pocketOnly.length, idClashes: clashes.length },
-    matched, ambiguous, new: added, idClashes: clashes, pocketOnly, sharedPocket, sharedEditorRepos, problems,
+              ambiguous: ambiguous.length, builtIn: inPlayers.length, promoted: promoted.length, new: added.length, newWithRepository: added.filter((x) => x.repository).length, pocketOnly: pocketOnly.length, idClashes: clashes.length },
+    matched, ambiguous, builtIn: inPlayers, promoted, new: added, idClashes: clashes, pocketOnly, sharedPocket, sharedEditorRepos, problems,
   };
 }
 
@@ -112,9 +134,11 @@ export function markdown(r) {
   L.push(`Editor commit ${String(r.inputs.editor || "?").slice(0, 7)}, catalogue ${r.inputs.catalogue || "?"}. Report only: nothing here is in the catalogue yet.`, "");
   L.push("| | Count |", "| --- | --- |");
   L.push(`| Editor entries | ${c.editor} |`, `| Pocket firmwares | ${c.pocket} |`, `| Editor entries Pocket already has | ${c.editorMatched} (covering ${c.pocketMatched} Pocket firmwares) |`);
-  L.push(`| Ambiguous (need an alias pair) | ${c.ambiguous} |`, `| New, listing-only candidates | ${c.new} (${c.newWithRepository} with a GitHub repository) |`);
+  L.push(`| Built into the players | ${c.builtIn || 0} |`, `| Ambiguous (need an alias pair) | ${c.ambiguous} |`, `| New, listing-only candidates | ${c.new} (${c.newWithRepository} with a GitHub repository) |`);
   L.push(`| Pocket firmwares the Editor doesn't list | ${c.pocketOnly} |`, `| New entries whose Editor key clashes with a Pocket id | ${c.idClashes} |`, "");
   if (r.problems.length) L.push("## Problems", "", ...r.problems.map((p) => `- ${p}`), "");
+  if (r.builtIn && r.builtIn.length) L.push("## Built into the players (not listed again)", "", ...r.builtIn.map((x) => `- ${x.name} (${x.key}): built-in ${x.builtIn}`), "");
+  if (r.promoted.length) L.push("## Promoted (listed by the Editor under their own id, now in Pocket's other sources)", "", ...r.promoted.map((x) => `- ${x.name}: was ${x.was}, now ${x.pocket.join(", ")}`), "");
   if (r.ambiguous.length) L.push("## Ambiguous", "", ...r.ambiguous.map((x) => `- ${x.name} (${x.key}): ${x.repositories.join(", ")} -> Pocket ${x.pocket.join(", ")}`), "");
   if (r.idClashes.length) L.push("## Id clashes (new entries get the owner added)", "", ...r.idClashes.map((x) => `- ${x.name} (${x.key})${x.clashesWith ? `: Pocket already uses "${x.clashesWith}"` : ""}${x.reason ? `. ${x.reason}` : ""}`), "");
   if (r.sharedPocket.length) L.push("## One Pocket firmware, several Editor entries", "", ...r.sharedPocket.map((x) => `- ${x.pocket}: ${x.editor.join(", ")}`), "");

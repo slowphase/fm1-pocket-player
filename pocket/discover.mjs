@@ -14,9 +14,11 @@
 //   provenance            which source said what: RemoteFM1FW (the build), The Firmware Hub (discovery), this site
 //
 // Sources: RemoteFM1FW's table and cards (as sync.mjs read them), pocket/policy.json, sync's report, the published
-// catalog.json, compat.json, and The Firmware Hub's catalogue (hub.mjs; at most once a day; optional).
+// catalog.json, compat.json, The Firmware Hub's catalogue (hub.mjs; at most once a day; optional), and FM1 Editor's
+// directory (editor.mjs; optional), which only ever adds listing-only entries (editor-catalogue.mjs).
 //
 //   node pocket/discover.mjs --data DIR --upstream FILE --report FILE --ledger FILE [--hub FILE] [--previous FILE] [--releases FILE]
+//                            [--editor FILE] [--editor-releases FILE] [--editor-aliases FILE] [--reconciliation FILE] [--reconciliation-md FILE]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -25,6 +27,9 @@ import { classify, norm } from "./radar.mjs";
 import { normaliseCategory } from "./catalog.mjs";
 import { ATTRIBUTION, HUB } from "./hub.mjs";
 import { webRuntime, nativeRuntime, macosFor, NATIVE } from "./compat.mjs";
+import { editorListings, carriedOver, CREDIT } from "./editor-catalogue.mjs";
+import { editorOnly, markdown } from "./reconcile.mjs";
+import { repository as editorRepo } from "./editor.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const STATES = ["playable", "experimental", "unsupported", "source-only"];
@@ -44,6 +49,7 @@ export const RESTRICTIONS = {
   "failed-checks": "A browser build exists but did not pass FM-1 Pocket Player's checks, so it is not hosted.",
   "no-build": "No browser (.rfm1) build of this firmware exists yet, so neither player can run it. Get it from its source.",
   "not-open": "The Firmware Hub lists no open licence for it, so it is not offered here.",
+  "listing-only": "Listed from FM1 Editor's directory. FM-1 Pocket hasn't reviewed it, so it isn't offered here: get it from its maker.",
 };
 
 const versionFromFile = (file, id) => String(file).replace(/\.rfm1$/, "").slice(id.length + 1) || "";
@@ -111,7 +117,8 @@ export function macLine(k) {
   return `${part("playable")}, ${part("experimental")}`;
 }
 
-export function build({ v1, upstream, report = {}, policy, ledger = { builds: {} }, hub = null, now = new Date(), previous = null, releases = {} }) {
+export function build({ v1, upstream, report = {}, policy, ledger = { builds: {} }, hub = null, now = new Date(), previous = null, releases = {},
+                        editor = null, editorAliases = null, editorReleases = {} }) {
   const items = upstream.items || [], cards = upstream.cards || {};
   const pub = new Map((v1.firmwares || []).map((f) => [f.id, f]));
   const pending = new Map((report.pending || []).map((p) => [p.id, p]));
@@ -200,6 +207,21 @@ export function build({ v1, upstream, report = {}, policy, ledger = { builds: {}
     }
   }
 
+  // 2b. FM1 Editor: only the entries Pocket doesn't have, listing-only; every entry above is left exactly as it is
+  let editorInfo = null;
+  if (editor && editor.entries) {
+    const reserved = [...Object.keys(policy.approved || {}), ...Object.keys(policy.excluded || {}), ...Object.keys(policy.withdrawn || {}), ...builtIn];
+    const players = builtIn.map((id) => ({ id, repositories: items.filter((it) => idFromFile(it.file) === id).map((it) => editorRepo(it.source)).filter(Boolean) }));
+    const got = editorListings({ firmwares: [...byId.values()], directory: editor, aliases: editorAliases || {}, reserved, builtIn: players, previous, releases: editorReleases,
+                                 today: now.toISOString().slice(0, 10) });
+    for (const e of got.entries) byId.set(e.id, e);
+    editorInfo = { commit: editor.source?.commit || null, checked: editor.status?.checked || null, listed: (editor.entries || []).length, added: got.entries.length,
+                   kept: !!editor.status?.kept, reconciliation: got.report };
+  } else {
+    // no snapshot tonight (none written, or the read failed before any was kept): keep last night's Editor entries
+    for (const e of carriedOver(previous, new Set(byId.keys()))) byId.set(e.id, e);
+  }
+
   // 3. makers, linked to their repositories
   const firmwares = [...byId.values()].sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "base" }));
   for (const e of firmwares) e.makers = e.authors.map((name) => ({ name, url: e.source || null }));
@@ -214,6 +236,7 @@ export function build({ v1, upstream, report = {}, policy, ledger = { builds: {}
   const prevById = new Map(((previous && previous.firmwares) || []).map((f) => [f.id, f]));
   const today = now.toISOString().slice(0, 10);
   for (const e of firmwares) {
+    if (editorOnly(e)) continue;                        // editor-catalogue.mjs set these: maker's release, backfilled listing
     const hid = e.provenance.hub && e.provenance.hub.id, h = hid ? rawHub.get(hid) : null;
     const gh = releases[e.id];
     if (h && h.published) e.release = { version: h.version || null, date: h.published, source: "The Firmware Hub" };
@@ -230,6 +253,7 @@ export function build({ v1, upstream, report = {}, policy, ledger = { builds: {}
     withBuild: firmwares.filter((e) => e.provenance.remotefm1fw && !e.provenance.remotefm1fw.fantasy).length,
     downloadable: firmwares.filter((e) => e.file).length,
     onHub: hubInfo ? hubInfo.listed : null,
+    ...(editorInfo || firmwares.some(editorOnly) ? { fromEditor: firmwares.filter(editorOnly).length } : {}),
     web: count("web"),
     mac: count("mac"),
     // how the Mac statuses of downloadable builds were established
@@ -254,6 +278,9 @@ export function build({ v1, upstream, report = {}, policy, ledger = { builds: {}
     sources: [
       { name: "RemoteFM1FW", url: "https://github.com/Quixotic7/RemoteFM1FW", role: "browser (.rfm1) builds" },
       ...(hubInfo ? [{ name: "The Firmware Hub", url: ATTRIBUTION.url, role: "discovery", read: hubInfo.read, license: ATTRIBUTION.license }] : []),
+      ...(editorInfo || firmwares.some(editorOnly) ? [{ name: "FM1 Editor", url: CREDIT.url, role: "discovery (listing only)", credit: CREDIT.text,
+                         license: "MIT", copyright: (editor && editor.source && editor.source.license && editor.source.license.copyright) || "Copyright (c) 2026 Ben Sparrow",
+                         commit: editorInfo ? editorInfo.commit : null, read: editorInfo ? editorInfo.checked : null }] : []),
       { name: "FM-1 Pocket Player", url: "https://github.com/slowphase/fm1-pocket-player", role: "review, checks and hosting" },
     ],
     runtimes: {
@@ -263,8 +290,11 @@ export function build({ v1, upstream, report = {}, policy, ledger = { builds: {}
     builtIn,
     counts,
     firmwares,
+    ...(editorInfo ? { [RECONCILIATION]: editorInfo.reconciliation } : {}),
   };
 }
+// the reconciliation rides along on the build result for the CLI's report, and is removed before writing
+export const RECONCILIATION = Symbol("reconciliation");
 
 // the parts of a v2 catalogue that matter for deciding whether it changed (not its timestamps)
 export function fingerprint(c) {
@@ -280,7 +310,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const policy = read(join(here, "policy.json"));
   const hubCache = read(arg("--hub"), null);
   const c = build({ v1, upstream: read(arg("--upstream"), { items: [] }), report: read(arg("--report"), {}), policy, ledger: read(arg("--ledger"), { builds: {} }), hub: hubCache && hubCache.catalog ? hubCache : null,
-                    previous: read(arg("--previous"), null), releases: read(arg("--releases"), {}) });
+                    previous: read(arg("--previous"), null), releases: read(arg("--releases"), {}),
+                    editor: read(arg("--editor"), null), editorAliases: read(arg("--editor-aliases") || join(here, "editor-aliases.json"), {}),
+                    editorReleases: (read(arg("--editor-releases"), {}) || {}).releases || {} });
   // the downloadable entries must be exactly catalog.json's
   const fields = Object.keys((v1.firmwares || [])[0] || {});
   const v1ids = new Set(v1.firmwares.map((f) => f.id));
@@ -294,6 +326,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const changed = !prev || prev.schema !== 2 || fingerprint(prev) !== fingerprint(c);
   if (!changed) c.snapshot = prev.snapshot;
   writeFileSync(join(dataDir, "catalog-v2.json"), JSON.stringify(c, null, 1) + "\n");
+  // the Editor reconciliation behind tonight's listing-only entries (report only; not part of the catalogue)
+  const rec = c[RECONCILIATION];
+  if (rec && arg("--reconciliation")) writeFileSync(arg("--reconciliation"), JSON.stringify(rec, null, 1) + "\n");
+  if (rec && arg("--reconciliation-md")) writeFileSync(arg("--reconciliation-md"), markdown(rec) + "\n");
   const k = c.counts;
   const line = (p) => STATES.map((s) => `${k[p][s]} ${s}`).join(", ");
   const text = [`## Catalogue v2`, ``,
@@ -302,6 +338,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     `Web: ${line("web")}.`,
     `Mac: ${macLine(k)}; ${k.mac.unsupported} unsupported, ${k.mac["source-only"]} source-only.`,
     `Mac, of the ${k.downloadable} downloadable: ${k.macVerification.macos} tested individually on macOS, ${k.macVerification.representative} tested on Linux and covered by the representative macOS sample (not run on macOS themselves), ${k.macVerification.linux} Linux only; ${k.macVerification.mayStutter} may stutter.`,
+    k.fromEditor == null ? `FM1 Editor: no snapshot, so no listing-only entries.` : `FM1 Editor: ${k.fromEditor} listing-only entries Pocket's other sources don't have (under More Firmware, never downloadable).`,
     `${changed ? "Changed since the last v2." : "No change since the last v2."}`, ``].join("\n");
   if (process.env.GITHUB_STEP_SUMMARY) writeFileSync(process.env.GITHUB_STEP_SUMMARY, text, { flag: "a" });
   console.log(text);

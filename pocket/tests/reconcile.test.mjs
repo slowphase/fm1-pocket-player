@@ -74,6 +74,22 @@ test("reconcile: names never match, only repositories (and a moved repository th
   assert.deepEqual(pocketRepositories({ source: "https://github.com/A/B.git", provenance: { hub: { release: "https://github.com/a/b/releases/tag/v1" } } }), ["a/b"]);
 });
 
+test("reconcile: h1, built into the players, is matched by repository and never added (the 159 the investigation found)", () => {
+  const r = reconcile(CATALOGUE, DIRECTORY, ALIASES, { builtIn: [{ id: "h1", repositories: ["jakehandy/h1"] }] });
+  assert.deepEqual(r.builtIn.map((x) => x.key), ["h1"]);
+  assert.equal(r.counts.new, 159);
+  assert.ok(!r.new.some((x) => x.key === "h1"));
+});
+
+test("reconcile: an Editor entry listed before under its own id keeps it, and is reported when Pocket picks it up", () => {
+  const prev = { firmwares: [{ id: "glitch-ttreu", name: "GLITCH", provenance: { editor: { key: "glitch" } } }] };
+  const r = reconcile(CATALOGUE, DIRECTORY, { ...ALIASES, distinct: {} }, { published: { glitch: "glitch-ttreu" } });
+  assert.equal(r.new.find((x) => x.key === "glitch").id, "glitch-ttreu");
+  const picked = { firmwares: [...CATALOGUE.firmwares, { id: "glitch2", name: "GLITCH", source: "https://github.com/ttreu/fm1-glitch" }, ...prev.firmwares] };
+  const p = reconcile(picked, DIRECTORY, ALIASES, { published: { glitch: "glitch-ttreu" } });
+  assert.deepEqual(p.promoted, [{ key: "glitch", name: "GLITCH", was: "glitch-ttreu", pocket: ["glitch2"] }]);
+});
+
 test("reconcile: a stale alias is reported, and the markdown report has the summary", () => {
   const stale = reconcile(CATALOGUE, DIRECTORY, { ...ALIASES, pairs: { ...ALIASES.pairs, gone: ["nope"] } });
   assert.ok(stale.problems.some((p) => /gone/.test(p)));

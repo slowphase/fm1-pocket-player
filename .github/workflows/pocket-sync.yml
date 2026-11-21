@@ -136,9 +136,15 @@ jobs:
           # release dates for the few firmwares the Hub does not list (the makers' GitHub releases; the rest come from the Hub)
           node pocket/releases.mjs --catalogue pocket-store/catalog-v2.previous.json --hub pocket-store/hub-catalog.json \
             --upstream pocket-upstream.json --out releases.json || echo "{}" > releases.json
+          # FM1 Editor's listing-only entries: release dates from the makers' GitHub releases (cached, never the Editor's
+          # update date), then discovery adds only the entries Pocket doesn't have, and writes the reconciliation report
+          gh release download pocket-current -p editor-releases.json -O pocket-store/editor-releases.json --clobber 2>/dev/null || true
+          node pocket/editor-releases.mjs --editor pocket-store/editor-directory.json --catalogue pocket-store/catalog-v2.previous.json \
+            --cache pocket-store/editor-releases.json --out pocket-store/editor-releases.json || echo "FM1 Editor release dates: none tonight."
           node pocket/discover.mjs --data _site/data --upstream pocket-upstream.json --report pocket-report.json \
             --ledger pocket-store/compat.json --hub pocket-store/hub-catalog.json --previous pocket-store/catalog-v2.previous.json \
-            --releases releases.json
+            --releases releases.json --editor pocket-store/editor-directory.json --editor-releases pocket-store/editor-releases.json \
+            --reconciliation editor-reconciliation.json --reconciliation-md editor-reconciliation.md
           cp _site/data/catalog-v2.json pocket-store/catalog-v2.json
           if [ "${{ vars.POCKET_PUBLISH_V2 }}" != "true" ]; then
             mv _site/data/catalog-v2.json catalog-v2.unpublished.json
@@ -188,17 +194,14 @@ jobs:
           # read it from the release, and uploading a copy is not a read of the Hub
           [ -s pocket-store/hub-catalog.json ] && files="$files pocket-store/hub-catalog.json"
           [ -s pocket-store/editor-directory.json ] && files="$files pocket-store/editor-directory.json"
+          [ -s pocket-store/editor-releases.json ] && files="$files pocket-store/editor-releases.json"
           gh release view pocket-current >/dev/null 2>&1 && gh release upload pocket-current $files --clobber || echo "no pocket-current release yet"
 
-      - name: FM1 Editor reconciliation (report only, never changes the catalogue)
+      - name: FM1 Editor reconciliation (the summary; the full report is kept with the catalogue artifacts)
         if: always()
         continue-on-error: true
         run: |
-          if [ -s pocket-store/editor-directory.json ] && [ -s pocket-store/catalog-v2.json ]; then
-            node pocket/reconcile.mjs --catalogue pocket-store/catalog-v2.json --editor pocket-store/editor-directory.json \
-              --out editor-reconciliation.json --md editor-reconciliation.md
-            sed -n '1,/^## Pocket firmwares/p' editor-reconciliation.md | sed '$d' >> "$GITHUB_STEP_SUMMARY"
-          fi
+          [ -s editor-reconciliation.md ] && sed -n '1,/^## Pocket firmwares/p' editor-reconciliation.md | sed '$d' >> "$GITHUB_STEP_SUMMARY" || true
 
       - name: Keep catalog-v2.json for review
         uses: actions/upload-artifact@v7

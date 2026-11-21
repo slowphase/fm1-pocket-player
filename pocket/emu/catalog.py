@@ -164,12 +164,16 @@ hosted = []
 counts = {"packages": 0, "hosted": 0, "web": {}, "mac": {}, "preferred": {"web": {}, "mac": {}},
           "confidence": {"web": {}, "mac": {}}, "preferredConfidence": {"web": {}, "mac": {}}}
 for e in v2["firmwares"]:
-    hub = ((e.get("provenance") or {}).get("hub") or {}).get("id") or (e["id"] if e["id"] in pk else None)
+    prov = e.get("provenance") or {}
+    # an entry listed only by FM1 Editor is listing-only: never matched to a Hub package, even by a shared id
+    listing_only = bool(prov.get("editor")) and set(prov) == {"editor"}
+    hub = None if listing_only else ((prov.get("hub") or {}).get("id") or (e["id"] if e["id"] in pk else None))
     p = pk.get(hub) if hub else None
     ids = [i for i in (e["id"], hub) if i]
     em = {}
     if not p:
-        why = "Not on The Firmware Hub: no original package known." if not hub else "The maker's package could not be fetched automatically: open it from disk."
+        why = ("Listed from FM1 Editor's directory: not reviewed by FM-1 Pocket, so no original package is offered." if listing_only
+               else "Not on The Firmware Hub: no original package known." if not hub else "The maker's package could not be fetched automatically: open it from disk.")
         em["package"] = None; em["web"] = em["mac"] = {"state": "unavailable", "reason": why}
     elif p.get("status") != "found":
         em["package"] = None; em["web"] = em["mac"] = {"state": "unavailable", "reason": f"The maker's package could not be fetched automatically ({p.get('status')}): open it from disk."}
