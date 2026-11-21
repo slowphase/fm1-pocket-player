@@ -57,6 +57,7 @@ test("editor catalogue: every new entry is listing-only, never downloadable, pla
     assert.match(e.provenance.editor.url, /^https:\/\/fm1-editor\.com\/firmware\/#/);
     assert.deepEqual(e.makers, e.authors.map((name) => ({ name, url: e.source })));
     assert.ok(e.source, `${e.id} has a link to the firmware`);
+    assert.doesNotMatch(e.source, /\.(zip|fwsc|rfm1|bin)(\?|$)/i, `${e.id}: source is a page, never a file download`);
   }
 });
 

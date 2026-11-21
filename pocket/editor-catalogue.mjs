@@ -38,10 +38,12 @@ export function editorCategory(kinds = []) {
 }
 const RELEASED = new Set(["release", "unversioned"]);
 
-// the best link to the firmware itself: its repository, else the Editor's source or install link, else its card
-function sourceOf(e) {
+// the best link to the firmware itself: its repository, else the Editor's source, install or release page, else its
+// card. Never a direct file download (a .zip or package), so opening "source" in an app shows a page.
+const FILE = /\.(zip|fwsc|rfm1|bin|hex|uf2|tar|gz|tgz|7z)(\?.*)?$/i;
+export function sourceOf(e) {
   if (e.repository) return `https://github.com/${e.repository}`;
-  const by = (role) => (e.links || []).find((l) => l.role === role)?.url;
+  const by = (role) => (e.links || []).find((l) => l.role === role && !FILE.test(l.url))?.url;
   return by("source") || by("install") || by("release") || `${SITE}#${encodeURIComponent(e.key)}`;
 }
 
