@@ -1,0 +1,114 @@
+name: NOIZ DEMONS catalogue correction only
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: pocket-sync
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      catalogue_sha: ${{ steps.audit.outputs.catalogue_sha }}
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Check existing catalogue code
+        run: |
+          node --test pocket/tests/*.test.mjs
+          python3 -m unittest discover -s pocket/emu -p 'test_*.py'
+      - name: Restore the currently deployed site, without rebuilding firmware
+        uses: actions/download-artifact@v8
+        with:
+          name: github-pages
+          run-id: 44915871001
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: correction/baseline
+      - name: Prepare and audit the single-entry correction
+        id: audit
+        run: |
+          python3 pocket/noizdemons-correction.py correction | tee correction.log
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          d = json.load(open('correction/state/audit.json'))
+          print('catalogue_sha=' + d['catalogueAfterSHA256'])
+          PY
+          echo 'Only data/catalog-v2.json changed. All other site files were checked byte for byte.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Keep the correction, audit and rollback copies
+        uses: actions/upload-artifact@v7
+        with:
+          name: noizdemons-correction-audit
+          path: correction/state/
+          retention-days: 30
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: correction/site
+
+  deploy:
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
+      - name: Verify the published catalogue
+        env:
+          EXPECTED_SHA: ${{ needs.prepare.outputs.catalogue_sha }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, time, urllib.request
+          url = 'https://slowphase.github.io/fm1-pocket-player/data/catalog-v2.json'
+          for attempt in range(30):
+              data = urllib.request.urlopen(url + '?noizdemons-correction=' + str(time.time()), timeout=30).read()
+              if hashlib.sha256(data).hexdigest() == os.environ['EXPECTED_SHA']:
+                  entry = next(e for e in json.loads(data)['firmwares'] if e['id'] == 'noizdemons')
+                  assert entry['emu']['package'] is None
+                  assert all(entry['emu'][p]['state'] == 'unavailable' for p in ('mac', 'web'))
+                  print('Published catalogue verified: NOIZ DEMONS is unavailable, with no downloadable package.')
+                  break
+              time.sleep(5)
+          else:
+              raise SystemExit('Published catalogue did not match the audited correction')
+          PY
+
+  keep:
+    needs: [prepare, deploy]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: noizdemons-correction-audit
+          path: correction
+      - name: Preserve the correction in the existing rolling catalogue state
+        run: |
+          mkdir current
+          gh release download pocket-current --repo "$GITHUB_REPOSITORY" --pattern catalog-v2.json --dir current
+          gh release download pocket-packages --repo "$GITHUB_REPOSITORY" --pattern packages.json --dir current
+          python3 - <<'PY'
+          import hashlib, json
+          audit = json.load(open('correction/audit.json'))
+          for name, key in [('catalog-v2.json', 'catalogueBeforeSHA256'), ('packages.json', 'packagesBeforeSHA256')]:
+              assert hashlib.sha256(open('current/' + name, 'rb').read()).hexdigest() == audit[key], name + ' changed during deployment; refusing to overwrite it'
+          PY
+          gh release upload pocket-packages correction/packages.json --repo "$GITHUB_REPOSITORY" --clobber
+          gh release upload pocket-current correction/catalog-v2.json --repo "$GITHUB_REPOSITORY" --clobber
+          echo 'Updated only packages.json and catalog-v2.json in the existing rolling state. No app release created.' >> "$GITHUB_STEP_SUMMARY"
