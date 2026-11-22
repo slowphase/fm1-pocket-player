@@ -25,6 +25,8 @@ import { checkFile, smokeTest, judgeSmoke, idFromFile } from "./validate.mjs";
 import { build } from "./catalog.mjs";
 
 // pocket-current also holds the pipeline's own state, written by other steps and jobs; never prune it
+// Keep the existing Editor snapshot only until its separately approved archive/removal step.
+// It is not collected, read or used by the catalogue; see docs/fm1-editor-rollback.md.
 export const STATE_ASSETS = new Set(["compat.json", "hub-catalog.json", "native-macos.json", "catalog-v2.json", "radar-state.json", "editor-directory.json"]);
 
 const here = dirname(fileURLToPath(import.meta.url));

@@ -17,8 +17,7 @@ nightly. Everything Jake's simulator does is kept as it was.
 | `pocket/policy.json` | What may be published: the reviewed allowlist, the exclusions and the documented boot-test exceptions. |
 | `.github/workflows/pocket-sync.yml` | Runs it all every day at 06:23 UTC, by hand, and when the code changes; publishes to GitHub Pages. |
 | `pocket/radar.mjs` | The missing-firmware radar: compares The Firmware Hub with the browser builds and opens a `needs-rfm1` issue for each firmware new to the Hub without one. |
-| `pocket/editor.mjs` | FM1 Editor's firmware directory as our own JSON snapshot (`editor-directory.json` in pocket-current): read daily from its GitHub repository at a pinned commit, parsed and checked; a page that fails the checks is refused and the last good snapshot kept. Not yet used by the catalogue. |
-| `pocket/tests/golden/` | The golden baseline: the 21 Nov 2026 catalogue (285 firmwares) and the inputs that made it. New sources must leave every existing entry exactly as it is there. |
+| `pocket/tests/golden/` | Frozen 285-entry catalogue baseline and inputs; guards the existing Hub/RemoteFM1FW catalogue independently of source adapters. |
 | `pocket/tests/` | Tests (`npm run test:pocket`), and `browsers.mjs`, the live-site check in three browsers. |
 | `.github/workflows/pocket-browsers.yml` | Runs that browser check by hand; screenshots go to the `browser-check` release. |
 
