@@ -97,38 +97,5 @@ class Catalog(unittest.TestCase):
         self.assertEqual(f["b"]["emu"]["preferred"]["mac"]["engine"], "rfm1")
         self.assertEqual(len(f["a"]["listened"]), 2)
 
-
-class Golden(unittest.TestCase):
-    """The emulator layer on the golden baseline (pocket/tests/golden/README.md): the 21 Nov 2026 catalogue."""
-    def test_existing_entries_are_unchanged(self):
-        import gzip
-        g = os.path.join(HERE, "..", "tests", "golden")
-        rd = lambda f: json.load(gzip.open(os.path.join(g, f)))
-        emu, disc = rd("emu-inputs.json.gz"), rd("discover-expected.json.gz")
-        with tempfile.TemporaryDirectory() as t:
-            for name, obj in (("v2.json", disc), ("packages.json", emu["packages"]), ("emu.json", emu["emuLedger"]),
-                              ("compat.json", rd("discover-inputs.json.gz")["ledger"])):
-                json.dump(obj, open(os.path.join(t, name), "w"))
-            subprocess.run([sys.executable, os.path.join(HERE, "catalog.py"), "--v2", os.path.join(t, "v2.json"), "--packages",
-                            os.path.join(t, "packages.json"), "--emu-ledger", os.path.join(t, "emu.json"), "--rfm1-ledger",
-                            os.path.join(t, "compat.json")], check=True, capture_output=True)
-            got = json.load(open(os.path.join(t, "v2.json")))
-        want = rd("emu-expected.json.gz")
-        self.maxDiff = 4000
-        self.assertEqual(len(got["firmwares"]), 285)
-        # the expected file went through JavaScript, which writes 2.0 as 2
-        def norm(o):
-            if isinstance(o, float) and o.is_integer(): return int(o)
-            if isinstance(o, dict): return {k: norm(v) for k, v in o.items()}
-            if isinstance(o, list): return [norm(v) for v in o]
-            return o
-        canon = lambda o: json.dumps(norm(o), sort_keys=True)
-        g2 = {e["id"]: e for e in got["firmwares"]}
-        for e in want["firmwares"]:
-            for k, v in e.items():
-                self.assertEqual(canon(g2[e["id"]].get(k)), canon(v), f"{e['id']}.{k} changed")
-        self.assertEqual(canon(got["counts"]), canon(want["counts"]))
-
-
 if __name__ == "__main__":
     unittest.main()

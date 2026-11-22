@@ -25,7 +25,7 @@ import { checkFile, smokeTest, judgeSmoke, idFromFile } from "./validate.mjs";
 import { build } from "./catalog.mjs";
 
 // pocket-current also holds the pipeline's own state, written by other steps and jobs; never prune it
-export const STATE_ASSETS = new Set(["compat.json", "hub-catalog.json", "native-macos.json", "catalog-v2.json", "radar-state.json", "editor-directory.json"]);
+export const STATE_ASSETS = new Set(["compat.json", "hub-catalog.json", "native-macos.json", "catalog-v2.json", "radar-state.json"]);
 
 const here = dirname(fileURLToPath(import.meta.url));
 const RELEASE = "pocket-current";
