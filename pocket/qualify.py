@@ -59,7 +59,16 @@ def route(f, platform, engine, policy, approvals, deliveries, emu_commit):
         approval = approvals.get(f["id"], {})
         if not f.get("file") or approval.get("license") != f.get("license"):
             reasons.append("RemoteFM1FW approval gate not satisfied for this ID/licence.")
-        if tested.get("outcome") != "pass": reasons.append("The standard playback check did not pass.")
+        standard_pass = tested.get("outcome") == "pass"
+        waiver = policy.get("retainedNonSoundExceptions", {}).get(f["id"])
+        evidence = deliveries.get(f["id"] + ":rfm1-tests") or {}
+        run = evidence.get(platform) or {}; result = run.get("result") or {}
+        # Preserve an existing display-only allowance when the exact raw test
+        # actually made sound. Never infer musical playback from a silence waiver.
+        if waiver == ["redraw"] and evidence.get("sha256") == sha and run.get("runtime") == tested.get("runtime") and \
+                run.get("outcome") == "pass-with-exception" and result.get("sounds") is True and result.get("draws") is True and not result.get("halted"):
+            standard_pass = True
+        if not standard_pass: reasons.append("The standard playback check did not pass (a silence waiver is not qualification).")
     else:
         url = urlsplit(pkg.get("url") or "")
         source = pkg.get("source") or f.get("source")
@@ -150,7 +159,10 @@ def main():
     p.add_argument("--approvals", default="pocket/policy.json")
     a = p.parse_args()
     load = lambda path: json.loads(Path(path).read_text())
-    result, projected = report(load(a.before), load(a.candidate), load(a.policy), load(a.approvals)["approved"],
+    policy, production = load(a.policy), load(a.approvals)
+    for id, checks in policy.get("retainedNonSoundExceptions", {}).items():
+        assert checks == production.get("smokeExceptions", {}).get(id, {}).get("checks") and "sound" not in checks, "Only an existing non-sound allowance may be retained"
+    result, projected = report(load(a.before), load(a.candidate), policy, production["approved"],
         load(a.deliveries), load(Path(__file__).parent / "emu/upstream.json")["commit"])
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     (out/"qualification-report.json").write_text(json.dumps(result, indent=2)+"\n")

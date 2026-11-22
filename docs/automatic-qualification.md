@@ -26,10 +26,11 @@ are recorded; no upstream build scripts or source programs are executed.
 
 The existing engine pin and speed threshold are retained. These are existing
 automated startup/sound/speed checks, not a newly implemented settled-startup
-musical-response test or a guarantee of every instrument feature. `pass-with-exception`
-is not a strict automated pass in this preview. Historical waivers remain in the
-internal records and existing policy, but do not automatically satisfy the new
-visibility decision. The report names the resulting differences for review.
+musical-response test or a guarantee of every instrument feature. Historical silence
+waivers remain recorded but do not qualify an unverified musical response. RUPTURE's
+existing display-only waiver is retained only when its exact raw test confirms sound,
+a drawn screen and no halt. The runner checks that this is still the existing production
+allowance; it cannot create a new waiver. The report names the resulting differences.
 
 RemoteFM1FW approval remains required for the same permanent ID and licence.
 `pocket/policy.json`, its approved map and its review workflow are unchanged.

@@ -53,6 +53,11 @@ def run(out):
         return key, {**record, "verifiedBytes": ok}
     with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
         deliveries = dict(pool.map(verify_delivery, deliveries.items()))
+    rfm_tests = json.loads((evidence/"compat.json").read_text()).get("builds", {})
+    for f in before["firmwares"]:
+        if f.get("sha256"):
+            b = rfm_tests.get(f["sha256"], {})
+            deliveries[f["id"]+":rfm1-tests"] = {"sha256": f["sha256"], "web": b.get("web"), "mac": b.get("native")}
     checks = []
     def verify_package(p):
         name = p["hub"]+"-"+p["sha256"][:8]+".fwsc"

@@ -3,6 +3,7 @@
   "mode": "report-only",
   "visibility": "playable-only",
   "remoteApprovalGate": "required",
+  "retainedNonSoundExceptions": {"rupture": ["redraw"]},
   "sources": [
     "The Firmware Hub",
     "RemoteFM1FW"

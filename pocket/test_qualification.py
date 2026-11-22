@@ -74,6 +74,21 @@ class QualificationTests(unittest.TestCase):
         f["license"] = "MIT"
         self.assertFalse(evaluate(f, POLICY, {"sample": {"license": "GPL-3.0"}}, deliveries(), COMMIT)["mac"]["visible"])
 
+    def test_existing_display_waiver_requires_raw_sound_and_matching_runtime(self):
+        f = firmware("rupture"); f.update(file="fw/rupture.rfm1", sha256=SHA)
+        f["emu"]["web"]["state"] = "experimental"
+        f["status"] = {"web": {"state": "playable", "tested": {"sha256": SHA, "runtime": "rfm1.js@pin", "outcome": "pass-with-exception"}}}
+        d = deliveries("rupture")
+        d["rupture:rfm1"] = {"sha256": SHA, "file": "fw/rupture.rfm1", "verifiedBytes": True}
+        run = {"runtime": "rfm1.js@pin", "outcome": "pass-with-exception", "result": {"sounds": True, "draws": True, "halted": 0}}
+        d["rupture:rfm1-tests"] = {"sha256": SHA, "web": run}
+        approved = {"rupture": {"license": "GPL-3.0"}}
+        self.assertTrue(evaluate(f, POLICY, approved, d, COMMIT)["web"]["visible"])
+        run["result"]["sounds"] = False
+        self.assertFalse(evaluate(f, POLICY, approved, d, COMMIT)["web"]["visible"])
+        run["result"]["sounds"] = True; run["runtime"] = "old-runtime"
+        self.assertFalse(evaluate(f, POLICY, approved, d, COMMIT)["web"]["visible"])
+
     def test_last_good_route_retains_its_own_package_and_all_internal_records(self):
         old = {"firmwares": [firmware()]}; before = copy.deepcopy(old)
         candidate = copy.deepcopy(old); candidate["firmwares"][0]["emu"]["package"]["sha256"] = "b"*64
