@@ -76,6 +76,12 @@ required, plus working supported browser delivery. This preparation grants none.
 Mac direct-maker delivery does not grant Pocket hosting permission. No mirror,
 proxy, hosting service, engine or new port is introduced.
 
+Downloadable web test artifacts must respect the same boundary. The existing emulator
+preview workflow filters its local package manifest before execution, screenshots or
+packaging and uses a temporary web-preview policy. It cannot include the five held
+projects or original-package fingerprints absent from the accepted delivery list.
+This does not alter the production policy or the Mac-only qualification results.
+
 ## Report-only operation
 
 `pocket/qualification_report.py --out DIRECTORY` reads the existing rolling

@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import unittest
 from qualify import evaluate, report
+from qualification_preview import restrict
 
 POLICY = json.loads(Path(__file__).with_name("qualification-policy.json").read_text())
 COMMIT = "09aeae3e9d78db52c3b9f5ceed93bd1120ccf444"
@@ -34,6 +35,17 @@ class QualificationTests(unittest.TestCase):
         for id in ("basssomething2", "sillage", "volna"):
             d = self.verdict(firmware(id))
             self.assertTrue(d["mac"]["visible"]); self.assertFalse(d["web"]["visible"])
+
+    def test_downloadable_preview_withholds_holds_and_new_web_bytes_without_mutating_production(self):
+        rows = {"firmwares": [{"hub": id, "sha256": SHA, "status": "found"} for id in ["shifl", "basssomething2", "safe", "uncleared"]]}
+        rows["firmwares"][-1]["sha256"] = "b"*64
+        production = {"excluded": {"sloop": "existing restriction"}}
+        filtered, temporary, held = restrict(rows, {"safe:fm1-emu": {"sha256": SHA}}, POLICY, production)
+        self.assertEqual([r["hub"] for r in filtered["firmwares"] if r["status"] == "found"], ["safe"])
+        self.assertEqual(len(held), 3)
+        self.assertEqual(production, {"excluded": {"sloop": "existing restriction"}})
+        self.assertTrue(all(r["status"] == "found" for r in rows["firmwares"]))
+        self.assertIn("shifl", temporary["excluded"])
 
     def test_repository_alias_and_hash_cannot_bypass_hold(self):
         f = firmware("renamed"); f["source"] = "https://github.com/SCHWARTZWORLD/shifl"
