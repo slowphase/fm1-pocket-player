@@ -59,3 +59,18 @@ that writes release assets or deploys Pages is invoked as part of the checks.
 Existing rolling assets that no longer satisfy the hosting policy are pruned by
 the normal guarded publisher, after successful verification. This code requires the
 two existing rolling releases and cannot silently create new release tags.
+
+## Bounded rolling cleanup
+
+Cleanup snapshots the current release assets before uploading. Missing/empty keep
+directories, an expected package-count drop greater than 10%, or removal of more
+than 20% of existing packages or existing screenshots produces an empty deletion
+list and a visible warning. New filenames cannot hide a mass replacement. Only
+the guard's explicit deletion list is consumed; metadata is never pruned. The
+plan and successful uploads/deletions are recorded in the run summary. Tests
+cover outages, short lists, threshold boundaries, renamed replacements, screenshot
+loss and ordinary small cleanups.
+
+`POCKET_SCHEDULE_PAUSED=true` suppresses scheduled/push syncs while allowing a
+watched manual dispatch; downstream jobs cannot publish after a skipped sync.
+This supports verifying a manual run before restoring the normal schedule.
