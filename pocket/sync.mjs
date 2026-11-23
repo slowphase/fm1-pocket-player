@@ -90,6 +90,7 @@ async function upstreamOffer() {
 
 async function main() {
   const policy = JSON.parse(readFileSync(join(here, "policy.json"), "utf8"));
+  const hostingHolds = JSON.parse(readFileSync(join(here, "hosting-holds.json"), "utf8")).holds;
   mkdirSync(STORE, { recursive: true });
   const prev = await previous();
   const prevById = new Map((prev.catalog?.firmwares || []).map((f) => [f.id, f]));
@@ -118,7 +119,7 @@ async function main() {
   for (const it of up.items) {
     const id = idFromFile(it.file);
     if (!id) { report.problems.push(`${it.file}: no firmware id in the file name`); continue; }
-    if (policy.excluded[id] || policy.withdrawn[id] || it.restricted || it.fantasy) { report.skipped.push(id); continue; }
+    if (policy.excluded[id] || policy.withdrawn[id] || it.restricted || it.fantasy || hostingHolds.some(h => h.ids.includes(id))) { report.skipped.push(id); continue; }
     if (!it.asset) { if (await keep(id)) report.problems.push(`${id}: missing from RemoteFM1FW's release; kept the last good version`); continue; }
     const p = prevById.get(id);
     if (p && it.asset.sha256 && p.sha256 === it.asset.sha256 && policy.approved[id]) { await keep(id); continue; }

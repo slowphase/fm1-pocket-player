@@ -12,6 +12,9 @@ on:
       - src/**
       - index.html
       - pocket/emu/**
+      - pocket/hosting*
+      - pocket/test_hosting_guard.py
+      - pocket/policy.json
       - .github/workflows/pocket-emu-preview.yml
   workflow_dispatch:
 
@@ -34,6 +37,8 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 22
+      - name: Hosting and finished-archive rejection tests
+        run: python3 -B pocket/test_hosting_guard.py
       - name: The published library (read-only copies from pocket-current)
         run: |
           mkdir -p saved _site/data/fw _site/data/shots
@@ -45,6 +50,7 @@ jobs:
       - name: The makers' original packages
         run: |
           node pocket/emu/packages.mjs --hub saved/hub-catalog.json --out pkgs
+          python3 -B pocket/hosting_restore.py --previous saved/catalog-v2.json --store pkgs
           python3 pocket/emu/ledger.py seed --ledger emu-compat.json --from docs/emu-evaluation-results.json
       - name: The emulator engine (pinned commit)
         run: |
@@ -74,7 +80,7 @@ jobs:
       - name: catalog-v2.json with the emulator engine
         run: |
           python3 pocket/emu/catalog.py --v2 _site/data/catalog-v2.json --packages pkgs/packages.json --emu-ledger emu-compat.json \
-            --rfm1-ledger saved/compat.json --store pkgs --site _site/data
+            --rfm1-ledger saved/compat.json --store pkgs --site _site/data --hosting-guard --previous saved/catalog-v2.json
           # emulator screens the published catalogue already names (imageKind "emulator screen"): their files live in
           # pocket-packages as shot-HUB-SHA8.png, and catalog.py only copies pictures it adds itself
           gh release download pocket-packages -p 'shot-*.png' -D published-shots --skip-existing 2>/dev/null || true
@@ -117,7 +123,7 @@ jobs:
           node pocket/emu/web-integration.mjs http://localhost:8000/ web-integration.json web-shots
           echo "=====RESULTS-BEGIN====="; cat web-integration.json; echo "=====RESULTS-END====="
       - name: Package the test build
-        if: always()
+        if: success()
         run: |
           mkdir -p preview/"FM-1 Pocket test build"
           cp -r _site preview/"FM-1 Pocket test build"/site
@@ -125,8 +131,14 @@ jobs:
           chmod +x preview/"FM-1 Pocket test build"/*.command
           (cd preview && zip -qr ../pocket-preview.zip "FM-1 Pocket test build")
           ls -la pocket-preview.zip
+      - name: Check the finished preview ZIP
+        id: preview_guard
+        if: success()
+        run: |
+          python3 -B pocket/hosting_guard.py pocket-preview.zip --rfm-catalogue saved/catalog.json --complete-site --report preview-delivery-check.json
+          echo "passed=true" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v7
-        if: always()
+        if: success() && steps.preview_guard.outputs.passed == 'true'
         with:
           name: pocket-preview
           path: pocket-preview.zip

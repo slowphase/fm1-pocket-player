@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "holds": [
+    {
+      "ids": [
+        "araminta"
+      ],
+      "repository": "Wulgaren/Araminta",
+      "platforms": [
+        "mac",
+        "web"
+      ],
+      "reason": "Existing Araminta/SLOOP material hold: match replacement assets and applicable permission to the selected original binary.",
+      "evidence": "compatibility-audit-2026-11-22/remaining-73-review/audit-results-159.json#araminta",
+      "repositoryId": 1414058478,
+      "sha256": "2f19d2660f8f1f51228ae4357c1cad1b4eda037a59430333ddb014acffc400fb"
+    },
+    {
+      "ids": [
+        "shifl"
+      ],
+      "repository": "schwartzworld/shifl",
+      "platforms": [
+        "mac",
+        "web"
+      ],
+      "sha256": "44b02850e54ec2b0279a257f6a1af432b7fe6071a4af33418cdb60be1190ac07",
+      "reason": "Reserved compiled icon atlas remains unresolved; separate logo and cleared drums do not clear the whole package.",
+      "evidence": "compatibility-audit-2026-11-22/remaining-73-review/audit-results-159.json#shifl",
+      "repositoryId": 1412030399
+    },
+    {
+      "ids": [
+        "basssomething2",
+        "bass-something-2"
+      ],
+      "repository": "imijes/bass-something-2",
+      "platforms": [
+        "web"
+      ],
+      "reason": "Hosting hold: resolve the Tronstoner chart licence version and attribution, and complete exact package/source mapping. Maker download/use is supported.",
+      "evidence": "compatibility-audit-2026-11-22/nightly-rehearsal/permission-review.json#bass-something-2",
+      "repositoryId": 1439025826,
+      "sha256": "9fd268b0fd3d70c82dc294ba6b12a008ea9d07b1dedc997d11ae4d83a1969b9f"
+    },
+    {
+      "ids": [
+        "sillage"
+      ],
+      "repository": "lelacnoir-lab/Sillage",
+      "platforms": [
+        "web"
+      ],
+      "reason": "Content concern cleared; hosting still needs a completed corresponding-source and notices delivery arrangement.",
+      "evidence": "compatibility-audit-2026-11-22/remaining-73-review/audit-results-159.json#sillage",
+      "repositoryId": 1461634857,
+      "sha256": "2197acd355fdbd143635f26a7fb72010d8872b7bfaeb30b32855ccc2fd23f15b"
+    },
+    {
+      "ids": [
+        "volna"
+      ],
+      "repository": "MaxMaximoff/volna",
+      "platforms": [
+        "web"
+      ],
+      "reason": "Reserved signet removal verified; hosting still needs a completed corresponding-source and notices delivery arrangement.",
+      "evidence": "compatibility-audit-2026-11-22/remaining-73-review/audit-results-159.json#volna",
+      "repositoryId": 1465621607,
+      "sha256": "39c342dae27d3fcefcf1f2bff3035d1ae1b22a04d6ae980b9bf9506fe5ebfc04"
+    }
+  ]
+}

@@ -64,6 +64,9 @@ jobs:
       - name: Tests
         run: node --test pocket/tests/*.test.mjs
 
+      - name: Hosting and final archive guards
+        run: python3 -B pocket/test_hosting_guard.py
+
       - name: Approvals from issues
         run: node pocket/review.mjs approvals
 
@@ -95,7 +98,21 @@ jobs:
       - name: The Firmware Hub's catalogue (read at most once a day)
         id: hub
         run: |
-          gh release download pocket-current -p hub-catalog.json -O pocket-store/hub-catalog.json --clobber 2>/dev/null || true
+          gh release download pocket-current -p hub-catalog.json -O pocket-store/hub-catalog.release.json --clobber 2>/dev/null || true
+          # A rejected archive publishes no state. Keep a fresher Actions-cache
+          # copy rather than overwriting it and re-reading the Hub on a retry.
+          python3 - <<'PY_CACHE'
+          import json, pathlib, shutil
+          choices=[]
+          for name in ("pocket-store/hub-catalog.json", "pocket-store/hub-catalog.release.json"):
+              try:
+                  value=json.loads(pathlib.Path(name).read_text())
+                  if value.get("fetchedAt"): choices.append((value["fetchedAt"],name))
+              except (OSError,ValueError): pass
+          if choices:
+              chosen=max(choices)[1]
+              if chosen != "pocket-store/hub-catalog.json": shutil.copyfile(chosen,"pocket-store/hub-catalog.json")
+          PY_CACHE
           node pocket/hub.mjs --cache pocket-store/hub-catalog.json
 
       - name: Which native engine to test
@@ -154,11 +171,12 @@ jobs:
             flags="--no-web-engine"; echo "No browser engine built for fm1-emu@$commit yet." >> "$GITHUB_STEP_SUMMARY"
           fi
           gh release download pocket-packages -p '*.fwsc' -p 'shot-*.png' -D emu-store --skip-existing 2>/dev/null || true
+          python3 -B pocket/hosting_restore.py --previous pocket-store/catalog-v2.previous.json --store emu-store
           publish=false
           [ "${{ vars.POCKET_PUBLISH_V2 }}" = "true" ] && [ "${{ vars.POCKET_PUBLISH_EMU }}" = "true" ] && [ -f _site/data/catalog-v2.json ] && publish=true
           if [ "$publish" = "true" ]; then
             python3 pocket/emu/catalog.py --v2 _site/data/catalog-v2.json --packages emu-state/packages.json --emu-ledger emu-state/emu-compat.json \
-              --rfm1-ledger pocket-store/compat.json --store emu-store --site _site/data $flags
+              --rfm1-ledger pocket-store/compat.json --store emu-store --site _site/data --hosting-guard --previous pocket-store/catalog-v2.previous.json $flags
             [ -d emu-web ] && mkdir -p _site/emu && cp emu-web/* _site/emu/
             cp _site/data/catalog-v2.json pocket-store/catalog-v2.json
             old=$(python3 -c "import json;print(json.dumps([e.get('emu') for e in json.load(open('pocket-store/catalog-v2.previous.json'))['firmwares']],sort_keys=True))" 2>/dev/null | sha256sum)
@@ -168,19 +186,9 @@ jobs:
           else
             cp pocket-store/catalog-v2.json catalog-v2.emu-preview.json
             python3 pocket/emu/catalog.py --v2 catalog-v2.emu-preview.json --packages emu-state/packages.json --emu-ledger emu-state/emu-compat.json \
-              --rfm1-ledger pocket-store/compat.json --store emu-store $flags
+              --rfm1-ledger pocket-store/compat.json --store emu-store --hosting-guard --previous pocket-store/catalog-v2.previous.json $flags
             echo "The emulator engine was built for review, not published (POCKET_PUBLISH_EMU is not \"true\")." >> "$GITHUB_STEP_SUMMARY"
           fi
-
-      - name: Keep the Hub copy and the compatibility ledger
-        # in the release whether or not the site is published, so the Hub is not re-read and builds are not
-        # re-tested every night
-        run: |
-          files="pocket-store/compat.json"
-          # the Hub copy too whenever there is one (fetched today or reused): the radar and pull-request checks
-          # read it from the release, and uploading a copy is not a read of the Hub
-          [ -s pocket-store/hub-catalog.json ] && files="$files pocket-store/hub-catalog.json"
-          gh release view pocket-current >/dev/null 2>&1 && gh release upload pocket-current $files --clobber || echo "no pocket-current release yet"
 
       - name: Keep catalog-v2.json for review
         uses: actions/upload-artifact@v7
@@ -214,21 +222,7 @@ jobs:
           fi
           echo "library changed: $changed; catalogue v2 changed (and published): $v2changed"
 
-      - name: Update the pocket-current release
-        if: steps.decide.outputs.deploy == 'true'
-        run: |
-          gh release view pocket-current >/dev/null 2>&1 || gh release create pocket-current \
-            --title "Published firmware (rolling)" --latest=false \
-            --notes "The .rfm1 files, screenshots and catalogue currently published by FM-1 Pocket Player, kept so the nightly sync can recover and roll back. Updated automatically; not a release of this project. Each firmware is its authors' work under its own licence (see the licence texts inside each file)."
-          node -e "for (const f of require('./pocket-report.json').upload) console.log(f)" > upload.txt
-          [ "${{ vars.POCKET_PUBLISH_V2 }}" = "true" ] && echo pocket-store/catalog-v2.json >> upload.txt
-          [ -s upload.txt ] && xargs -a upload.txt -d '\n' gh release upload pocket-current --clobber
-          node -e "for (const f of require('./pocket-report.json').remove) console.log(f)" | while read -r name; do
-            gh release delete-asset pocket-current "$name" -y || true
-          done
-
       - name: Assemble the site
-        if: steps.decide.outputs.deploy == 'true'
         run: |
           cp -r index.html src firmware LICENSE _site/
           mkdir -p _site/docs/img
@@ -236,11 +230,54 @@ jobs:
           touch _site/.nojekyll
           du -sh _site
 
-      - name: Upload the site
-        if: steps.decide.outputs.deploy == 'true'
-        uses: actions/upload-pages-artifact@v5
+      - name: Check the finished publication ZIP and Pages TAR
+        id: site_guard
+        run: |
+          python3 -B pocket/hosting_stage.py --source _site --zip publication.zip
+          python3 -B pocket/hosting_guard.py publication.zip --rfm-catalogue _site/data/catalog.json --complete-site --extract-to verified-site --report publication-delivery-check.json
+          tar -cf artifact.tar -C verified-site .
+          python3 -B pocket/hosting_guard.py artifact.tar --rfm-catalogue _site/data/catalog.json --complete-site --report pages-delivery-check.json
+          echo "passed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Check the finished pocket-current upload ZIP
+        id: current_guard
+        if: success() && steps.site_guard.outputs.passed == 'true'
+        run: |
+          node -e "for (const f of require('./pocket-report.json').upload) console.log(f)" > upload.txt
+          [ "${{ vars.POCKET_PUBLISH_V2 }}" = "true" ] && echo pocket-store/catalog-v2.json >> upload.txt
+          python3 -B pocket/hosting_stage.py --files upload.txt --stage current-upload --zip pocket-current-upload.zip
+          python3 -B pocket/hosting_guard.py pocket-current-upload.zip --rfm-catalogue _site/data/catalog.json --extract-to verified-current --report current-delivery-check.json
+          echo "passed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Keep the Hub copy and the compatibility ledger
+        # in the release whether or not the site is published, so the Hub is not re-read and builds are not
+        # re-tested every night
+        if: success() && steps.site_guard.outputs.passed == 'true' && steps.current_guard.outputs.passed == 'true'
+        run: |
+          files="pocket-store/compat.json"
+          # the Hub copy too whenever there is one (fetched today or reused): the radar and pull-request checks
+          # read it from the release, and uploading a copy is not a read of the Hub
+          [ -s pocket-store/hub-catalog.json ] && files="$files pocket-store/hub-catalog.json"
+          gh release view pocket-current >/dev/null 2>&1 && gh release upload pocket-current $files --clobber || echo "no pocket-current release yet"
+
+      - name: Update the pocket-current release
+        if: success() && steps.current_guard.outputs.passed == 'true' && steps.decide.outputs.deploy == 'true'
+        run: |
+          gh release view pocket-current >/dev/null
+          files=(verified-current/*)
+          if [ -f "${files[0]}" ]; then gh release upload pocket-current "${files[@]}" --clobber; fi
+          node -e "for (const f of require('./pocket-report.json').remove) console.log(f)" | while read -r name; do
+            gh release delete-asset pocket-current "$name" -y || true
+          done
+
+      - name: Upload the checked Pages archive
+        if: success() && steps.site_guard.outputs.passed == 'true' && steps.current_guard.outputs.passed == 'true' && steps.decide.outputs.deploy == 'true'
+        uses: actions/upload-artifact@v7
         with:
-          path: _site
+          name: github-pages
+          path: artifact.tar
+          retention-days: 1
+          if-no-files-found: error
 
       - name: Keep the report for the issues job
         if: always() && hashFiles('pocket-report.json') != ''
@@ -352,12 +389,14 @@ jobs:
         run: |
           node pocket/emu/packages.mjs --hub saved/hub-catalog.json --out pkgs --previous state/packages.json
           cp pkgs/packages.json state/packages.json
+      - name: Restore accepted originals while new hosting is pending
+        run: python3 -B pocket/hosting_restore.py --previous saved/catalog-v2.json --store pkgs
       - name: What Pocket may host
         # only the packages Pocket may host (an open licence, not excluded by policy.json), as hosted/pkg/<hub>-<sha8>.fwsc
         run: |
           cp saved/catalog-v2.json hostable.json
           python3 pocket/emu/catalog.py --v2 hostable.json --packages state/packages.json --emu-ledger state/emu-compat.json \
-            --rfm1-ledger saved/compat.json --store pkgs --site hosted > /dev/null
+            --rfm1-ledger saved/compat.json --store pkgs --site hosted --hosting-guard --previous saved/catalog-v2.json > /dev/null
       - name: What needs measuring with the pinned engine
         id: todo
         run: |
@@ -367,7 +406,9 @@ jobs:
           shots=""
           for f in hosted/pkg/*.fwsc; do
             [ -e "$f" ] || continue; n=$(basename "$f" .fwsc)
-            echo "$have" | grep -qx "shot-$n.png" || shots="$shots ${n%-*}"
+            if [ "$(sha256sum "$f" | cut -d' ' -f1)" = "$(sha256sum "pkgs/${n%-*}.fwsc" | cut -d' ' -f1)" ]; then
+              echo "$have" | grep -qx "shot-$n.png" || shots="$shots ${n%-*}"
+            fi
           done
           echo "linux=$(echo $linux $shots | tr ' ' '\n' | sort -u | xargs)" >> "$GITHUB_OUTPUT"
           echo "wasm=$(python3 pocket/emu/ledger.py todo --ledger state/emu-compat.json --packages state/packages.json --machine wasm)" >> "$GITHUB_OUTPUT"
@@ -406,10 +447,8 @@ jobs:
         with:
           path: pkgs
           key: emu-pkgs-${{ github.run_id }}
-      - name: Keep packages, screens, ledger and engine in pocket-packages
+      - name: Stage packages, screens, ledger and engine
         run: |
-          gh release view pocket-packages >/dev/null 2>&1 || gh release create pocket-packages --title "Original firmware packages (rolling)" --latest=false \
-            --notes "The makers' original .fwsc packages that Pocket may host (open licences, not excluded), each identical to the maker's release asset and checked against The Firmware Hub's SHA-256, plus the emulator engine's measurements. Kept for the web player, which cannot fetch the makers' files itself. Updated automatically; not a release of this project. Each firmware is its makers' work under its own licence: see the source link for each in catalog-v2.json. The emulator is joakimeriksson/fm1-emu (MIT)."
           have=$(gh release view pocket-packages --json assets -q '.assets[].name')
           files="state/packages.json state/emu-compat.json"
           [ -f "fm1-emu-web-${{ steps.todo.outputs.commit }}.tar.gz" ] && files="$files fm1-emu-web-${{ steps.todo.outputs.commit }}.tar.gz"
@@ -418,9 +457,25 @@ jobs:
           mkdir -p shotfiles
           for f in hosted/pkg/*.fwsc; do
             [ -e "$f" ] || continue; n=$(basename "$f" .fwsc)
-            [ -f "shots/${n%-*}.png" ] && cp "shots/${n%-*}.png" "shotfiles/shot-$n.png" && files="$files shotfiles/shot-$n.png"
+            if [ -f "pkgs/shot-$n.png" ]; then
+              cp "pkgs/shot-$n.png" "shotfiles/shot-$n.png"; files="$files shotfiles/shot-$n.png"
+            elif [ -f "shots/${n%-*}.png" ] && [ "$(sha256sum "$f" | cut -d' ' -f1)" = "$(sha256sum "pkgs/${n%-*}.fwsc" | cut -d' ' -f1)" ]; then
+              cp "shots/${n%-*}.png" "shotfiles/shot-$n.png"; files="$files shotfiles/shot-$n.png"
+            fi
           done
-          gh release upload pocket-packages $files --clobber
+          printf '%s\n' $files > package-upload.txt
+          python3 -B pocket/hosting_stage.py --files package-upload.txt --stage packages-upload --zip pocket-packages-upload.zip
+      - name: Check the finished pocket-packages upload ZIP
+        id: package_guard
+        run: |
+          python3 -B pocket/hosting_guard.py pocket-packages-upload.zip --rfm-catalogue saved/catalog-v2.json --extract-to verified-packages --report packages-delivery-check.json
+          echo "passed=true" >> "$GITHUB_OUTPUT"
+      - name: Keep only checked packages in pocket-packages
+        if: success() && steps.package_guard.outputs.passed == 'true'
+        run: |
+          gh release view pocket-packages >/dev/null
+          have=$(gh release view pocket-packages --json assets -q '.assets[].name')
+          gh release upload pocket-packages verified-packages/* --clobber
           # packages (and their screens) no longer hostable or superseded come down
           ls hosted/pkg 2>/dev/null > keep.txt || true
           sed 's/^\(.*\)\.fwsc$/shot-\1.png/' keep.txt > keepshots.txt && cat keepshots.txt >> keep.txt
