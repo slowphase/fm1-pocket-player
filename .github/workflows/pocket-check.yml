@@ -39,6 +39,7 @@ jobs:
         run: |
           python3 -B pocket/test_hosting_guard.py
           python3 -B pocket/test_prune_guard.py
+          python3 -B pocket/test_cache_guard.py
 
       - name: The simulator's own test (h1)
         run: node tests/run.js

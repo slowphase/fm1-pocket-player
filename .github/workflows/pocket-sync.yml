@@ -70,6 +70,7 @@ jobs:
         run: |
           python3 -B pocket/test_hosting_guard.py
           python3 -B pocket/test_prune_guard.py
+          python3 -B pocket/test_cache_guard.py
 
       - name: Approvals from issues
         run: node pocket/review.mjs approvals
@@ -89,12 +90,14 @@ jobs:
             git push
           fi
 
-      - name: Restore downloaded firmware
+      - name: Restore JSON metadata only
         uses: actions/cache/restore@v6
         with:
-          path: pocket-store
-          key: pocket-store-${{ github.run_id }}
-          restore-keys: pocket-store-
+          path: cache-metadata
+          key: pocket-metadata-v1-${{ github.run_id }}
+          restore-keys: pocket-metadata-v1-
+      - name: Validate restored metadata before use
+        run: python3 -B pocket/cache_guard.py --source cache-metadata --target pocket-store
 
       - name: Sync with RemoteFM1FW
         run: node pocket/sync.mjs --out _site/data --store pocket-store
@@ -205,12 +208,20 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Save downloaded firmware
+      - name: Stage validated JSON metadata for the cache
+        id: metadata_guard
         if: always()
+        run: |
+          python3 -B pocket/cache_guard.py --source pocket-store --target cache-metadata-next
+          rm -rf cache-metadata
+          mv cache-metadata-next cache-metadata
+          echo "passed=true" >> "$GITHUB_OUTPUT"
+      - name: Save only validated JSON metadata
+        if: always() && steps.metadata_guard.outputs.passed == 'true'
         uses: actions/cache/save@v6
         with:
-          path: pocket-store
-          key: pocket-store-${{ github.run_id }}
+          path: cache-metadata
+          key: pocket-metadata-v1-${{ github.run_id }}
 
       - name: Decide whether to publish
         id: decide
@@ -383,12 +394,6 @@ jobs:
           for a in hub-catalog.json catalog-v2.json compat.json; do gh release download pocket-current -p "$a" -D saved --clobber; done
           # first run: start the ledger from the evaluation's measurements (same engine commit, same packages by SHA-256)
           [ -s state/emu-compat.json ] || python3 pocket/emu/ledger.py seed --ledger state/emu-compat.json --from docs/emu-evaluation-results.json
-      - name: Restore fetched packages
-        uses: actions/cache/restore@v6
-        with:
-          path: pkgs
-          key: emu-pkgs-${{ github.run_id }}
-          restore-keys: emu-pkgs-
       - name: New or changed packages, from the makers' releases (SHA-256 checked)
         run: |
           node pocket/emu/packages.mjs --hub saved/hub-catalog.json --out pkgs --previous state/packages.json
@@ -445,12 +450,6 @@ jobs:
           mkdir -p todo && for id in ${{ steps.todo.outputs.wasm }}; do cp "pkgs/$id.fwsc" todo/; done
           pocket/emu/wasm_bench.sh upstream todo wasm.json 1/1 12
           python3 pocket/emu/ledger.py merge --ledger state/emu-compat.json --packages state/packages.json --machine wasm --wasm wasm.json
-      - name: Save fetched packages
-        if: always()
-        uses: actions/cache/save@v6
-        with:
-          path: pkgs
-          key: emu-pkgs-${{ github.run_id }}
       - name: Stage packages, screens, ledger and engine
         run: |
           have=$(gh release view pocket-packages --json assets -q '.assets[].name')

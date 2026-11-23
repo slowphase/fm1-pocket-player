@@ -2,7 +2,7 @@
 
 This change does not enable automatic playback qualification, option B visibility,
 FM1 Editor discovery, app releases or new tags. The wider Player #31 and Mac #13
-remain unmerged. The RemoteFM1FW approval map and engine pins are unchanged.
+remain unmerged. The RemoteFM1FW approval gate and engine pins remain in place.
 
 ## Holds and accepted bytes
 
@@ -54,8 +54,8 @@ version's screenshot to a retained older package fingerprint.
 
 ## Operational boundary
 
-The publisher remains paused until the user approves resuming it. No workflow run
-that writes release assets or deploys Pages is invoked as part of the checks.
+The normal publisher is scheduled; close-out checks do not dispatch a sync or
+write release assets or deploy Pages.
 Existing rolling assets that no longer satisfy the hosting policy are pruned by
 the normal guarded publisher, after successful verification. This code requires the
 two existing rolling releases and cannot silently create new release tags.
@@ -74,3 +74,19 @@ loss and ordinary small cleanups.
 `POCKET_SCHEDULE_PAUSED=true` suppresses scheduled/push syncs while allowing a
 watched manual dispatch; downstream jobs cannot publish after a skipped sync.
 This supports verifying a manual run before restoring the normal schedule.
+
+## Final cache boundary and approvals
+
+The user approved A22 (MIT) and CHORDISM (MPL-2.0) for the ordinary RemoteFM1FW
+RFM1 route only, after the existing checks. No original hosting grant was added.
+The parked qualification/visibility/source-build PRs remain unmerged.
+
+All firmware cache saves/restores are removed. Only validated hub-catalog.json,
+compat.json and native-macos.json enter a new metadata-only cache namespace. A
+fresh staging directory receives only the validated bytes, and its successful
+guard output is mandatory before saving. Legacy raw cache prefixes are not
+restored. Tests inject held/uncleared files, archives, temporary candidates and
+raw firmware disguised as JSON; the finished cache contains only metadata.
+The fourteen raw-package caches were purged after the user explicitly waived
+one missing ARTIHIVE 2.0.5 backup. Contributor workflow approvals are set to all
+external contributors in both repositories.
