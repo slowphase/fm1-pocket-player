@@ -61,17 +61,40 @@
       return r.json();
     });
   }
-  var PLAYABLE = { playable: 1, experimental: 1 };
-  function webState(f) { return f.status && f.status.web ? f.status.web.state : "playable"; }
+  var PLAYABLE = { playable: 1 };
+  function webState(f) { return f.status && f.status.web ? f.status.web.state : "unknown"; }
+  function qualified(f, engine) {
+    var q = f.qualification && f.qualification.web;
+    if (Object.prototype.hasOwnProperty.call(f, "qualification") && !q) return false;
+    if (q) {
+      var r = q.routes && q.routes[engine];
+      var sha = engine === "fm1-emu" ? f.emu && f.emu.package && f.emu.package.sha256 : f.sha256;
+      return !!(q.visible && Array.isArray(q.engines) && q.engines.indexOf(engine) >= 0 && r && r.eligible && r.sha256 && r.sha256 === sha);
+    }
+    // Old catalogues can only supply their explicit passing results, never an
+    // assumed pass or a known-bad alternative. v1 has no platform results.
+    return !(f.restriction && /^(restricted|withdrawn)$/.test(f.restriction.code)) &&
+      !(f.knownIssues && f.knownIssues.web && f.knownIssues.web[engine]) && !(f.emu && f.emu.excluded);
+  }
+  function qualifiedArtifacts(f) {
+    var q = f.qualification && f.qualification.web;
+    if (!q) return f;
+    f = JSON.parse(JSON.stringify(f));
+    var r = q.routes && q.routes["fm1-emu"];
+    if (r && r.eligible && r.package) {
+      f.emu = f.emu || {}; f.emu.package = r.package; f.emu.web = r.status;
+    }
+    return f;
+  }
 
   /* ---- engines: a firmware may run as its .rfm1 build (src/rfm1.js) and/or as the maker's original package on the
    * emulator (src/emu-core.js, upstream fm1-emu). The catalogue names the preferred one per firmware (emu.preferred);
    * a listener can switch, per firmware, and that choice is kept in this browser. Saves are kept per engine. ---- */
   var overrides = get("pocket.engine", {});
-  function hasRfm1(f) { return !!(f.file && f.sha256 && PLAYABLE[webState(f)]); }
+  function hasRfm1(f) { return !!(f.file && f.sha256 && PLAYABLE[webState(f)] && qualified(f, "rfm1")); }
   function hasEmu(f) {
     var em = f.emu;
-    return !!(em && em.package && em.package.file && em.web && PLAYABLE[em.web.state] && window.Fm1Emu);
+    return !!(em && em.package && em.package.file && em.web && PLAYABLE[em.web.state] && window.Fm1Emu && qualified(f, "fm1-emu"));
   }
   function engines(f) { return (hasRfm1(f) ? ["rfm1"] : []).concat(hasEmu(f) ? ["fm1-emu"] : []); }
   function engineFor(f) {
@@ -111,15 +134,14 @@
     return fetchJson("catalog-v2.json").then(function (c) {
       if (!c || c.schema !== 2 || !Array.isArray(c.firmwares)) throw new Error("unknown catalogue");
       catalog = c;
-      more = c.firmwares.filter(function (f) { return !engines(f).length; })
-        .map(function (f) { return { key: "more:" + f.id, name: f.name, version: f.version, license: f.license, more: true, meta: f }; });
-      return c.firmwares.filter(function (f) { return engines(f).length; }).map(entry);
+      more = []; // Hidden records remain in the complete catalogue for rechecks.
+      return c.firmwares.map(qualifiedArtifacts).filter(function (f) { return engines(f).length; }).map(entry);
     }).catch(function () {
       more = [];
       return fetchJson("catalog.json").then(function (c) {
         if (!c || c.schema !== 1 || !Array.isArray(c.firmwares)) throw new Error("unknown catalogue");
         catalog = c;
-        return c.firmwares.map(function (f) { return { key: "cat:" + f.id, name: f.name, version: f.version, license: f.license,
+        return c.firmwares.filter(hasRfm1).map(function (f) { return { key: "cat:" + f.id, name: f.name, version: f.version, license: f.license,
           url: DATA + f.file, sha256: f.sha256, catalog: true, engine: "rfm1", meta: f }; });
       });
     }).catch(function () { catalog = null; more = []; return []; });   /* no catalogue: the simulator as it was */

@@ -45,6 +45,9 @@ jobs:
       - name: The makers' original packages
         run: |
           node pocket/emu/packages.mjs --hub saved/hub-catalog.json --out pkgs
+          # A downloadable test artifact also conveys binaries: apply the same
+          # audit/hosting boundary before execution, screenshots or packaging.
+          python3 -B pocket/qualification_preview.py --packages pkgs/packages.json --out preview-policy.json
           python3 pocket/emu/ledger.py seed --ledger emu-compat.json --from docs/emu-evaluation-results.json
       - name: The emulator engine (pinned commit)
         run: |
@@ -74,7 +77,7 @@ jobs:
       - name: catalog-v2.json with the emulator engine
         run: |
           python3 pocket/emu/catalog.py --v2 _site/data/catalog-v2.json --packages pkgs/packages.json --emu-ledger emu-compat.json \
-            --rfm1-ledger saved/compat.json --store pkgs --site _site/data
+            --rfm1-ledger saved/compat.json --store pkgs --site _site/data --policy preview-policy.json
           # emulator screens the published catalogue already names (imageKind "emulator screen"): their files live in
           # pocket-packages as shot-HUB-SHA8.png, and catalog.py only copies pictures it adds itself
           gh release download pocket-packages -p 'shot-*.png' -D published-shots --skip-existing 2>/dev/null || true

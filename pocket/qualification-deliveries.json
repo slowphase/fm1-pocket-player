@@ -1,0 +1,1982 @@
+{
+  "386dx:fm1-emu": {
+    "sha256": "2ba90c24c0586c7519bc524113a9727e43fec60dd3314ddc245179833871e059",
+    "file": "pkg/386dx-2ba90c24.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "adrift:fm1-emu": {
+    "sha256": "6135ebfb1a2dd33ca5f4a142571378dc9c084b0e7bc67c5d81685566fe2a7360",
+    "file": "pkg/adrift-6135ebfb.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "aetherfm1:fm1-emu": {
+    "sha256": "9296a7ab5e2de5772e2a2d50d7362eda4cb224bb539ebcc9b6f96d67fa75a632",
+    "file": "pkg/aetherfm1-9296a7ab.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "agtdeck:fm1-emu": {
+    "sha256": "015036f7858ace3e294504faa06f6b49a5029db57a00991a02fc0765fee40ef4",
+    "file": "pkg/agtdeck-015036f7.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "aisling:fm1-emu": {
+    "sha256": "e6292e7169ea373355f5f6c91a3d3408c84f21a024ac1288019c85c14f447828",
+    "file": "pkg/aisling-e6292e71.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "aislingfx1:fm1-emu": {
+    "sha256": "41ae37d3d478737c73df32b87de1661d3cb7efd8883319f5b26c2baa011e0d1c",
+    "file": "pkg/aislingfx1-41ae37d3.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "amb:rfm1": {
+    "sha256": "8a5014a6dbb556774efe0faac6ed46c7da2cc2d8c257723d027364b491242936",
+    "file": "fw/amb-8a5014a6.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "amb:fm1-emu": {
+    "sha256": "a949a6a2a1ced8b3857d156ad0409a55e6ba53bbdd4094d0a38f2779364064f3",
+    "file": "pkg/amb-a949a6a2.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "amenity:rfm1": {
+    "sha256": "ab32f4af9c00ed77f73ca4decca744cd31181f1eaafd56e806f2b31be77210f8",
+    "file": "fw/amenity-ab32f4af.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "amenity:fm1-emu": {
+    "sha256": "698cdcf3748190c93d4420f9492eb74d705c90233d69dd2e241dcefc971cb62b",
+    "file": "pkg/amenity-698cdcf3.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "andromeda:fm1-emu": {
+    "sha256": "f78308e7ba28a43fba0f68788c59abb4bfb20a09904a65dd4ab2ba62d595c698",
+    "file": "pkg/andromeda-f78308e7.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "arcticscream:rfm1": {
+    "sha256": "f5dbfd0a3158cd41a7c7a7968b965ebe02920c4d456a8f205d2f8fef486fc92e",
+    "file": "fw/arcticscream-f5dbfd0a.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "arcticscream:fm1-emu": {
+    "sha256": "332cb623ba9c6c1f6fe2b8769b87a27e586f3d1494da74662f1f14518f3306d2",
+    "file": "pkg/arctic-332cb623.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "arcturus:fm1-emu": {
+    "sha256": "18b829548a23da9ef85087f0cbc1181c4ca0610a25a7d9e393079504172faee3",
+    "file": "pkg/arcturus-18b82954.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "argo:fm1-emu": {
+    "sha256": "89dc21f01e99cb03d50aeb3f5f51141f028d349174dd79fcf4e246ed28957734",
+    "file": "pkg/argo-89dc21f0.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "arpwav09:fm1-emu": {
+    "sha256": "9401166d79a2602ef62dedc706018bc3e83399f175d2554bf48bdf9a768fd52e",
+    "file": "pkg/arpwav09-9401166d.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "artihive:fm1-emu": {
+    "sha256": "03dc25e0291ea0ed555b70ed0fd439426c35e4db48df7fa9563d74c19053f7bc",
+    "file": "pkg/artihive-03dc25e0.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "assid:fm1-emu": {
+    "sha256": "f869992c2d387301ffc1d099fffe733096ed134e10bbb8d59a642e52997a3ba4",
+    "file": "pkg/assid-f869992c.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "astra:fm1-emu": {
+    "sha256": "13ac51b0051d66f30a17670511d5477eeff9dcfa80ef6ab9f97126cd10004613",
+    "file": "pkg/astra-13ac51b0.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "atek303:fm1-emu": {
+    "sha256": "f1c13ebe30cdf0e403cf7d0ec06b58d12c041321322c9d82f5b19339760bb23b",
+    "file": "pkg/atek303-f1c13ebe.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "atlatltheatltuner:fm1-emu": {
+    "sha256": "bdc5e981a4416736929df3601faac325fa9d75d2c1315150714daa7f5b82b633",
+    "file": "pkg/atlatltheatltuner-bdc5e981.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "aurora:rfm1": {
+    "sha256": "5e45e1227193dbce465a196499e5eeaf9e31aa38bbde2e6312a5b202512b53af",
+    "file": "fw/aurora-5e45e122.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "b1:fm1-emu": {
+    "sha256": "4efc8646d729844f78fa3f85093cdbc45250738e218526f3f06aa69ce81cac61",
+    "file": "pkg/b1-4efc8646.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "b3organ:fm1-emu": {
+    "sha256": "4d8750a4babe674d09ff07bf9bcab1a27ecfa77d8d9652fb84093f2565dc5d7b",
+    "file": "pkg/b3organ-4d8750a4.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "bb1:fm1-emu": {
+    "sha256": "a272334fd67c16a825f30bb68684ed4dce95dcf571b9607d0530736b1561d23e",
+    "file": "pkg/bb1-a272334f.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "beetle:fm1-emu": {
+    "sha256": "1c88c620b6d8763835597e085c3287b54dba9921d535efc764f4b4c5f3468538",
+    "file": "pkg/beetle-1c88c620.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "beetleblue:fm1-emu": {
+    "sha256": "78de3d0ddd47ffdf98795b4a75c033c33ad96c5c8431cb7e8225e98580f3455d",
+    "file": "pkg/beetleblue-78de3d0d.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "beiwagen:fm1-emu": {
+    "sha256": "38b23c864ce29936af0c679317f22d3d83c10bd7e42e10479899e14867245e1a",
+    "file": "pkg/beiwagen-38b23c86.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "berlinan:rfm1": {
+    "sha256": "735705419c024123f655077fb6de4f95472984a0f962856e1902145994d6960c",
+    "file": "fw/berlinan-73570541.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "berlinan:fm1-emu": {
+    "sha256": "660b2a0059ec1d002d59dd1fb1ff86f93510a6468ddd385073db22d59cf478d1",
+    "file": "pkg/berlinan-660b2a00.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "blop:fm1-emu": {
+    "sha256": "c6caccf8654d03f518c4b1c79449736579a983f9960f7fd6d14a1c7b3b0e901c",
+    "file": "pkg/blop-c6caccf8.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "bluesbox:fm1-emu": {
+    "sha256": "6da0d646c038dd05053f4d0af2d3cb65d0a4c6c17de2817ba3f372cade0ee3fd",
+    "file": "pkg/bluesbox-6da0d646.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "bocjuhn:fm1-emu": {
+    "sha256": "91ef02e0e0f7868c94e2a781449e512fb34070309565533d7ccaeec413e0c09d",
+    "file": "pkg/bocjuhn-91ef02e0.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "bubba:fm1-emu": {
+    "sha256": "e1f444059553b7a8e9ea6b916fed0ea3c7d5404a6e913a130f11b9d3d9624e7d",
+    "file": "pkg/bubba-e1f44405.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "bunker:fm1-emu": {
+    "sha256": "db0b50d0ae9c3bfccee76e3b93de09fffa55389169278a0c5899dad9c79e6bb8",
+    "file": "pkg/bunker-db0b50d0.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "burgerstudiofm1:fm1-emu": {
+    "sha256": "992fff6d325051bf426d34bd9217458a046aa99ac1ff3055ced15cfde88af504",
+    "file": "pkg/burgerstudiofm1-992fff6d.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "bytemania:rfm1": {
+    "sha256": "55cb83f189304f4a604f4ecb49e4de86f932326a307fda6914fc004ee02926ac",
+    "file": "fw/bytemania-55cb83f1.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "bytemania:fm1-emu": {
+    "sha256": "ba94dcb0fb9902fa29a8fa22b0818a7e80dc6ed334bfe9bb86d7c1242ca43925",
+    "file": "pkg/bytemania-ba94dcb0.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "caravel:rfm1": {
+    "sha256": "d0f576be129977aee3b271be7f7d53a9d21558ab3fbedd685dc8014db1c2cbfd",
+    "file": "fw/caravel-d0f576be.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "caravel:fm1-emu": {
+    "sha256": "1e1a126ca1d7570f8fb917d381afaa6b78885fb3b08baa084775f3a948a570ba",
+    "file": "pkg/caravel-1e1a126c.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "carnacos:rfm1": {
+    "sha256": "4d97e7ca4546fa91811720bdfed16ff342148c7fc3867befeaaaa5fdf13eda1c",
+    "file": "fw/carnacos-4d97e7ca.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "castletunia:fm1-emu": {
+    "sha256": "e9e320929f83e039337f880bb262d35641732b4d2416182cd8667aedb7c9312b",
+    "file": "pkg/castletunia-e9e32092.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "chipbox:rfm1": {
+    "sha256": "6cd4f1e8de02faa6fa9aae5b9054ec8b83683aeb01bdd1cf33416874c4a695a6",
+    "file": "fw/chipbox-6cd4f1e8.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "chipbox:fm1-emu": {
+    "sha256": "9221f8331d0c6e10fa1645579936211337b2f467310002048152e4fc54cc771b",
+    "file": "pkg/chipbox-9221f833.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "choppah:fm1-emu": {
+    "sha256": "2633bafb066269b9591197ab4ff5c0881558e161568040f1b6d510032b8a89da",
+    "file": "pkg/choppah-2633bafb.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "choralroot:rfm1": {
+    "sha256": "b007da6a5549051520eef6dfde49df9c6ea18cb22ddd47ff79c7e395209b160b",
+    "file": "fw/choralroot-b007da6a.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "choralroot:fm1-emu": {
+    "sha256": "0391fac999db698a2d9cf8bca301860a19f668e11bffba16731458f63fe58a3d",
+    "file": "pkg/choralroot-0391fac9.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "clairpiano:fm1-emu": {
+    "sha256": "c430c194a0d6116c05721a47a770fdad8f8ee19b25cf6b09ae0791d619ddb88e",
+    "file": "pkg/clairpiano-c430c194.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "clatter:fm1-emu": {
+    "sha256": "4d661dae903801385adc99abe3387474b059210f1c49037cef3ef1cacb6f5956",
+    "file": "pkg/clatter-4d661dae.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "clavioline:fm1-emu": {
+    "sha256": "836a0ffb39ca90a47ad58bf6b87951cdde623b29e085fa259966fc32f82012fb",
+    "file": "pkg/clavioline-836a0ffb.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "conductor:rfm1": {
+    "sha256": "028c766799aaaafe50e64042a4e393ee85296b73a23098254bc6de7374de42a3",
+    "file": "fw/conductor-028c7667.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "conductor:fm1-emu": {
+    "sha256": "d59b3f9dd05bcd18b10dc2a0196204216468b54d1a31c8fa99770c6a4bc3089d",
+    "file": "pkg/conductor-d59b3f9d.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "coqui:fm1-emu": {
+    "sha256": "9edbd1c8d66b3d9bc908924b33b9001c93625c406be3d4d64eac9efa9d45d238",
+    "file": "pkg/coqui-9edbd1c8.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "coralflower:rfm1": {
+    "sha256": "3ad5d7a7719904ee18dc36d9d7bc08e653e81cd2e99561801cafeae38ccfcd10",
+    "file": "fw/coralflower-3ad5d7a7.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "coralflower:fm1-emu": {
+    "sha256": "d87d6327e0f98000cfa740bab70487728de85d3d64fd96c3a65dfd6bbdf71bbd",
+    "file": "pkg/coralflower-d87d6327.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "cord:fm1-emu": {
+    "sha256": "249d4d1802725b245bad395156360c0c8c42d261c89c83b98eee8d2f6a2a8643",
+    "file": "pkg/cord-249d4d18.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "ctl:rfm1": {
+    "sha256": "a0bbfefd6ae06bccee894aede8b968437adb565170701267c45744295d9aefb5",
+    "file": "fw/ctl-a0bbfefd.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "ctl:fm1-emu": {
+    "sha256": "1ecf7e3c2af255c7f404fa6232e9a55cdbaaf3e60cc1c549e14ecd310f7d5104",
+    "file": "pkg/ctl-1ecf7e3c.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "csfm1:rfm1": {
+    "sha256": "44d8325987d6617c5b36a83c53e73707d2035f02d9e59dc91f317d6e276b40cf",
+    "file": "fw/csfm1-44d83259.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "csfm1:fm1-emu": {
+    "sha256": "38e713f21689e498fd834129d845e2faf6b06a091c0a5041e3d3a8f27d9b792e",
+    "file": "pkg/cursedos-38e713f2.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "cutador:fm1-emu": {
+    "sha256": "5d4be92061cc5bf1396d3ff599ac3a1ef9ec1261afe003b74e32f4298307f614",
+    "file": "pkg/cutador-5d4be920.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "dabke:rfm1": {
+    "sha256": "8f6e0943409261c314edab970c9972c5e861b805d1ca6e61815586774eb72bc0",
+    "file": "fw/dabke-8f6e0943.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "dabke:fm1-emu": {
+    "sha256": "43c7e24f8c84ba6c40f10c38dbd5051c9a61f7d2c212c0ba4723e91bff9dbb41",
+    "file": "pkg/dabke-43c7e24f.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "darkfunkdurcalsynt:fm1-emu": {
+    "sha256": "f4b009c2d80557e639c1bb11eec5256897f06c007a263f42052549881bef74d3",
+    "file": "pkg/darkfunkdurcalsynt-f4b009c2.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "dark1:fm1-emu": {
+    "sha256": "8c036b8b27802e6cbc90e8dfbdafa1bbf64ac0308c73031029ee6324b8d154a7",
+    "file": "pkg/dark1-8c036b8b.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "dayvx:fm1-emu": {
+    "sha256": "f58ad342162d812c9846dce3cd6cb8df7ec9ac7f52cf848488bac5fa6d913df0",
+    "file": "pkg/dayvx-f58ad342.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "deepfield:fm1-emu": {
+    "sha256": "74b1112eaaf22ce95a294aec16d499be1456483766d8e0b6c0690d0b42fbb500",
+    "file": "pkg/deepfield-74b1112e.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "delrio:fm1-emu": {
+    "sha256": "147cc72c6b071d73bf588a02fc57339239d6fa545791f731ce368c29c68a286f",
+    "file": "pkg/delrio-147cc72c.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "demake:fm1-emu": {
+    "sha256": "426b322abb001271eab63787463884395c73641be35830f6f3ac630bf0b3bd48",
+    "file": "pkg/demake-426b322a.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "dfdacidengine:fm1-emu": {
+    "sha256": "2bcc2cc7b5ba6a73c25f26c39fbcb4134af5d6dd58a6a7322763438add4f093f",
+    "file": "pkg/dfdacidengine-2bcc2cc7.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "dinghy:fm1-emu": {
+    "sha256": "139da045ea20eb5e772e7da5242ae2efaa0dcd9b533ac169992f7795a77efb90",
+    "file": "pkg/dinghy-139da045.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "dp3oyb:fm1-emu": {
+    "sha256": "708a36ef3461393dd3c58450f05f53edbeb49e8237b26311b3b0fd7c142a482b",
+    "file": "pkg/dp3oyb-708a36ef.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "drift:rfm1": {
+    "sha256": "d023be8af8000791dcde971401f7dc74c0053b4f534cffcb7e966b25eb62e53a",
+    "file": "fw/drift-d023be8a.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "drift:fm1-emu": {
+    "sha256": "df7b25c88964be5d3c70ef5f19b35a5c98c78bfce8761bc99e3c8f3a28f72d6e",
+    "file": "pkg/drift-df7b25c8.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "drumlab:rfm1": {
+    "sha256": "d116593a411a5b43350f792cbf1478a3e9e4ab167a8b6ba642789533f3806378",
+    "file": "fw/drumlab-d116593a.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "drumlab:fm1-emu": {
+    "sha256": "5f560f3a24515e9093ee541ad86ef012fb42c7959a623cdc4e0367a689ddc5be",
+    "file": "pkg/drumlab-5f560f3a.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "drumtonic:fm1-emu": {
+    "sha256": "ce48ccb9d49d205189797511633dd85a7dc8ff3412f8f107199f4698cb9b5f04",
+    "file": "pkg/drumtonic-ce48ccb9.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "dub:rfm1": {
+    "sha256": "322dd407d2ed4ab2dcae3b330fbe1460ae89bccd8ccd729fecd1f9d8effb6919",
+    "file": "fw/dub-322dd407.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "dub:fm1-emu": {
+    "sha256": "19cc9649583192d0634467e18e28532078d4d7889231c9e842da7fb4ff869c0a",
+    "file": "pkg/dub-19cc9649.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "dubbox:fm1-emu": {
+    "sha256": "8cc61f631178a86f842ed15990bdda7b697452a749bd0f22fe0b5c0f24aa9333",
+    "file": "pkg/dubbox-8cc61f63.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "dubwise:rfm1": {
+    "sha256": "d8c9349802da4b5e37922c11a1be2e76eb5de87b33f7fe0fb8287efce16f5fb2",
+    "file": "fw/dubwise-d8c93498.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "duell:rfm1": {
+    "sha256": "622ff423224774d143a89c16b98779d5f7e243e6cd284e84fd8d0e0769866742",
+    "file": "fw/duell-622ff423.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "duell:fm1-emu": {
+    "sha256": "6e46c8774c752dcc46570ef321a3184e16251cdda9c5cf8a41e71fc39ac7b89d",
+    "file": "pkg/duell-6e46c877.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "dungeontracker:rfm1": {
+    "sha256": "5d8cd60fe8196b6bf28676ff586ebd5c31f4985e70fe225ea9abdef2decccfcd",
+    "file": "fw/dungeontracker-5d8cd60f.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "dungeontracker:fm1-emu": {
+    "sha256": "ba6994ccb82327840c6e475da0fd5a30fb2a097d5fe852be216f0d1d0a353cae",
+    "file": "pkg/dungeontracker-ba6994cc.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "echofield:rfm1": {
+    "sha256": "c6bece3cf862e7223d5a00288e2e79f3c235c9fa4aeefd76f72e255efe8d917f",
+    "file": "fw/echofield-c6bece3c.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "echofield:fm1-emu": {
+    "sha256": "d536bce30b1fd5726002497e17637f810373651c6e49157e17beac736498120e",
+    "file": "pkg/echofield-d536bce3.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "elixir:fm1-emu": {
+    "sha256": "7cd0fc12a14aaff192edfe5de3cfadc3b25f93383d3652188bfeac2ea349b6f1",
+    "file": "pkg/elixir-7cd0fc12.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "estampie:fm1-emu": {
+    "sha256": "6889451585cd623e9d524cb64ef143b75a783b8a7952ea71f1f89d9a46f54c61",
+    "file": "pkg/estampie-68894515.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "etch:rfm1": {
+    "sha256": "3f4561e5f1448077d9121a50c30297e7dec903cf1a45cb2949fb8ddcd6e8d598",
+    "file": "fw/etch-3f4561e5.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "etch:fm1-emu": {
+    "sha256": "65bcb51012d81c9c8206c4843ce04b5c03177b8f09ed74313799ebec0798330f",
+    "file": "pkg/etch-65bcb510.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "felucca:rfm1": {
+    "sha256": "e37ac1af179a29c1445a4c876d134e4f37d6b4a6b4cde2661282c5e5857d9247",
+    "file": "fw/felucca-e37ac1af.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "felucca:fm1-emu": {
+    "sha256": "770ea7c756088d08ac59a193f1ae78126476c3c8251a86938c837ead5ab0048a",
+    "file": "pkg/felucca-770ea7c7.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "salt:fm1-emu": {
+    "sha256": "efb516a7131d12eb5c008ff9af5a380d07e82eb1040bd03990f28d1233417e28",
+    "file": "pkg/salt-efb516a7.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "felucca8:fm1-emu": {
+    "sha256": "89dc21f01e99cb03d50aeb3f5f51141f028d349174dd79fcf4e246ed28957734",
+    "file": "pkg/felucca8-89dc21f0.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fernbedienung:fm1-emu": {
+    "sha256": "8adec12949d0d3e344123140a2d6d45895baf9c41e067f27b88e6f78076c8fe3",
+    "file": "pkg/fernbedienung-8adec129.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fimba:rfm1": {
+    "sha256": "ec70d0751975260fdef7321d6140dc2e366222a833cbe7bcaf112d1fa74ef845",
+    "file": "fw/fimba-ec70d075.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fimba:fm1-emu": {
+    "sha256": "c77036f22fb85a0922310cd50f40c00edbef504cbceffc7506468843dbe4dc34",
+    "file": "pkg/fimba-c77036f2.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fizz:rfm1": {
+    "sha256": "1b847ad53c6886d03f90151f0f8e1177731fee2b9e8b74a9e8813ed0b90048da",
+    "file": "fw/fizz-1b847ad5.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fizz:fm1-emu": {
+    "sha256": "f695bf2256f948caa4782fdc0554df17bca83d4b61f23453a5414dec7c614da2",
+    "file": "pkg/fizz-f695bf22.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "chimeravocal:rfm1": {
+    "sha256": "3c9caf0ec5391ad4bb5ae294da7356ebfbd79684bc16770a9822e5967b6c3afa",
+    "file": "fw/chimeravocal-3c9caf0e.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "chimeravocal:fm1-emu": {
+    "sha256": "1938568b67c74b266e7c5b5bf07cedf5365e2aaf9ee17a1ecd9f963a4ef7849e",
+    "file": "pkg/fm1chimeravocal-1938568b.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fm1midimania:fm1-emu": {
+    "sha256": "4f6b67925ece35a9bf0fb561b89c426935d02db06f47cbd9631c760d8cb83384",
+    "file": "pkg/fm1midimania-4f6b6792.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "sid:rfm1": {
+    "sha256": "b790c47766b054cc39796c2fee7ec9719f0b25002f7b9c1bb33e059e4846ae49",
+    "file": "fw/sid-b790c477.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "sid:fm1-emu": {
+    "sha256": "30fbbeb839e34eb9cd06b543b9142cce3a937d6b0a221e9985412cebba324ed3",
+    "file": "pkg/fm1sid-30fbbeb8.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fm1zx:fm1-emu": {
+    "sha256": "b3eabdda3ccc02a10aed9b48b2bb489d914b86707a38ded905e762773f8de1b6",
+    "file": "pkg/fm1zx-b3eabdda.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fm106:fm1-emu": {
+    "sha256": "f3a1229b4176de901191a6ce1da2985daa7de925bedda78bae20325e47190034",
+    "file": "pkg/fm106-f3a1229b.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fmfam:fm1-emu": {
+    "sha256": "209aa47e147cefb1d59c7bae5cff205a89808faf9d85ba033bee6ecbc990bba9",
+    "file": "pkg/fmfam-209aa47e.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fmkick:rfm1": {
+    "sha256": "41fa595ac1709419aa064a1304144e44d324cf2216440419804781dd933df05a",
+    "file": "fw/fmkick-41fa595a.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fmkick:fm1-emu": {
+    "sha256": "bae8ab53fe6c4b94a083a2ecd8f81c34df473695566d64401206f9d5f9f6ebf4",
+    "file": "pkg/fmkick-bae8ab53.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "audiorouter:fm1-emu": {
+    "sha256": "bd0e4f4b71a8c2c3fecb58295833ded5450a43d7f16dd13bdac42ae9960c79b9",
+    "file": "pkg/audiorouter-bd0e4f4b.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fm1quest:fm1-emu": {
+    "sha256": "08a9d725bdb3f00aef7703e0a00f27a9f3e2e63794d47bfc1f152507a3c0f483",
+    "file": "pkg/fm1quest-08a9d725.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fm1tonic:fm1-emu": {
+    "sha256": "35974057e3290c5426558c9495783db2fa4ce1776f28849eaf0587ae8d0dfa84",
+    "file": "pkg/fm1tonic-35974057.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fm1yoga:fm1-emu": {
+    "sha256": "fd22c28c7d252fb1e599b93da8970687866952cfb85767323db1e768754f137d",
+    "file": "pkg/fm1yoga-fd22c28c.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fm1800:fm1-emu": {
+    "sha256": "6a16968706aa9b74c16afce5a5ccdeb6a9e9cf1354e4c677885dbe22121803bb",
+    "file": "pkg/fm1800-6a169687.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fm1amy:fm1-emu": {
+    "sha256": "6aeeddcc5737c8d92192943ffc3d42b4b4cffbc0a7b50b3cf0b09826eb77162d",
+    "file": "pkg/fm1amy-6aeeddcc.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "chord:fm1-emu": {
+    "sha256": "e2d06d0bfd4cd93bb0913494496a526775cb4661a3f2973818c4dd696807d145",
+    "file": "pkg/chord-e2d06d0b.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fm1dock:fm1-emu": {
+    "sha256": "8bb30b2b890ee5fafa720b765f3f1585dcd56d2ce4bf1657d7c9e0a2a13dbe27",
+    "file": "pkg/fm1dock-8bb30b2b.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fm1gm:fm1-emu": {
+    "sha256": "42187d51166f2850005aa1235ca440f40e94ec41911f71e8e75d06ce8e45f75e",
+    "file": "pkg/fm1gm-42187d51.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "trax:rfm1": {
+    "sha256": "fbb27413c061480f5f1b25da57c150ae659b99df43ec75d995dc303e14f49ddb",
+    "file": "fw/trax-fbb27413.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "trax:fm1-emu": {
+    "sha256": "86de2ecc0fbba397abae98cfa07315003ee6c5d8bafa99be6acdcc24d22e6478",
+    "file": "pkg/fm1trax-86de2ecc.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fmav1:rfm1": {
+    "sha256": "27f9a07d1d822696e9966261c29ed2a06b18ccebef41fbc768bb48ecc6eb3307",
+    "file": "fw/fmav1-27f9a07d.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fmav1:fm1-emu": {
+    "sha256": "9ab30bda5cdef9b8deef58214fac678805d20dd812a1d18c030813f4a050a929",
+    "file": "pkg/fmav1-9ab30bda.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fmini:rfm1": {
+    "sha256": "73ea53c65f316a5de9f291776665e95f108814803fbd2cd25ea694ecbeefe4e5",
+    "file": "fw/fmini-73ea53c6.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fmini:fm1-emu": {
+    "sha256": "625f315af1dcc78ee4251c1626a31b967667c4f396f1bcca454c570930979cf4",
+    "file": "pkg/fmini-625f315a.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fmlarynx:rfm1": {
+    "sha256": "e10d1e6c8c666b7c11a4c6f7c827e20a9e897d7098c47543b96b15c2c266d03d",
+    "file": "fw/fmlarynx-e10d1e6c.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fmlarynx:fm1-emu": {
+    "sha256": "845dbf1c6f6cbbf1406de49d304e9838f9e04390c953619ece1f94e70c0077bf",
+    "file": "pkg/fmlarynx-845dbf1c.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fomajam:fm1-emu": {
+    "sha256": "b18d747f4e005f392a4071a00847268fe244d5e4e7d8bd7a359c25bd9dc3ac88",
+    "file": "pkg/fomajam-b18d747f.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fomni:rfm1": {
+    "sha256": "0543eb551bb54c7bb90a51ca8a9b6bbdbe07aded1a6914fd86f870b701031c1c",
+    "file": "fw/fomni-0543eb55.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fomni:fm1-emu": {
+    "sha256": "f937b807da1cfe13d43bef86c2469fa45d6a88b2b3a7f4b6f5b9741bdb0351ab",
+    "file": "pkg/fomni-f937b807.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "frodhes:fm1-emu": {
+    "sha256": "9524a3cff24aae8bf2567e18c177f3c945c1849bdc8b538b4ac9414fae5d88f2",
+    "file": "pkg/frodhes-9524a3cf.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "fumi:fm1-emu": {
+    "sha256": "03979d6592791f3547e0a1992147434dfdcc0e6df3e9eee8dd6ca588dd21cac7",
+    "file": "pkg/fumi-03979d65.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "gator:fm1-emu": {
+    "sha256": "52bcd2428c098b373f237622a392424069219b83d87f7a5606ca91cf28430bfb",
+    "file": "pkg/gator-52bcd242.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "ghoulbox:rfm1": {
+    "sha256": "3040c99416ed985f8751f364f89a8ce6715cf783a0a2281c0d23e7f139859a6a",
+    "file": "fw/ghoulbox-3040c994.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "ghoulbox:fm1-emu": {
+    "sha256": "92630ae278d4a0b4233ff2512b62ad9b5dbe976a4c9083046222d9293a8df749",
+    "file": "pkg/ghoulbox-92630ae2.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "golana:rfm1": {
+    "sha256": "4f4d979c5aad355fbfb862dac22d0b84d28d72398a693754bf3d63b11b5cbe5f",
+    "file": "fw/golana-4f4d979c.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "golana:fm1-emu": {
+    "sha256": "49806d009e140d1e90a1396d0f8caf54870d9d633d3ade2718ec0461b9501745",
+    "file": "pkg/golana-49806d00.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "golanadz:fm1-emu": {
+    "sha256": "b93e2c911366037031e83c9a366158ca090aa2eb9c939889e9e5982dfc568ca7",
+    "file": "pkg/golanadz-b93e2c91.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "golf:rfm1": {
+    "sha256": "d6e96ac176cde899c7d406319afeae9a4c5f202e41ce5a3b0d400415e7acf05e",
+    "file": "fw/golf-d6e96ac1.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "golf:fm1-emu": {
+    "sha256": "adf966894bb1040f57a48d062e537feb5bace11f54b86087240cd0a0b3c0f99e",
+    "file": "pkg/golf-adf96689.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "glitch:rfm1": {
+    "sha256": "605b2dc9bfe4839e51b1681c78b2ee9c56e335ab7eda55169fc720db393ca764",
+    "file": "fw/glitch-605b2dc9.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "glitch:fm1-emu": {
+    "sha256": "fdf6afb861a2cb54d590bcbecd5a0e0de24f373df43befb606f1560c05c33938",
+    "file": "pkg/glitch-fdf6afb8.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "grimm:rfm1": {
+    "sha256": "f8a3659f24dfa37e733f2e6354f8dccd64e8ce5a6ef2b4e4870ac42078b5d028",
+    "file": "fw/grimm-f8a3659f.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "grimm:fm1-emu": {
+    "sha256": "d85c0dd3d668f48157afad7b9a1eb2e49e376f931afd2349bebef9014eb1375d",
+    "file": "pkg/grimm-d85c0dd3.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "guitchordi:rfm1": {
+    "sha256": "489345ddb2037f4e7e36bf8c41491a7cdbc9cebf1efc5bfae047e4fc19483899",
+    "file": "fw/guitchordi-489345dd.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "guitchordi:fm1-emu": {
+    "sha256": "330396f043093bcdda65aacbd0098dd1fc1f253a17d5707db19ff5d971e05217",
+    "file": "pkg/guitchordi-330396f0.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "guru600:fm1-emu": {
+    "sha256": "7b8d13ebd0b4adac0ff15dc96ff3534039ab9fff4690a853a6056ca0c9ba2ff0",
+    "file": "pkg/guru600-7b8d13eb.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "hadal1:rfm1": {
+    "sha256": "b0286c98270061d89f59aaef4971d31edb0c41220292204a8693fdb8ce74a162",
+    "file": "fw/hadal1-b0286c98.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "hadal1:fm1-emu": {
+    "sha256": "579917ffb03b5b757e33daccb51300f1b9f122c9a56fae7e834e5cfc1d2751d4",
+    "file": "pkg/hadal1-579917ff.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "hawkchua:rfm1": {
+    "sha256": "6c00974b505196831b812fb15acbe111290240bee7b45fd0c10a172c2eca28e4",
+    "file": "fw/hawkchua-6c00974b.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "hawkchua:fm1-emu": {
+    "sha256": "bcd5b641b8269e89795246502d31cfa5249d191ba70c9c4833115974fc345d4a",
+    "file": "pkg/hawkchua-bcd5b641.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "hera:fm1-emu": {
+    "sha256": "dc0153ecba3daecfe289cb59124509117701311d15717db9a326d192928a9c45",
+    "file": "pkg/hera-dc0153ec.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "hortator:rfm1": {
+    "sha256": "88ad69dc04b65752bd176bdadec72119003f5223ad790d7ada5d8c4e3cbad1cd",
+    "file": "fw/hortator-88ad69dc.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "hortator:fm1-emu": {
+    "sha256": "ac81af292e035ee0c4b8b7ab3a78b942e4f03deee31ae213a2613c743cd9110f",
+    "file": "pkg/hortator-ac81af29.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "hortator-bt:fm1-emu": {
+    "sha256": "3d5fc15367945576cc590dac20269b108658fd592200b9e4c3626f9b7c8aab61",
+    "file": "pkg/hortator-bt-3d5fc153.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "hungrytravis:fm1-emu": {
+    "sha256": "de460db393835644f013540ba5620396eb23c72e4373cdcbac889466bd7ef32c",
+    "file": "pkg/hungrytravis-de460db3.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "hyp1:rfm1": {
+    "sha256": "539d6d246884957e5fec8dcc09746fe598ad3b25cf49debeb724fdc07f701627",
+    "file": "fw/hyp1-539d6d24.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "j6:fm1-emu": {
+    "sha256": "0bf0a53e4213e070917650294acf92c8bf83f12b2539f78aee29de9330f3de8f",
+    "file": "pkg/j6-0bf0a53e.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "jam:fm1-emu": {
+    "sha256": "be3f972864fcc7a38b813991b18eac17bef3213441bac4db19dabd7a6fdb7214",
+    "file": "pkg/jam-be3f9728.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "jamesos:rfm1": {
+    "sha256": "fa866372269400056c17dff09826ff62136a2b904232ba55eecf04fa71a87e7a",
+    "file": "fw/jamesos-fa866372.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "jamtrack:fm1-emu": {
+    "sha256": "4111f8e9b2019ba4bbc1d3137c490ffcd4261574ad7265992dc15ef0806e1902",
+    "file": "pkg/jamtrack-4111f8e9.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "jangada:fm1-emu": {
+    "sha256": "c382e334057bd107294940e456e5c1140754917ba152a1958af3aa1696333588",
+    "file": "pkg/jangada-c382e334.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "jiant:rfm1": {
+    "sha256": "d13ad130e7fde814a821b8d5eb2df07d945780c8fc5c3189452db0b86dba9a9d",
+    "file": "fw/jiant-d13ad130.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "juicy:fm1-emu": {
+    "sha256": "ca5e969dc06ee3c677a52a5b2b998974c9011921b0b36a884ec80d75b355286a",
+    "file": "pkg/juicy-ca5e969d.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "kwasub:rfm1": {
+    "sha256": "5fda084b2c6b0dba1a52c799cac254fc1ddcb8569f6808d20acdc0513ac2d928",
+    "file": "fw/kwasub-5fda084b.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "kwasub:fm1-emu": {
+    "sha256": "2b0b94cdee8e5fdf3d3ea9e5f995f411475c653402ae84daa47434e2b4343cad",
+    "file": "pkg/kwasub-2b0b94cd.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "kawa:fm1-emu": {
+    "sha256": "05bd45948f591159780c025d637aa04629501ceb93b4d00e86a56ad3cc6dc1b4",
+    "file": "pkg/kawa-05bd4594.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "keystepone:fm1-emu": {
+    "sha256": "9de60f29818022dd72cd2c098b91c9d27427bd8898682cf0c30863fc5754569b",
+    "file": "pkg/keystepone-9de60f29.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "kittenrack:fm1-emu": {
+    "sha256": "3ef77c39ec5d720d17b021fb936e73bef33dcb65560ae3e0e78e05eb5c1c261d",
+    "file": "pkg/kittenrack-3ef77c39.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "kitten:fm1-emu": {
+    "sha256": "7a9c4c3416e763b4d845259afd1dd5de4bb59daae8a435f337e3ea22c37e252d",
+    "file": "pkg/kitten-7a9c4c34.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "kriechstrom:fm1-emu": {
+    "sha256": "3f7e6e28951f50579e68293225b9151f2ce6e4c56562d5228a64d176b5a2f3e4",
+    "file": "pkg/kriechstrom-3f7e6e28.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "kris_jangle:rfm1": {
+    "sha256": "84d3adee34011ef2dd8228f8ff7a57a54581e696a9b23a8fad15af0ede9b618e",
+    "file": "fw/kris_jangle-84d3adee.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "kris_jangle:fm1-emu": {
+    "sha256": "8f67370a58b435781011ab7b2a6d114d99a479f7c83b5bdd43f98e54ec2f4fb1",
+    "file": "pkg/krisjangle-8f67370a.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "kurzhaar:fm1-emu": {
+    "sha256": "e348d6c73e7099f543deda0c77f911aa60fa349eb193f507a4e8b49138225c22",
+    "file": "pkg/kurzhaar-e348d6c7.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "lrry:fm1-emu": {
+    "sha256": "b6a4db70335a7c111dfdeb51fce44424ff1c598a609f5f9916d4abccc33b5571",
+    "file": "pkg/lrry-b6a4db70.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "loomfm1:fm1-emu": {
+    "sha256": "bbb5ba438d62e947158c614b18ac37264a64a472a077d57eb271acb60f6f47af",
+    "file": "pkg/loomfm1-bbb5ba43.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "loopheads:fm1-emu": {
+    "sha256": "10749ba604b4b616909859b2a4260dab8c7ccbfcfad03dd4d9cc867faf3262ee",
+    "file": "pkg/loopheads-10749ba6.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "lsdjburrito:fm1-emu": {
+    "sha256": "5cf2d3caac4addc30840d57dd508f25982cbd10075462dc87bcd46b270ac629b",
+    "file": "pkg/lsdjburrito-5cf2d3ca.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "mvance:fm1-emu": {
+    "sha256": "407fb0cf3cbd1ae60a4153758ac06a19aa1c71ffc7d774a12e1db31ad39c5e8d",
+    "file": "pkg/mvance-407fb0cf.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "mvsynth2:rfm1": {
+    "sha256": "02a4444e5907fb91825cfb6aa8fdfeaecc2ddfeb53a59ab5d71fa524d0129ce0",
+    "file": "fw/mvsynth2-02a4444e.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "mvsynth2:fm1-emu": {
+    "sha256": "e7c35e0c08c6e33e9d3ba2dffc08901f82c9a873bdd12cfb103eea1d53dacf7a",
+    "file": "pkg/mvsynth2-e7c35e0c.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "makohai:fm1-emu": {
+    "sha256": "ab5005203d68798175cf0ef6e798ac93656d4d90164bf13106a0794b0b81f4c9",
+    "file": "pkg/makohai-ab500520.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "maku:fm1-emu": {
+    "sha256": "b55d471fd179008511dfea032530750f0692d5be8eab263970f5c3c2162b53ea",
+    "file": "pkg/maku-b55d471f.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "manifold:fm1-emu": {
+    "sha256": "21ba73bd82d748b1268e03cf317d7b824f3db726c4bb670e284b28f3f90abd6a",
+    "file": "pkg/manifold-21ba73bd.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "manta:fm1-emu": {
+    "sha256": "4221c4bf8fa9b583ca15cde255a6c790ea3c23067f39f1448eaae5ebe376e581",
+    "file": "pkg/manta-4221c4bf.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "matryoshka:rfm1": {
+    "sha256": "dceb7a2132c6fb993cc9291c089bbfcf6316001ff6317068ea55fab070163650",
+    "file": "fw/matryoshka-dceb7a21.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "matryoshka:fm1-emu": {
+    "sha256": "67a3c5ba4c70d620773bf458bfe0e3c77b4f973408f4235a87aac7c328cc7456",
+    "file": "pkg/matryoshka-67a3c5ba.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "mc1:fm1-emu": {
+    "sha256": "cb0b5454d3e459da11489f73818d4537093907aa13adee0230f3404227a701e4",
+    "file": "pkg/mc1-cb0b5454.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "melodee:rfm1": {
+    "sha256": "f9919ad46930578d273ceb9f3ffde55d56690bed08e75f3c95826d3847b6cfff",
+    "file": "fw/melodee-f9919ad4.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "melodee:fm1-emu": {
+    "sha256": "8555dc54670a9e39b352e228cf5fb5ecc877fc2b702f19631f155dd85e58ba66",
+    "file": "pkg/melodee-8555dc54.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "metronome:fm1-emu": {
+    "sha256": "81a09bef0852ea0322edb6f4a71fb94e2bb19dee112da7753e08d4bdc1c3a19e",
+    "file": "pkg/metronome-81a09bef.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "midimon:fm1-emu": {
+    "sha256": "8d13651e14a84a68107832de5d5fa569fa1b645a051745d8f6aed9356c254159",
+    "file": "pkg/midimon-8d13651e.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "mightyarp:rfm1": {
+    "sha256": "9f677611109af4be093e21e342b1f7b81b5ddb37f0427af2b9d50a1cf09362b4",
+    "file": "fw/mightyarp-9f677611.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "mightyarp:fm1-emu": {
+    "sha256": "7f15b86d7412f1b76e27405a6bd7b368055322e94efea914f8dc52c22e85b54f",
+    "file": "pkg/mightyarp-7f15b86d.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "mikufm:fm1-emu": {
+    "sha256": "2b26a30b46fda4ed7aa7e1b13f33e93d9c822d6d33b39cbeb2d5375e638321b1",
+    "file": "pkg/mikufm-2b26a30b.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "min1:fm1-emu": {
+    "sha256": "82715d6ee18c8b12c287d614c131a4fb37f8606d811ae23301f1cd42bd4548c3",
+    "file": "pkg/min1-82715d6e.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "minigrain:fm1-emu": {
+    "sha256": "ed2af43a5c6c75abed392c18adc949059c17bc5b6195169da443ebbff7e0e15d",
+    "file": "pkg/minigrain-ed2af43a.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "miniju08:fm1-emu": {
+    "sha256": "8a82c8e3c922bbee80b4bda6d9c8cd62c714a8ea97c68a3f0ac45b8b0a5bb33a",
+    "file": "pkg/miniju08-8a82c8e3.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "minitone:rfm1": {
+    "sha256": "70639a9e88f510b7e149fc7447da1bdefe43b3fcba602bff019f0203dc1f2b77",
+    "file": "fw/minitone-70639a9e.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "minitone:fm1-emu": {
+    "sha256": "6e188e18052c67d3b2684781a35af3b0cf8a54ed7645e8c55e313fa143f0b9ca",
+    "file": "pkg/minitone-6e188e18.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "mnm1:rfm1": {
+    "sha256": "f295058e7d6d472f8d5c34b5c5d08e8e615a8ac771e9a664014e773a56dcac8c",
+    "file": "fw/mnm1-f295058e.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "mnm1:fm1-emu": {
+    "sha256": "d44011bf035314c037e16ab36a8e7895d9274732329e1d60e0bd94bd512eabf9",
+    "file": "pkg/mnm1-d44011bf.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "modelar:rfm1": {
+    "sha256": "727a109d84093f46d1e1b92a36af4da68ae5f702c2da7eb6f81b37549f47a146",
+    "file": "fw/modelar-727a109d.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "modelar:fm1-emu": {
+    "sha256": "14de4b6efdc5550149fe745158b22929d13fcfa6268bc751ace7eb27f21ffeac",
+    "file": "pkg/modelar-14de4b6e.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "modularkoi:rfm1": {
+    "sha256": "5120912d77ad6b880b5d7a643978f47bc0a8363cd6d79eafb5024931fdb43b89",
+    "file": "fw/modularkoi-5120912d.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "monk:fm1-emu": {
+    "sha256": "60b4f16be48fc3c088b626b8a5403620de2377941cc96c570c5d886eaa1165c5",
+    "file": "pkg/monk-60b4f16b.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "mono2k:rfm1": {
+    "sha256": "268baf8dc7769ec5ebc86f4fd9c2bca0aa3f2fd40ae529ab93aedd0ed6b7f565",
+    "file": "fw/mono2k-268baf8d.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "mono2k:fm1-emu": {
+    "sha256": "d04b5b1d9e00a5173ee92e30c41c10d309a8409feb895713a888e326139bdf4d",
+    "file": "pkg/mono2k-d04b5b1d.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "monohull:fm1-emu": {
+    "sha256": "6ed6e01d76066f1e7cefae7b528822de89d62b77ca2e7470d7ce81ee0570a83c",
+    "file": "pkg/monohull-6ed6e01d.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "mope1:rfm1": {
+    "sha256": "d3a634d704a62a4e35f2680a3553b658b7457d64a2b3932cd80b6a109de81ea6",
+    "file": "fw/mope1-d3a634d7.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "mope1:fm1-emu": {
+    "sha256": "25a3ec001464746062006f0e2bf85b1760cbba4dd627cad1094e16628a59d5ac",
+    "file": "pkg/mope1-25a3ec00.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "morse:rfm1": {
+    "sha256": "08dabc4ad05c6db5ac27264497180dd2ce3d83c2ad6d49b007d1ac2b52aedcdc",
+    "file": "fw/morse-08dabc4a.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "morse:fm1-emu": {
+    "sha256": "76b0c2a02927fb88cec2f51a557a4e392b23210e4bbd93e5ba29c48a26bd92d5",
+    "file": "pkg/morse-76b0c2a0.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "moss1:fm1-emu": {
+    "sha256": "326209ce609fb4ed0a98768a30fdfa61a2bdaeefaff729a08c88cd1335aeff2d",
+    "file": "pkg/moss1-326209ce.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "mutabledreams:rfm1": {
+    "sha256": "c7d232ba239a527b08c92e84ee18397802a3bc8589da8c324013309c1d097ba4",
+    "file": "fw/mutabledreams-c7d232ba.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "mutabledreams:fm1-emu": {
+    "sha256": "c70c4371a4287ecbf68b1bb6f53d8d519f968276417ec94a058a0051c6b1ca96",
+    "file": "pkg/mutable-c70c4371.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "mycelium:fm1-emu": {
+    "sha256": "9aa2802a0ac07f412e36c079c8034820b7405e3477468d0b3cfc7fd3f93e0da8",
+    "file": "pkg/mycelium-9aa2802a.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "nachtfahrt:rfm1": {
+    "sha256": "ffec9463d99907c96cb2cbb1bf623a4f8a76c367f48c6976421801353021f4cd",
+    "file": "fw/nachtfahrt-ffec9463.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "nachtfahrt:fm1-emu": {
+    "sha256": "0815ac61d3bcc639caefda7a25b7162201c4e3d10baa72ce929ca4930d5b460d",
+    "file": "pkg/nachtfahrt-0815ac61.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "nauclerus:fm1-emu": {
+    "sha256": "72e923840964a892a25dadb3db6b91576734fca1e1e73b86ec1a2aa007f478e0",
+    "file": "pkg/nauclerus-72e92384.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "nccnovationcircuitcompan:fm1-emu": {
+    "sha256": "d71b14e9dc066033b0646a2e8fff3722d98e1185cc40cf4a262183ffab04c3ca",
+    "file": "pkg/nccnovationcircuitcompan-d71b14e9.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "neon:fm1-emu": {
+    "sha256": "a30381a604742f4404e492cdd657dc0e84b5ab70911e1fbe209e2869280b40f1",
+    "file": "pkg/neon-a30381a6.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "niagaradrift:rfm1": {
+    "sha256": "0b1f232c1e3a67113923caf2e3f81a564908d718eb0c064c8db92745e7a7201d",
+    "file": "fw/niagaradrift-0b1f232c.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "niagaradrift:fm1-emu": {
+    "sha256": "fbaf107ae64d5b74c185985ce4d8a05fa620c67ab1d913cedd21b7c223670a80",
+    "file": "pkg/niagara-fbaf107a.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "obervave:rfm1": {
+    "sha256": "82a39c12839ac72d8c76b486d29bd98fa8773da46ac528b94ce16a02cfd1eadb",
+    "file": "fw/obervave-82a39c12.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "obervave:fm1-emu": {
+    "sha256": "3e13b127c8cb1094e6c0266e4bbd31eea4e762db561dc21ae0a81b685c58251d",
+    "file": "pkg/obervave-3e13b127.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "obssynth:rfm1": {
+    "sha256": "f888bb81469e05779bb0383565073ae0c7bf7959ab8ec0f1c64a4ca5ac0da25e",
+    "file": "fw/obssynth-f888bb81.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "obssynth:fm1-emu": {
+    "sha256": "8af5e97d10e766172601bae9e12f0fcc014db200ccd36ef1cc696fb75cf0b4da",
+    "file": "pkg/obssynthfm1-8af5e97d.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "ombak:fm1-emu": {
+    "sha256": "98be2b69266ae097e4aeefe5b9e29813b9c9c02b16eaf0fc4e585a5eb0ec5182",
+    "file": "pkg/ombak-98be2b69.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "opn1:fm1-emu": {
+    "sha256": "629394e97c3878eb9a7ffec2338a7191c452e6c2337d04669902e6f863f75739",
+    "file": "pkg/opn1-629394e9.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "orbita:fm1-emu": {
+    "sha256": "fe1d6df131f876708087e731922854316a62fb4aa172ab787b3acd73a49a6364",
+    "file": "pkg/orbita-fe1d6df1.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "orgigs:rfm1": {
+    "sha256": "69e6231d5f82a3943e8d09d235b2cdcc4ab92b2e4b8622d321d7eb2e33ff46f3",
+    "file": "fw/orgigs-69e6231d.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "orgigs:fm1-emu": {
+    "sha256": "d006565e1744ababa5369faf51c813eac2fae79e4e09cef7b3fca85e072888db",
+    "file": "pkg/orgigs-d006565e.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "paperlagoon:fm1-emu": {
+    "sha256": "4fbfe16779357872d8d83be06e564331dd1b651d50d70ba80c43dcf0864e222f",
+    "file": "pkg/paperlagoon-4fbfe167.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "patchwerk:rfm1": {
+    "sha256": "3aec66d8ac139c56e992a6f27fc8c36fb48788136a94efda3ca5a15d84b19ef3",
+    "file": "fw/patchwerk-3aec66d8.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "patchwerk:fm1-emu": {
+    "sha256": "c8d0f861dc7104f59106a3bd80c32b7b7e3e859790d5cbe1a360cb9845d575d1",
+    "file": "pkg/patchwerk-c8d0f861.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "penumbra:rfm1": {
+    "sha256": "5db539a06e451b2573ede3e4a520bd8959827167d01e5d8b4ff8ec866a6cb8d0",
+    "file": "fw/penumbra-5db539a0.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "penumbra:fm1-emu": {
+    "sha256": "e418acb94e34f07affba378e916d7dd8470af00a96ba0c8145473b714ea7a1b1",
+    "file": "pkg/penumbra-e418acb9.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "perf1:rfm1": {
+    "sha256": "dc3e44e6b81e22f81ffb427c7d0168f48c1a3c70377abfcb690821daede4865c",
+    "file": "fw/perf1-dc3e44e6.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "perf1:fm1-emu": {
+    "sha256": "f006cc6dd54eb867dd6b31963af2f9c8cf328e620be0f8b7c0fa81960c75cf92",
+    "file": "pkg/perf1-f006cc6d.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "pigeon:rfm1": {
+    "sha256": "974948f62b5196be1976afbf47a28ceb8e8a00acfdce89e34c1b4c451b6c83ca",
+    "file": "fw/pigeon-974948f6.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "pigeon:fm1-emu": {
+    "sha256": "a6cbb4fbd80baa38eb99400bb4bef5ddd5d4167024a8342189a07bc6b8861bed",
+    "file": "pkg/pigeon-a6cbb4fb.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "pingos1:fm1-emu": {
+    "sha256": "0bb517ed4a1b32ae233ed6416057f8fda286cf203272a64d3553d6a91bd162ae",
+    "file": "pkg/pingos1-0bb517ed.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "piterfly:fm1-emu": {
+    "sha256": "70906d9658b2d89779db94bcca35d19436825ac02b43f9911f3c06afc5d85535",
+    "file": "pkg/piterfly-70906d96.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "playa:fm1-emu": {
+    "sha256": "20bdbee984dde0e97dea8d6ff764b6144a0eaf7c111a339e02a67a8a302a5cce",
+    "file": "pkg/playa-20bdbee9.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "plissken:fm1-emu": {
+    "sha256": "25b338d7c1b82173d7a48ab825c996b03c38190175c78365ab21c9a5016b882f",
+    "file": "pkg/plissken-25b338d7.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "pocketband:fm1-emu": {
+    "sha256": "9d81e724daac58cf5885c9d43305b49593461798137092bf69ad90771a41176d",
+    "file": "pkg/pocketband-9d81e724.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "gammawave:fm1-emu": {
+    "sha256": "f8fae2b0191662713225608cd0191e60a18f0347748f60fad0f6327d6f81dc4b",
+    "file": "pkg/gammawave-f8fae2b0.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "polly:fm1-emu": {
+    "sha256": "e3f6a5ab9d049161d631937694dd43ba38a7e8a9ab15c0ebed72c2b913368f36",
+    "file": "pkg/polly-e3f6a5ab.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "pond:rfm1": {
+    "sha256": "9eb5956bf56297540182973a2d9c5a849663796fa18bd0b115f316d2ec0ea553",
+    "file": "fw/pond-9eb5956b.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "pond:fm1-emu": {
+    "sha256": "fb994f2903b7a26d0fff27fb7261c71654f3cc7a1812b7e040f155bd99bbffdc",
+    "file": "pkg/ambpond-fb994f29.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "purplemonkey:rfm1": {
+    "sha256": "dbb6e9a8cda4e0d41fb5035a27c781578a0bb6cbfc808750e8705f7967d9cd09",
+    "file": "fw/purplemonkey-dbb6e9a8.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "purplemonkey:fm1-emu": {
+    "sha256": "322701e7dd9d9a5226aa0dd3793411807a395b3b46f3f951e24ffaf76f6aecbc",
+    "file": "pkg/purplemonkey-322701e7.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "quantumgammawave:rfm1": {
+    "sha256": "f7bc97c92cf06378252a5582dd0f19d1ba617ed35e98321c5221d4e9dc983721",
+    "file": "fw/quantumgammawave-f7bc97c9.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "quantumgammawave:fm1-emu": {
+    "sha256": "2777190a33706682feeae9e15cabcce3084ad84ba34b8b86ea6b1e62d7096ce8",
+    "file": "pkg/quantumgammawave-2777190a.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "quartet:fm1-emu": {
+    "sha256": "4e52ad4ee8a3a90e45a23efc867c75d6edf60c880a296b7f6ae9800b949609cf",
+    "file": "pkg/quartet-4e52ad4e.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "quartz:rfm1": {
+    "sha256": "23f483c1873ef144854ca420882fd25f3fbe9d168e4ec04c4cf41115221fd286",
+    "file": "fw/quartz-23f483c1.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "quartz:fm1-emu": {
+    "sha256": "ca901f0684dc1462014a50d4405f3d180c4f56a80ef332c174d22e688f3a4b1e",
+    "file": "pkg/quartz-ca901f06.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "rakt:fm1-emu": {
+    "sha256": "8a7bbb7133b6d3e2a2cc48aaa2bf250bcca9e40e899c39724a1183aa61ef4b57",
+    "file": "pkg/rakt-8a7bbb71.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "rambeaver:fm1-emu": {
+    "sha256": "045f7386e5a33efbb1b544d5a3e34aafa4d3a4b33a133312080cbaec4126c79f",
+    "file": "pkg/rambeaver-045f7386.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "ravel:rfm1": {
+    "sha256": "caebbe9a7d847017aaf967360c05aeb616a282598459ebf6a68f0a5edda41d9a",
+    "file": "fw/ravel-caebbe9a.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "ravel:fm1-emu": {
+    "sha256": "8829114769960cf99fe2e5b3ba5fac314a69d3e1ae518f7ca8ce0a20755efa40",
+    "file": "pkg/ravel-88291147.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "remotefm1:rfm1": {
+    "sha256": "eb4b86ed57532fe816bd0f30a952660893fb3200a7dc7b80ef998aa0d28522c7",
+    "file": "fw/remotefm1-eb4b86ed.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "remotefm1:fm1-emu": {
+    "sha256": "27e4e4e523098c2480391636572e047f9076b96a91c77f4998a83b94bee67cbe",
+    "file": "pkg/remotefm1-27e4e4e5.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "rhytmsec1:fm1-emu": {
+    "sha256": "0c190cc38035ef36c5e54e0b1e25b4f338e6d2666be86ca6a591deaf86739d3b",
+    "file": "pkg/rhytmsec1-0c190cc3.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "rupture:rfm1": {
+    "sha256": "2a394b521c0d29b325a853cf2f5e0db1cd9621b9bcba4e0777abbf526f9f2ec6",
+    "file": "fw/rupture-2a394b52.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "rupture:fm1-emu": {
+    "sha256": "7e6128aa0241060109d1f0f5b0f4a99cf5319e4bb987b716c2ebffd741763f86",
+    "file": "pkg/rupture-7e6128aa.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "s1vave:rfm1": {
+    "sha256": "7d73165fee5e5b9da961ebb96da8a964a41aec726354e90e2ae5d5c70f772862",
+    "file": "fw/s1vave-7d73165f.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "s1vave:fm1-emu": {
+    "sha256": "2139328149f91b877e87d8ba701899fa74e6548034f6156d94fc9098ef56c5e8",
+    "file": "pkg/s1vave-21393281.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "samsara:rfm1": {
+    "sha256": "67442dedfae47236e4c716fe798dee71689edb71dfcac5ccf378aca76be0212c",
+    "file": "fw/samsara-67442ded.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "samsara:fm1-emu": {
+    "sha256": "c9e35c552c3c89d07c1a7f7f2255be914afab55a41cdc1f7fd9887837f67b60a",
+    "file": "pkg/samsara-c9e35c55.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "sardine:fm1-emu": {
+    "sha256": "16c29ab754b1850e9c941262e103c5a1030da74a571507fbac59fefc8a27565b",
+    "file": "pkg/sardine-16c29ab7.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "satie1:fm1-emu": {
+    "sha256": "1714f65080b5f3adef44afa84b3287b2a06f2e3299d8f709b0d5fff0f6cc1d46",
+    "file": "pkg/satie1-1714f650.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "scintilla:fm1-emu": {
+    "sha256": "cdc9a736308ff58c71a0de11da874091469a4a6c1758f66c55998456e5d7ebf5",
+    "file": "pkg/scintilla-cdc9a736.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "shineon:fm1-emu": {
+    "sha256": "bdde36f1191e76ddb17c9da4b820f177c0d7e1350061c86406d861e5896379b0",
+    "file": "pkg/shineon-bdde36f1.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "sid1:rfm1": {
+    "sha256": "9b27c074ae976a041b9f91bebe90d5f41661e7e412dd96133f5fee71ccaf3a3b",
+    "file": "fw/sid1-9b27c074.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "sid1:fm1-emu": {
+    "sha256": "22b9e3d7f517da612926534f322504c82dda61c8f7af571dfa91f099283d1629",
+    "file": "pkg/sid1-22b9e3d7.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "sidj:rfm1": {
+    "sha256": "ef1ca2f8dcdcc7620dd70300b8ee08b39afd0bb4837758b1aaacb73e86585a4a",
+    "file": "fw/sidj-ef1ca2f8.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "sidj:fm1-emu": {
+    "sha256": "4df5d3f1a7360b76974e13775ad15af376a1216e0c9318e8d5922dddf7b551a8",
+    "file": "pkg/sidj-4df5d3f1.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "sidou:rfm1": {
+    "sha256": "98b70b6feca1f1117d8b0900dc3c31c52648a1353aaf322bf1c1a26f6a5be693",
+    "file": "fw/sidou-98b70b6f.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "sidou:fm1-emu": {
+    "sha256": "e285a67e7ae461544a06826abc780ce6f55a8280df50dbc4bed4d65ace712087",
+    "file": "pkg/sidou-e285a67e.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "skiff:rfm1": {
+    "sha256": "419a675d458df372cee1e738ed12b707308d7673616dd24da73edb3f0f22a1e4",
+    "file": "fw/skiff-419a675d.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "skiff:fm1-emu": {
+    "sha256": "82e9068a22c9949dd2d452a317feb365b918cff9fb9337c820eed91324d75d75",
+    "file": "pkg/skiff-82e9068a.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "atlatl:fm1-emu": {
+    "sha256": "8401e25ad0d9818483142c00cde496c97dbb19f0530f5d634c4b3125706da7fc",
+    "file": "pkg/atlatl-8401e25a.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "sloop3:rfm1": {
+    "sha256": "d815e3aaf5b4a926917f6c0420ab63b6b1ef9f87720636a7971ef5e7134f4758",
+    "file": "fw/sloop3-d815e3aa.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "sloopbanks:fm1-emu": {
+    "sha256": "a54e9d815db8502565023b11977f83da2fa9bcbdf824ee64ec67d81d601e4cd3",
+    "file": "pkg/sloopbanks-a54e9d81.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "floyd:fm1-emu": {
+    "sha256": "d70301ad3e1f67a71792a2644829658a8570eceb0681ba2ac6eb41d771cc7560",
+    "file": "pkg/floyd-d70301ad.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "sloopdub:fm1-emu": {
+    "sha256": "16ce4bcd96ee47685f59748926dfeba21812de5943937e0dbf19c2fdf9944d4c",
+    "file": "pkg/sloopdub-16ce4bcd.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "sloopdx:fm1-emu": {
+    "sha256": "cebc88c0f996f338d4741502ec7f99d05ecb9c6de3715ab674401a14d6a255d7",
+    "file": "pkg/sloopdx-cebc88c0.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "smileyface:rfm1": {
+    "sha256": "6cf63557fecefbe1bd0a658269cbf457d612296ccbed6f64cb0c732cc406a275",
+    "file": "fw/smileyface-6cf63557.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "smileyface:fm1-emu": {
+    "sha256": "2e3bb9c289ac2a717e08f8ea17dd0f50e7d970adb5bbff1f9fcb7ec25c45f4e6",
+    "file": "pkg/smileyface-2e3bb9c2.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "spampy:fm1-emu": {
+    "sha256": "386cf702cd897023aa88c137d805d9aec761c82744011f73949424619a39b9cb",
+    "file": "pkg/spampy-386cf702.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "speak37:rfm1": {
+    "sha256": "3ed8f87e60b2b1b00bd5a0efc4dedccf8eee58dfd545f2fbcbeb34c0ff6a11b7",
+    "file": "fw/speak37-3ed8f87e.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "spellbox:rfm1": {
+    "sha256": "c3a96135fa2ed4445145cf29a32f2252cae008beb9b066a0778ca6a5ec78b3f7",
+    "file": "fw/spellbox-c3a96135.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "spellbox:fm1-emu": {
+    "sha256": "b4b3f5ca96c4f7f5971586e9ada95cc343d789a8d4b3761b832c39f0920a4c05",
+    "file": "pkg/spellbox-b4b3f5ca.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "splitmilk:fm1-emu": {
+    "sha256": "e8a02e0c174f466e8ad8f987a764d0caa2836f8a97c9ccb465e6c5054a68a22c",
+    "file": "pkg/splitmilk-e8a02e0c.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "sq80:fm1-emu": {
+    "sha256": "3ecaaf82c9f7fc477ee09eec38c58ee0988df7ccec0aebe6b66a04c48f124768",
+    "file": "pkg/sq80-3ecaaf82.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "stallion:rfm1": {
+    "sha256": "d1f4f30b78b15c70c9388af5c9ab79f2dfabf307887561b5df13aa125dcbc792",
+    "file": "fw/stallion-d1f4f30b.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "stallion:fm1-emu": {
+    "sha256": "47cd2625587a2fdadd66b59572593d91858fbcc91000e62ff73439a768408258",
+    "file": "pkg/stallion-47cd2625.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "sy1:rfm1": {
+    "sha256": "e43a2424b19dda8829f20ccc47b45a0815d0f47bad4fcd49d712fb9fef669cd7",
+    "file": "fw/sy1-e43a2424.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "sy1:fm1-emu": {
+    "sha256": "96a40c0e41f2ee1285a1f0b7f17f09f4d73aa3883e1240cf3a1870087ec97008",
+    "file": "pkg/sy1-96a40c0e.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "tack:fm1-emu": {
+    "sha256": "59a2ec8f4f6bdd68c4128db430fdef632e4818ff1d6196a2da284b8dba8042a0",
+    "file": "pkg/tack-59a2ec8f.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "tastywaves:fm1-emu": {
+    "sha256": "b94d8e4b118ced2aa78c31a19119f5e538f58165aa8d9146a473c57e58d9dcad",
+    "file": "pkg/tastywaves-b94d8e4b.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "tekstuur:rfm1": {
+    "sha256": "04b10e04b09f517071271bf0de3439069b06c83035c64c3e84d7857ee9617469",
+    "file": "fw/tekstuur-04b10e04.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "tekstuur:fm1-emu": {
+    "sha256": "36f5cf9076efd41598cae41a1a67f740e7f7635b9d937a74193161462e131d32",
+    "file": "pkg/tekstuur-36f5cf90.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "tessera:rfm1": {
+    "sha256": "f558f84cd2f62bbeb9e2e9b843b207e176161b2bd86d3724c832769e2f80af4b",
+    "file": "fw/tessera-f558f84c.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "tessera:fm1-emu": {
+    "sha256": "a043d520624d280feb960a5eb1a4264228cb5b3c4999e68e0f0117da70c91d5f",
+    "file": "pkg/tessera-a043d520.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "tether:fm1-emu": {
+    "sha256": "98e6deff2277889d4880cf655c407d72addcd589b4164bf59fef3dbbdd1a6d35",
+    "file": "pkg/tether-98e6deff.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "textura:fm1-emu": {
+    "sha256": "e0d8f3d97642fa5f3180975d8f2ee33f9c1d526b56a7c9d3984e378c811c0029",
+    "file": "pkg/textura-e0d8f3d9.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "tonitor:rfm1": {
+    "sha256": "95ee39842a6a48be6767bb7f066b658263b9d8726d12e5c1d4c8271fdec4fe76",
+    "file": "fw/tonitor-95ee3984.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "trapstationos:rfm1": {
+    "sha256": "d44e7f4cb0f836c5597cf9255a4f116ae640a3b7f117bacd15aeeabc388cc93e",
+    "file": "fw/trapstationos-d44e7f4c.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "trapstationos:fm1-emu": {
+    "sha256": "03806aa55c06f2fa973bbb181dd2837f4345dbe7e00aa2d99a213a8e0a4850d8",
+    "file": "pkg/trapstationos-03806aa5.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "trumpagotchi:fm1-emu": {
+    "sha256": "bc4b2be1ec2646ca0f0de081642d0e6ad583c6ec5967cf3ad198dbdadab29cdc",
+    "file": "pkg/trumpagotchi-bc4b2be1.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "u0u:fm1-emu": {
+    "sha256": "be27b471ac6bfdce005e012886b546fca1c6554d8a72fbbe181fc66e8e848d30",
+    "file": "pkg/u0u-be27b471.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "unholy:fm1-emu": {
+    "sha256": "025bec05d71da1b106ecb05d52e165ea6592812e92209cfe2626278047f7abba",
+    "file": "pkg/unholy-025bec05.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "valle:fm1-emu": {
+    "sha256": "ac6a0f8230cac957ad5752e06377077af560a1a6666ed960f5e9bf4631963409",
+    "file": "pkg/valle-ac6a0f82.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "vector37:rfm1": {
+    "sha256": "7fff26fdb8f96841c16398ca0ab1d64cb6edf3808fadcacca3aa4486de5da7f5",
+    "file": "fw/vector37-7fff26fd.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "veffbox:fm1-emu": {
+    "sha256": "ef6fab94b8988ee3ef7b14d78c2b3af289758d76b0ff1850bb56f3ca50d40cf9",
+    "file": "pkg/veffbox-ef6fab94.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "vibe-link:fm1-emu": {
+    "sha256": "c5eb6fc07ec601650cc08f4c57c50374bf70844a38495f59b508864283f26733",
+    "file": "pkg/vibe-link-c5eb6fc0.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "viber:fm1-emu": {
+    "sha256": "4d33a068e80735800053a90f48c60945bdf1fdf3a558e2596b4ddff616135a54",
+    "file": "pkg/viber-4d33a068.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "viscera:rfm1": {
+    "sha256": "125a66e476de4c19f03d1ab94d3b8760924b9a85fe3b2410790d7f4cd5980393",
+    "file": "fw/viscera-125a66e4.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "vnl1:fm1-emu": {
+    "sha256": "1f065557fe696da781606e3428d535b7dcd37fdf02ce5577713534c3360f0232",
+    "file": "pkg/vnl1-1f065557.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "wanderer:fm1-emu": {
+    "sha256": "9135b62169409efb73a6492561673bb5465979563824605956ab3316c50d5b32",
+    "file": "pkg/wanderer-9135b621.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "waveloop:fm1-emu": {
+    "sha256": "e9529deb7ff626ee64b08fe06a550e39cd2a99c3cc1697bfcb65828f030cf22d",
+    "file": "pkg/waveloop-e9529deb.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "x0xrmx:fm1-emu": {
+    "sha256": "b343c135779c1de933d655236b14628103816036e170d65faed706aba620dcaa",
+    "file": "pkg/x0xrmx-b343c135.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "xenolith:fm1-emu": {
+    "sha256": "3cf3093b31f88696461dfd3bb4e366328ba0780212366715690785c9d58f2611",
+    "file": "pkg/xenolith-3cf3093b.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "xmod:fm1-emu": {
+    "sha256": "2593ee154634ce948cf86136895956f5d8bef01f2ea879b9ca29db8bc2c28434",
+    "file": "pkg/xmod-2593ee15.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "zen1:rfm1": {
+    "sha256": "d4fd46bcbc59bc1df7820b519c42e95425115af0728f4c0432483bb72241061c",
+    "file": "fw/zen1-d4fd46bc.rfm1",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "zen1:fm1-emu": {
+    "sha256": "e3c51c045b1a763b6d16d2a7e783289ee874b25790e9010c0a5a084ddb65a125",
+    "file": "pkg/zen-e3c51c04.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  },
+  "zenith1:fm1-emu": {
+    "sha256": "1b2c43d6f5d9959ec7e7092261fb60c01bbb5fb3e837ed7629dc7e903212fce9",
+    "file": "pkg/zenith1-1b2c43d6.fwsc",
+    "verifiedBytes": true,
+    "basis": "existing published delivery; preserved exact bytes, subject to audit holds"
+  }
+}

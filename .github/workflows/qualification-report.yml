@@ -1,0 +1,44 @@
+name: Qualification report (no publishing)
+on:
+  pull_request:
+    paths:
+      - pocket/qualification*
+      - pocket/qualify.py
+      - pocket/test_qualification.py
+      - src/pocket-picker.js
+      - .github/workflows/qualification-report.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: qualification-report-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Existing regression tests and visibility checks
+        run: |
+          node --test pocket/tests/*.test.mjs
+          python3 -B pocket/emu/test_catalog.py
+          python3 -B pocket/test_qualification.py
+          node tests/run.js
+      - name: Report from existing two-source snapshots (read-only)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 -B pocket/qualification_report.py --out qualification-output
+      - name: The real picker agrees with the report
+        run: node pocket/tests/qualification-preview.mjs qualification-output/catalog-v2.proposed.json qualification-output/qualification-report.json
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: qualification-report
+          path: |
+            qualification-output/*.json
+            qualification-output/evidence/*.json
+          retention-days: 14
