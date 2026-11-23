@@ -35,3 +35,10 @@ test("qualification holds override passing labels and last-good playback uses it
   assert.equal(result.length, 1); assert.equal(result[0].url, "data/pkg/last-good.fwsc");
   assert.equal(result[0].sha256, "c".repeat(64));
 });
+
+test("an uncertain platform decision hides only that entry", async () => {
+  const missing = fw("missing"); missing.qualification = {};
+  const malformed = fw("malformed"); malformed.qualification = { web: { visible: true, engines: ["rfm1"] } };
+  const result = await load([missing, malformed, fw("good")]);
+  assert.deepEqual(result.map(e => e.meta.id), ["good"]);
+});

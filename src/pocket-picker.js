@@ -65,6 +65,7 @@
   function webState(f) { return f.status && f.status.web ? f.status.web.state : "unknown"; }
   function qualified(f, engine) {
     var q = f.qualification && f.qualification.web;
+    if (Object.prototype.hasOwnProperty.call(f, "qualification") && !q) return false;
     if (q) {
       var r = q.routes && q.routes[engine];
       var sha = engine === "fm1-emu" ? f.emu && f.emu.package && f.emu.package.sha256 : f.sha256;
@@ -79,7 +80,7 @@
     var q = f.qualification && f.qualification.web;
     if (!q) return f;
     f = JSON.parse(JSON.stringify(f));
-    var r = q.routes["fm1-emu"];
+    var r = q.routes && q.routes["fm1-emu"];
     if (r && r.eligible && r.package) {
       f.emu = f.emu || {}; f.emu.package = r.package; f.emu.web = r.status;
     }
