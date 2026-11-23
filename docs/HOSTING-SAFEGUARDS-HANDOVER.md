@@ -5,40 +5,36 @@ approval, visibility change or release is authorised here.
 
 ## What happened and what protects publishing now
 
-Public downloads had included packages whose hosting clearance was unresolved.
-The five held packages and their five screenshots were removed separately, with
-verified local backups. The watched [sync](https://github.com/slowphase/fm1-pocket-player/actions/runs/45132572134)
+Uncleared packages had reached public downloads. The five held packages and
+their screenshots were removed with verified backups. The watched [sync](https://github.com/slowphase/fm1-pocket-player/actions/runs/45132572134)
 then passed all six jobs and deployed the website.
 
-- [PR #32](https://github.com/slowphase/fm1-pocket-player/pull/32) checks the actual
-  finished publication archives and downloadable previews before uploading.
-  Its deliberate held-package insertion test must reject the archive. Uploads
-  cannot follow a failed check. Existing accepted original packages are pinned
-  to their exact fingerprints; the RemoteFM1FW approval gate remains.
+- [PR #32](https://github.com/slowphase/fm1-pocket-player/pull/32) checks finished publication archives and
+  previews before upload. A test deliberately inserts a held package and expects
+  rejection; failed checks block upload. Accepted originals stay pinned to their
+  exact fingerprints. The RemoteFM1FW approval gate remains.
 - [PR #33](https://github.com/slowphase/fm1-pocket-player/pull/33) prevents mass
   cleanup after an outage: no deletion with an empty keep list, a package-count
   fall over 10%, or removal of over 20% of existing packages or screenshots.
 
-The rolling store has exactly 235 accepted originals. None of Araminta, SHIFL,
-Bass Something 2, Sillage or Volna, or their screenshots, remains there.
-Restricted SLOOP and NOIZ DEMONS' uncleared original are absent from the live
-releases and website. Of 355 stored Actions artifacts inspected, 27 unsafe older
-archives were removed after verified backup; the other 328 contained no held or
-uncleared packages under the current approvals. The two merged safeguard branches
-were deleted; reference and parked branches were retained.
+The store has 235 accepted originals: no Araminta, SHIFL, Bass Something 2,
+Sillage, Volna or their screenshots. Restricted SLOOP and NOIZ DEMONS' uncleared
+original are absent from live releases and the website. All 355 stored Actions
+artifacts were inspected: 27 unsafe archives were backed up and removed; the
+remaining 328 passed. Both merged safeguard branches were deleted; reference
+and parked branches remain.
 
 ## Unfinished safety checks
 
 **The raw-package cache is a separate gap.** Fourteen Actions caches can retain
 unfiltered originals. [GitHub allows forked pull requests to read base-branch caches](https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching).
-The archive checks do not cover these cache uploads. Permission to purge those
-caches and pause publishing is pending; the nightly is currently still scheduled.
-A separately approved cache-safety fix is needed to prevent recreation.
+These uploads bypass archive checks. Cache purge/publishing pause awaits
+approval; the nightly is still scheduled. A separately approved fix must prevent
+recreation.
 
-An earliest h1 binary in Git history also carries an all-rights-reserved marker;
-its pinned source has no licence file. Current h1 is MIT. No retained artifact
-contains that old binary. Historical permission needs clarification; no history
-was rewritten.
+An old h1 binary in Git history has an all-rights-reserved marker and no licence
+file at its source revision. Current h1 is MIT. No retained artifact contains
+that old binary; historical permission needs clarification. No history was rewritten.
 
 ## Decisions still pending
 
@@ -59,18 +55,16 @@ Player [#31](https://github.com/slowphase/fm1-pocket-player/pull/31), Mac
 [#13](https://github.com/slowphase/fm1-pocket-mac/pull/13) and draft Player
 [#6](https://github.com/slowphase/fm1-pocket-player/pull/6) are parked, unmerged,
 with comments. A **separately approved seven-night report-only trial** has not
-started. Before it starts: update conflicting branches without losing safeguards,
-refresh the baseline, agree success criteria and startup-test limitations, keep
-reports free of uncleared binaries/caches, and recheck Mac favourites/saves.
-New source builds need separate scope and source/licence clearance.
+started. First: resolve conflicts while preserving safeguards, refresh the baseline,
+agree success criteria and startup-test limitations, prevent binary/cache leaks,
+and recheck Mac favourites/saves. New builds need separate scope and clearance.
 
 ## Checking 24 November's 4:23 pm Brisbane run
 
-If publishing is paused for the cache gap, expect no publishing run until a fix
-is approved. Otherwise open **Actions → Pocket sync** on Player's main branch.
-Check every job, the Hub refresh/reuse message, the finished-archive results and
-the explicit cleanup decision; a green tick alone is insufficient. Compare the
-listed uploads/deletions with the catalogue changes, retain all original 285 IDs
-and attribution/restrictions except documented upstream updates, and check the
-website loads. Held packages must remain absent from releases, artifacts **and
-caches**. No FM1 Editor reads, app releases or new version tags are authorised.
+If paused for the cache gap, expect no publishing until a fix is approved.
+Otherwise open **Actions → Pocket sync** on Player main. Check every job, the
+Hub refresh/reuse message, archive checks and cleanup decision; green alone is
+insufficient. Review uploads/deletions and upstream changes; preserve the original
+285 IDs and attribution/restrictions, and check the website loads. Held packages
+must be absent from releases, artifacts **and caches**. No FM1 Editor reads, app
+releases or new version tags are authorised.
