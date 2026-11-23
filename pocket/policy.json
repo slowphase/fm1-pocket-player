@@ -380,6 +380,14 @@
     "zen1": {
       "license": "GPL-3.0-only",
       "reviewed": "2026-11-19"
+    },
+    "a22": {
+      "license": "MIT",
+      "reviewed": "2026-11-23"
+    },
+    "chordism": {
+      "license": "MPL-2.0",
+      "reviewed": "2026-11-23"
     }
   },
   "excluded": {
