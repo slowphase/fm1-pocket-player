@@ -35,6 +35,9 @@ jobs:
       - name: The emulator engine's catalogue rules (preference, confidence, hosting)
         run: python3 pocket/emu/test_catalog.py
 
+      - name: Finished archive contamination and upload gates
+        run: python3 -B pocket/test_hosting_guard.py
+
       - name: The simulator's own test (h1)
         run: node tests/run.js
 

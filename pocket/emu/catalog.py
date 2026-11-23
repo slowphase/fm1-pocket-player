@@ -32,6 +32,8 @@ def opt(k, d=None):
         i = args.index(k); v = args[i + 1]; del args[i:i + 2]; return v
     return d
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(HERE))
+from hosting_guard import load as hosting_load, original_allowed, selected_package, hold_reason
 COMMIT = json.load(open(os.path.join(HERE, "upstream.json")))["commit"]
 SLOW, SILENT = 1.2, 0.0002
 OPEN = re.compile(r"^(GPL-[23]\.0(-only|-or-later)?|LGPL-[23]\.[01](-only|-or-later)?|AGPL-3\.0(-only|-or-later)?|MPL-2\.0|MIT|"
@@ -47,6 +49,11 @@ except Exception: led = {}
 try: rled = json.load(open(opt("--rfm1-ledger")))["builds"]
 except Exception: rled = {}
 store, site = opt("--store"), opt("--site")
+hosting_guard = "--hosting-guard" in args
+hosting_approvals = hosting_load(opt("--hosting-approved", os.path.join(HERE,"..","hosting-approved.json")))["packages"] if hosting_guard else {}
+hosting_holds = hosting_load(os.path.join(HERE,"..","hosting-holds.json")) if hosting_guard else {"holds":[]}
+previous_path = opt("--previous")
+previous = {f["id"]:f for f in hosting_load(previous_path)["firmwares"]} if previous_path else {}
 web_engine = "--no-web-engine" not in args   # the site has no emu/fm1_web.wasm this time: the web player cannot use packages
 policy = json.load(open(opt("--policy", os.path.join(HERE, "..", "policy.json"))))
 exceptions, notes, excluded = policy.get("smokeExceptions", {}), policy.get("emuNotes", {}), policy.get("excluded", {})
@@ -166,6 +173,7 @@ counts = {"packages": 0, "hosted": 0, "web": {}, "mac": {}, "preferred": {"web":
 for e in v2["firmwares"]:
     hub = ((e.get("provenance") or {}).get("hub") or {}).get("id") or (e["id"] if e["id"] in pk else None)
     p = pk.get(hub) if hub else None
+    if hosting_guard: p = selected_package(e,p,previous,hosting_approvals,hosting_holds)
     ids = [i for i in (e["id"], hub) if i]
     em = {}
     if not p:
@@ -176,11 +184,16 @@ for e in v2["firmwares"]:
     else:
         counts["packages"] += 1
         lic = e.get("license") or p.get("license") or ""
+        if p.get("hostingSelection") == "last-accepted": lic = p.get("license") or lic
         excl = next((excluded[i] for i in ids if i in excluded), None)
         src = p.get("source") or ""
+        if hosting_guard: excl = excl or hold_reason(ids,src,hosting_holds,"mac")
         em["package"] = {"url": p["url"], "sha256": p["sha256"], "size": p.get("hubSize"), "version": p.get("version"), "license": lic,
                          "asset": p.get("asset"), "release": p.get("release"), "source": src or None}
         may_host = licence_ok(lic) and not excl
+        hosting_reason = hold_reason(ids, src, hosting_holds)
+        cleared = not hosting_guard or original_allowed(e["id"],p["sha256"],src,hosting_approvals,hosting_holds)
+        may_host = may_host and cleared and not hosting_reason
         if excl: em["excluded"] = excl
         name = f"{hub}-{p['sha256'][:8]}.fwsc"
         have = next((os.path.join(store, n) for n in (name, f"{hub}.fwsc") if store and os.path.exists(os.path.join(store, n))), None)
@@ -194,6 +207,9 @@ for e in v2["firmwares"]:
         # a picture for a firmware that has none: its own screen, as the emulator showed it (bench.py --shots), only
         # for packages Pocket may host; anything else gets the apps' drawn name tile
         shot = os.path.join(store, f"shot-{hub}-{p['sha256'][:8]}.png") if store else None
+        if hosting_guard and site and may_host and shot and os.path.exists(shot) and e.get("image") == f"shots/{hub}-emu-{p['sha256'][:8]}.png":
+            os.makedirs(os.path.join(site,"shots"),exist_ok=True)
+            shutil.copyfile(shot,os.path.join(site,e["image"]))
         if not e.get("image") and may_host and shot and os.path.exists(shot):
             img = f"shots/{hub}-emu-{p['sha256'][:8]}.png"
             e["image"] = img; e["imageKind"] = "emulator screen"
@@ -206,7 +222,7 @@ for e in v2["firmwares"]:
         if em["web"]["state"] == "playable" and lin and lin.get("soundFrom") == [] and not any(i in exceptions for i in ids):
             em["web"] = {"state": "experimental", "reason": next((notes[i] for i in ids if i in notes), "Ran, but made no sound in the scripted session (keys, MIDI, PLAY)."), "tested": em["web"].get("tested")}
         if not em["package"].get("file"):
-            why = (f"Pocket does not host it ({excl})" if excl else "The web player's emulator is not on the site this time" if not web_engine
+            why = (f"Pocket does not host it ({excl or hosting_reason})" if excl or hosting_reason else "Hosting clearance for this exact package is pending" if not cleared else "The web player's emulator is not on the site this time" if not web_engine
                    else "Pocket's copy is not ready yet" if may_host else "Its licence does not let Pocket host a copy")
             em["web"] = {"state": "unavailable", "reason": why + ", and a browser cannot fetch the maker's file itself: open the package from disk."}
         em["mac"] = judge(p["sha256"], "mac", "macOS Apple Silicon", ids)
