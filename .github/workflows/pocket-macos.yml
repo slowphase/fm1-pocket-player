@@ -1,0 +1,99 @@
+# FM-1 Pocket Player: the macOS checks, after each Pocket sync.
+#
+# These two jobs used to be part of Pocket sync. They need one of GitHub's Apple silicon Mac machines, and when GitHub
+# has none free the job is cancelled before it starts, which turned the whole nightly run red although nothing was
+# wrong. On their own here, a night without a Mac shows as a cancelled run of this workflow (no email with GitHub's
+# "failed workflows only" notifications), while a check that runs and fails still fails, and still emails.
+#
+# - native-macos: a representative set of published builds in the Mac app's native engine on macOS
+#   (native-macos.json in pocket-current, used by the next night's catalogue).
+# - emu-macos: new original packages measured in fm1-emu on macOS (emu-compat.json in pocket-packages).
+# Both read only what the sync left in the rolling releases, so they run once the sync has finished, and only when it
+# succeeded. Missing a night is harmless: the next run catches up.
+name: Pocket macOS checks
+
+on:
+  workflow_run:
+    workflows: ["Pocket sync"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# the same queue as Pocket sync, so these never overlap a sync that updates the same releases
+concurrency:
+  group: pocket-sync
+  cancel-in-progress: false
+
+jobs:
+  native-macos:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && vars.POCKET_SCHEDULE_PAUSED != 'true')
+    runs-on: macos-15
+    timeout-minutes: 30
+    permissions:
+      contents: write     # native-macos.json in the pocket-current release
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Which native engine to test
+        id: native
+        run: |
+          echo "repository=$(node -p "require('./pocket/native.json').repository")" >> "$GITHUB_OUTPUT"
+          echo "commit=$(node -p "require('./pocket/native.json').commit")" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ steps.native.outputs.repository }}
+          ref: ${{ steps.native.outputs.commit }}
+          path: native-engine
+      - name: Build the native engine's boot test (macOS)
+        run: make -C native-engine/Tests/ctest native_smoke
+      - name: Fetch the firmware to run on macOS (representative set, plus builds slow or borderline on Linux)
+        run: |
+          mkdir -p rep/fw
+          gh release download pocket-current -p catalog.json -D rep --clobber
+          gh release download pocket-current -p compat.json -D rep --clobber ||
+            echo "::warning::No compatibility ledger in pocket-current: macOS runs the representative set only, so slow builds are not timed on macOS this time."
+          node pocket/compat.mjs --macos-list --data rep --ledger rep/compat.json | sed 's#^fw/##' |
+            while read -r f; do gh release download pocket-current -p "$f" -D rep/fw --clobber; done
+      - name: Run them in the native engine on macOS
+        run: |
+          node pocket/compat.mjs --macos --data rep --ledger rep/compat.json --native native-engine/Tests/ctest/native_smoke --out native-macos.json | tee -a "$GITHUB_STEP_SUMMARY"
+          gh release upload pocket-current native-macos.json --clobber
+
+  emu-macos:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && vars.POCKET_SCHEDULE_PAUSED != 'true')
+    runs-on: macos-15
+    timeout-minutes: 120
+    permissions:
+      contents: write     # emu-compat.json in pocket-packages
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: What needs measuring
+        id: todo
+        run: |
+          mkdir -p state pkgs
+          gh release download pocket-packages -p packages.json -p emu-compat.json -D state --clobber
+          echo "ids=$(python3 pocket/emu/ledger.py todo --ledger state/emu-compat.json --packages state/packages.json --machine mac)" >> "$GITHUB_OUTPUT"
+      - name: Measure on macOS
+        if: steps.todo.outputs.ids != ''
+        run: |
+          ids="${{ steps.todo.outputs.ids }}"
+          python3 pocket/emu/fetch.py --packages state/packages.json --dir pkgs --only "${ids// /,}"
+          repo=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['repository'])")
+          commit=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['commit'])")
+          git init -q upstream && git -C upstream remote add origin "https://github.com/$repo"
+          git -C upstream fetch -q --depth 1 origin "$commit" && git -C upstream checkout -q FETCH_HEAD
+          (cd upstream && cargo build --release -q -p fm1-live)
+          python3 pocket/emu/bench.py --live upstream/target/release/fm1-live --pkgs pkgs --out mac.json $(ls pkgs | sed -n 's/\.fwsc$//p')
+          # the ledger may have moved while this ran: merge into the latest copy
+          gh release download pocket-packages -p emu-compat.json -D state --clobber
+          python3 pocket/emu/ledger.py merge --ledger state/emu-compat.json --packages state/packages.json --machine mac --native mac.json
+          gh release upload pocket-packages state/emu-compat.json --clobber
