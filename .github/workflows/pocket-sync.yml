@@ -17,12 +17,12 @@
 #    POCKET_PUBLISH_V2 is "true". catalog.json is unchanged either way.
 #    - The Firmware Hub's catalogue is read at most once a day (pocket/hub.mjs keeps a copy in pocket-current).
 #    - Compatibility (pocket/compat.mjs): every published build in the web runtime and in the Mac app's native
-#      engine built for Linux; the native-macos job then runs a representative set on macOS, which the next
-#      night's catalogue uses to mark native results verified.
+#      engine built for Linux; the native-macos job (pocket-macos.yml, after this run) then runs a representative set
+#      on macOS, which the next night's catalogue uses to mark native results verified.
 # 7. The emulator engine (pocket/emu/): the makers' original .fwsc packages, run unchanged in upstream fm1-emu
 #    (pinned in pocket/emu/upstream.json). The emu job fetches new packages from the makers' releases (SHA-256 checked
 #    against the Hub's list), measures them on Linux and in the browser engine, and keeps packages, ledger and the web
-#    engine in this repository's rolling release `pocket-packages`; emu-macos measures them on macOS. The sync job adds
+#    engine in this repository's rolling release `pocket-packages`; emu-macos (pocket-macos.yml) measures them on macOS. The sync job adds
 #    each firmware's `emu` block to catalog-v2.json and puts the hostable packages under data/pkg/ and the browser
 #    engine under emu/, only when the repository variable POCKET_PUBLISH_EMU is "true" (and v2 is published).
 #    Otherwise it is built for review only (the catalog-v2-emu-preview artifact). catalog.json never changes.
@@ -330,47 +330,6 @@ jobs:
         # Compares The Firmware Hub with the browser builds; never downloads a .fwsc or builds anything.
         run: node pocket/radar.mjs
 
-  # The native engine on macOS (Apple Silicon), for pocket/native.json's representative set. Runs after the sync and
-  # never blocks publishing; the next night's catalogue uses its result (native-macos.json in pocket-current).
-  native-macos:
-    needs: sync
-    if: always() && needs.sync.result == 'success'
-    runs-on: macos-15
-    timeout-minutes: 30
-    permissions:
-      contents: write     # native-macos.json in the pocket-current release
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 22
-      - name: Which native engine to test
-        id: native
-        run: |
-          echo "repository=$(node -p "require('./pocket/native.json').repository")" >> "$GITHUB_OUTPUT"
-          echo "commit=$(node -p "require('./pocket/native.json').commit")" >> "$GITHUB_OUTPUT"
-      - uses: actions/checkout@v7
-        with:
-          repository: ${{ steps.native.outputs.repository }}
-          ref: ${{ steps.native.outputs.commit }}
-          path: native-engine
-      - name: Build the native engine's boot test (macOS)
-        run: make -C native-engine/Tests/ctest native_smoke
-      - name: Fetch the firmware to run on macOS (representative set, plus builds slow or borderline on Linux)
-        run: |
-          mkdir -p rep/fw
-          gh release download pocket-current -p catalog.json -D rep --clobber
-          gh release download pocket-current -p compat.json -D rep --clobber ||
-            echo "::warning::No compatibility ledger in pocket-current: macOS runs the representative set only, so slow builds are not timed on macOS this time."
-          node pocket/compat.mjs --macos-list --data rep --ledger rep/compat.json | sed 's#^fw/##' |
-            while read -r f; do gh release download pocket-current -p "$f" -D rep/fw --clobber; done
-      - name: Run them in the native engine on macOS
-        run: |
-          node pocket/compat.mjs --macos --data rep --ledger rep/compat.json --native native-engine/Tests/ctest/native_smoke --out native-macos.json | tee -a "$GITHUB_STEP_SUMMARY"
-          gh release upload pocket-current native-macos.json --clobber
-
   # The emulator engine's packages and measurements, for the next night's catalogue. Never blocks publishing.
   emu:
     needs: sync
@@ -492,39 +451,6 @@ jobs:
           done < package-delete.txt
 
   # The emulator engine on macOS (Apple Silicon): packages not yet measured there with the pinned engine.
-  emu-macos:
-    needs: emu
-    if: always() && needs.emu.result == 'success'
-    runs-on: macos-15
-    timeout-minutes: 120
-    permissions:
-      contents: write     # emu-compat.json in pocket-packages
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@v7
-      - name: What needs measuring
-        id: todo
-        run: |
-          mkdir -p state pkgs
-          gh release download pocket-packages -p packages.json -p emu-compat.json -D state --clobber
-          echo "ids=$(python3 pocket/emu/ledger.py todo --ledger state/emu-compat.json --packages state/packages.json --machine mac)" >> "$GITHUB_OUTPUT"
-      - name: Measure on macOS
-        if: steps.todo.outputs.ids != ''
-        run: |
-          ids="${{ steps.todo.outputs.ids }}"
-          python3 pocket/emu/fetch.py --packages state/packages.json --dir pkgs --only "${ids// /,}"
-          repo=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['repository'])")
-          commit=$(python3 -c "import json;print(json.load(open('pocket/emu/upstream.json'))['commit'])")
-          git init -q upstream && git -C upstream remote add origin "https://github.com/$repo"
-          git -C upstream fetch -q --depth 1 origin "$commit" && git -C upstream checkout -q FETCH_HEAD
-          (cd upstream && cargo build --release -q -p fm1-live)
-          python3 pocket/emu/bench.py --live upstream/target/release/fm1-live --pkgs pkgs --out mac.json $(ls pkgs | sed -n 's/\.fwsc$//p')
-          # the ledger may have moved while this ran: merge into the latest copy
-          gh release download pocket-packages -p emu-compat.json -D state --clobber
-          python3 pocket/emu/ledger.py merge --ledger state/emu-compat.json --packages state/packages.json --machine mac --native mac.json
-          gh release upload pocket-packages state/emu-compat.json --clobber
-
   deploy:
     needs: sync
     if: needs.sync.outputs.deploy == 'true'
